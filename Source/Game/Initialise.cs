@@ -4,34 +4,33 @@ using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using BluishEngine.Input;
+using BluishFramework;
 
 namespace BluishEngine
 {
     public abstract partial class BluishGame : Game
     {
+        public Dimensions Resolution { get; private set; }
 
-        GraphicsDeviceManager _graphics;
-        InputMap _commonInputMap;
-
-        public static Dimensions Resolution { get; private set; }
+        private GraphicsDeviceManager _graphics;
+        private int _scale;
+        private RenderTarget2D _gameScreen;
+        private SpriteBatch _spriteBatch;
         
         /// <param name="resolution">
         /// The resolution of the game
         /// </param>
-        public BluishGame(Dimensions resolution)
+        public BluishGame(BluishGameParameters gameParameters)
         {
             _graphics = new GraphicsDeviceManager(this);
-            Resolution = resolution;
+            Resolution = gameParameters.Dimensions;
+            StateManager.SetInitialState(gameParameters.InitialState);
             Content.RootDirectory = "Content";
+            ContentProvider.Content = Content;
         }
 
         protected sealed override void Initialize()
         {
-            ContentLoader.CommonContent = Content;
-
-            Init();
-
             _scale = Math.Min(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height / Resolution.Height, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width / Resolution.Width);
             if (!_graphics.IsFullScreen)
             {
@@ -41,22 +40,14 @@ namespace BluishEngine
             }
             _gameScreen = new RenderTarget2D(GraphicsDevice, Resolution.Width, Resolution.Height);
 
-            _commonInputMap = new InputMap(
-                (Keys.F11, KeyPressState.JustPressed, _graphics.ToggleFullScreen),
-                (Keys.Escape, KeyPressState.JustPressed, Exit)
-            );
-
             StateManager.Initialise();
 
             base.Initialize();
         }
 
-        protected abstract void Init();
-
         protected sealed override void LoadContent()
         {
-            _spritebatch = new SpriteBatch(GraphicsDevice);
-            _ariel = Content.Load<SpriteFont>("Common/Fonts/Ariel");
+            _spriteBatch = new SpriteBatch(GraphicsDevice);
         }
     }
 }

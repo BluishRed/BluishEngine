@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
-using BluishEngine.Input;
+using BluishFramework;
 
 namespace BluishEngine
 {
@@ -12,14 +12,7 @@ namespace BluishEngine
     {
         protected override void Update(GameTime gameTime)
         {
-            InputState.Update();
-            ExecuteUniversalKeys();
             StateManager.CurrentState.Update(gameTime);
-        }
-
-        private void ExecuteUniversalKeys()
-        {
-            InputHandler.ExecuteInputs(_commonInputMap);
         }
     }
 }
