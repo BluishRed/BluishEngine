@@ -6,17 +6,17 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using BluishFramework;
 
-namespace BluishEngine
+namespace BluishEngine.Systems
 {
     public class SpriteLoader : LoadSystem
     {
-        public SpriteLoader(World world) : base(world, typeof(Sprite))
+        public SpriteLoader(World world) : base(world, typeof(Components.Sprite))
         {
         }
 
-        protected override void LoadEntity(ContentManager content, int entity, ComponentCollection components)
+        protected override void LoadEntity(ContentManager content, Entity entity, ComponentCollection components)
         {
-            components.GetComponent<Sprite>().Texture = content.Load<Texture2D>(components.GetComponent<Sprite>().Location);
+            components.GetComponent<Components.Sprite>().Texture = content.Load<Texture2D>(components.GetComponent<Components.Sprite>().Location);
         }
     }
 }

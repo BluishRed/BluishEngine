@@ -6,16 +6,18 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using BluishFramework;
 
-namespace BluishEngine
+namespace BluishEngine.Components
 {
     public class Sprite : Component
     {
         public string Location { get; set; }
         public Texture2D Texture { get; set; }
+        public Rectangle? Source { get; set; }
 
-        public Sprite(string location)
+        public Sprite(string location, Rectangle? source = null)
         {
-            Location = location;
+            Location = location;            
+            Source = source;
         }
     }
 }

@@ -6,41 +6,38 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using BluishFramework;
 
-namespace BluishEngine
+namespace BluishEngine.Systems
 {
     public class MovePositions : UpdateSystem
     {
-        public MovePositions(World world) : base(world, typeof(Transform), typeof(PositionControllable))
+        public MovePositions(World world) : base(world, typeof(Components.Transform), typeof(Components.PositionControllable))
         {
         }
 
-        protected override void UpdateEntity(GameTime gameTime, int entity, ComponentCollection components)
+        protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
         {
-            if (components.GetComponent<PositionControllable>().Active)
+            if (components.GetComponent<Components.PositionControllable>().Active)
             {
-                // TODO: Add a static input controller
-                KeyboardState keyboardState = Keyboard.GetState();
+                Vector2 position = components.GetComponent<Components.Transform>().Position;
 
-                Vector2 position = components.GetComponent<Transform>().Position;
-
-                if (keyboardState.IsKeyDown(Keys.Up))
+                if (Input.IsKeyInState(components.GetComponent<Components.PositionControllable>().Keys[Direction.Up].Item1, components.GetComponent<Components.PositionControllable>().Keys[Direction.Up].Item2))
                 {
                     position.Y -= 1;
                 }
-                if (keyboardState.IsKeyDown(Keys.Down))
+                if (Input.IsKeyInState(components.GetComponent<Components.PositionControllable>().Keys[Direction.Down].Item1, components.GetComponent<Components.PositionControllable>().Keys[Direction.Down].Item2))
                 {
                     position.Y += 1;
                 }
-                if (keyboardState.IsKeyDown(Keys.Left))
+                if (Input.IsKeyInState(components.GetComponent<Components.PositionControllable>().Keys[Direction.Left].Item1, components.GetComponent<Components.PositionControllable>().Keys[Direction.Left].Item2))
                 {
                     position.X -= 1;
                 }
-                if (keyboardState.IsKeyDown(Keys.Right))
+                if (Input.IsKeyInState(components.GetComponent<Components.PositionControllable>().Keys[Direction.Right].Item1, components.GetComponent<Components.PositionControllable>().Keys[Direction.Right].Item2))
                 {
                     position.X += 1;
                 }
 
-                components.GetComponent<Transform>().Position = position;
+                components.GetComponent<Components.Transform>().Position = position;
             }
         }
     }

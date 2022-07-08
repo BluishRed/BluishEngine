@@ -12,6 +12,7 @@ namespace BluishEngine
     {
         protected override void Update(GameTime gameTime)
         {
+            Input.Update();
             StateManager.CurrentState.Update(gameTime);
         }
     }
