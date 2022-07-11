@@ -81,6 +81,9 @@ namespace BluishEngine
                 }
             }
 
+            // TODO: Automate the adding of loading systems
+            // Also, test of using hp laptop remote repo
+
             AddSystem<Systems.SpriteLoader>();
 
             base.LoadContent(content);
