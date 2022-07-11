@@ -1,25 +1,38 @@
-﻿using System;
-using System.Text.Json;
+﻿using BluishFramework;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using BluishFramework;
+using System.Text.Json;
 
 namespace BluishEngine
 {
     public class Map : World
     {
         public string Location { get; private set; }
-        protected List<int[,]> Layers { get; private set; }
+        protected List<Entity[,]> Layers { get; private set; }
 
         public Map(string location)
         {
             Location = location;
-            Layers = new List<int[,]>();
+            Layers = new List<Entity[,]>();
         }
 
-        protected override void LoadContent(ContentManager content)
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+            foreach (Entity[,] layer in Layers)
+            {
+                for (int y = 0; y < 180; y++)
+                {
+                    for (int x = 0; x < 320; x++)
+                    {
+                        if (layer[x, y] != 0)
+                            spriteBatch.Draw(GetComponents(layer[x, y]).GetComponent<Components.Sprite>().Texture, new Vector2(x * 20, y * 20), GetComponents(layer[x, y]).GetComponent<Components.Sprite>().Source, Color.White);
+                    }
+                }
+            }
+        }
+
+        public override void LoadContent(ContentManager content)
         {
             // Reading Data
 
@@ -35,7 +48,7 @@ namespace BluishEngine
             foreach (MapLayerData mapLayerData in data.Layers)
             {
                 int index = 0;
-                Layers.Add(new int[mapLayerData.Width, mapLayerData.Height]);
+                Layers.Add(new Entity[mapLayerData.Width, mapLayerData.Height]);
 
                 for (int y = 0; y < Layers[layer].GetLength(0); y++)
                 {
@@ -50,22 +63,25 @@ namespace BluishEngine
 
             // Loading Tilesets
 
-            //Tiles.Add(0, Tile.Empty);
+            AddEntity();
 
-            //foreach (TileSetData tileSetData in data.TileSets)
-            //{
-            //    int id = tileSetData.FirstGID;
-            //    Spritesheet tileset = ContentLoader.LoadSpritesheet(content, Path.Combine(ContentLocation, tileSetData.Image), TileDimensions);
+            Array.Sort(data.TileSets, (x, y) => x.FirstGID.CompareTo(y.FirstGID));
 
-            //    for (int y = 0; y < tileSetData.ImageHeight; y += TileDimensions.Height)
-            //    {
-            //        for (int x = 0; x < tileSetData.ImageWidth; x += TileDimensions.Width)
-            //        {
-            //            Tiles.Add(id, new Tile(tileset, new Rectangle(x, y, TileDimensions.Width, TileDimensions.Height)));
-            //            id++;
-            //        }
-            //    }
-            //}
+            foreach (TileSetData tileSet in data.TileSets)
+            {
+                int id = tileSet.FirstGID;
+
+                for (int y = 0; y < tileSet.ImageHeight; y += tileSet.TileHeight)
+                {
+                    for (int x = 0; x < tileSet.ImageWidth; x += tileSet.TileWidth)
+                    {
+                        AddEntity(new Components.Sprite(Path.ChangeExtension(tileSet.Image, null), new Rectangle(x, y, tileSet.TileWidth, tileSet.TileHeight)));
+                        id++;
+                    }
+                }
+            }
+
+            AddSystem<Systems.SpriteLoader>();
 
             base.LoadContent(content);
         }
@@ -93,18 +109,6 @@ namespace BluishEngine
             public int TileHeight { get; set; }
             public int ImageWidth { get; set; }
             public int ImageHeight { get; set; }
-        }
-
-        private class TileData
-        {
-            public string Location { get; set; }
-            public Rectangle Source { get; set; }
-
-            public TileData(string location, Rectangle source)
-            {
-                Location = location;
-                Source = source;
-            }
         }
         #endregion
     }
