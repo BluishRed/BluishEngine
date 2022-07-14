@@ -1,40 +1,48 @@
 ﻿using System;
-using System.Text.Json;
+using System.Diagnostics;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Graphics;
 using BluishFramework;
 
 namespace BluishEngine
 {
     public abstract class BluishState : State
     {
-        private Map _map;
+        public Camera Camera { get; set; }
+        public Map Map { get; set; }
+
+        public BluishState()
+        {
+            Camera = new Camera();
+        }
 
         public void AddMap(string location)
         {
-            _map = new Map(location);
+            Map = new Map(location, Camera);
         }
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            if (_map is not null)
-                _map.Draw(spriteBatch);
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, null, null, null, Camera.Transform());
+            if (Map is not null)
+                Map.Draw(spriteBatch);
             base.Draw(spriteBatch);
+            spriteBatch.End();
         }
 
         public override void Update(GameTime gameTime)
         {
-            if (_map is not null)
-                _map.Update(gameTime);
+            if (Map is not null)
+                Map.Update(gameTime);
             base.Update(gameTime);
         }
 
         public override void LoadContent()
         {
-            if (_map is not null)
-                _map.LoadContent(Content);
+            if (Map is not null)
+                Map.LoadContent(Content);
             base.LoadContent();
         }
     }

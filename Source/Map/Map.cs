@@ -1,8 +1,10 @@
-﻿using BluishFramework;
+﻿using System;
+using System.Text.Json;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using System.Text.Json;
+using Microsoft.Xna.Framework.Input;
+using BluishFramework;
 
 namespace BluishEngine
 {
@@ -10,8 +12,10 @@ namespace BluishEngine
     {
         public string Location { get; private set; }
         protected List<Entity[,]> Layers { get; private set; }
-
-        public Map(string location)
+        protected Camera Camera { get; private set; }
+        protected Dimensions TileDimensions { get; private set; }
+        
+        public Map(string location, Camera camera)
         {
             Location = location;
             Layers = new List<Entity[,]>();
@@ -21,12 +25,20 @@ namespace BluishEngine
         {
             foreach (Entity[,] layer in Layers)
             {
-                for (int y = 0; y < 180; y++)
+                for (int y = 0; y < Graphics.GameResolution.Height / TileDimensions.Height; y++)
                 {
-                    for (int x = 0; x < 320; x++)
+                    for (int x = 0; x < Graphics.GameResolution.Width / TileDimensions.Width; x++)
                     {
                         if (layer[x, y] != 0)
-                            spriteBatch.Draw(GetComponents(layer[x, y]).GetComponent<Components.Sprite>().Texture, new Vector2(x * 20, y * 20), GetComponents(layer[x, y]).GetComponent<Components.Sprite>().Source, Color.White);
+                        {
+                            ComponentCollection tile = GetComponents(layer[x, y]);
+
+                            spriteBatch.Draw(
+                                texture: tile.GetComponent<Components.Sprite>().Texture,
+                                position: new Vector2(x * 20, y * 20),
+                                sourceRectangle: tile.GetComponent<Components.Sprite>().Source, Color.White
+                            );
+                        }
                     }
                 }
             }
@@ -47,15 +59,15 @@ namespace BluishEngine
             int layer = 0;
             foreach (MapLayerData mapLayerData in data.Layers)
             {
-                int index = 0;
+                int tile = 0;
                 Layers.Add(new Entity[mapLayerData.Width, mapLayerData.Height]);
 
                 for (int y = 0; y < Layers[layer].GetLength(0); y++)
                 {
                     for (int x = 0; x < Layers[layer].GetLength(1); x++)
                     {
-                        Layers[layer][x, y] = data.Layers[layer].Data[index];
-                        index++;
+                        Layers[layer][x, y] = data.Layers[layer].Data[tile];
+                        tile++;
                     }
                 }
                 layer++;
@@ -70,6 +82,7 @@ namespace BluishEngine
             foreach (TileSetData tileSet in data.TileSets)
             {
                 int id = tileSet.FirstGID;
+                TileDimensions = new Dimensions(tileSet.TileWidth, tileSet.TileHeight);
 
                 for (int y = 0; y < tileSet.ImageHeight; y += tileSet.TileHeight)
                 {
@@ -81,13 +94,10 @@ namespace BluishEngine
                 }
             }
 
-            // TODO: Automate the adding of loading systems
-            // Also, test of using hp laptop remote repo
-
-            AddSystem<Systems.SpriteLoader>();
+            AddSystem(new Systems.SpriteLoader(this));
 
             base.LoadContent(content);
-        }
+        }     
 
         #region Map data classes
         private class MapData

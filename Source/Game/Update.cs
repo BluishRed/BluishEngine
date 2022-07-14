@@ -13,6 +13,12 @@ namespace BluishEngine
         protected override void Update(GameTime gameTime)
         {
             Input.Update();
+
+            if (Input.IsKeyJustPressed(Keys.Escape))
+            {
+                Exit();
+            }
+
             StateManager.CurrentState.Update(gameTime);
         }
     }
