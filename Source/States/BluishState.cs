@@ -15,7 +15,7 @@ namespace BluishEngine
 
         public BluishState()
         {
-            Camera = new Camera();
+            Camera = new Camera(Graphics.GameResolution);
         }
 
         public void AddMap(string location)
@@ -25,7 +25,7 @@ namespace BluishEngine
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, null, null, null, Camera.Transform());
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, Camera.Transform());
             if (Map is not null)
                 Map.Draw(spriteBatch);
             base.Draw(spriteBatch);

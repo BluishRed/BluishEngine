@@ -8,11 +8,11 @@ using BluishFramework;
 
 namespace BluishEngine.Components
 {
-    public class CameraFollow : Component
+    public class CameraFollowable : Component
     {
         public bool Active { get; set; }
 
-        public CameraFollow(bool active)
+        public CameraFollowable(bool active)
         {
             Active = active;
         }

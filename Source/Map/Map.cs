@@ -79,16 +79,20 @@ namespace BluishEngine
 
             Array.Sort(data.TileSets, (x, y) => x.FirstGID.CompareTo(y.FirstGID));
 
-            foreach (TileSetData tileSet in data.TileSets)
+            foreach (TileSetReference tileSetReference in data.TileSets)
             {
-                int id = tileSet.FirstGID;
+                int id = tileSetReference.FirstGID;
+
+                TileSetData tileSet = JsonSerializer.Deserialize<TileSetData>(File.ReadAllText(ContentProvider.RootDirectory + "/" + tileSetReference.Source), options);
+
                 TileDimensions = new Dimensions(tileSet.TileWidth, tileSet.TileHeight);
 
                 for (int y = 0; y < tileSet.ImageHeight; y += tileSet.TileHeight)
                 {
                     for (int x = 0; x < tileSet.ImageWidth; x += tileSet.TileWidth)
                     {
-                        AddEntity(new Components.Sprite(Path.ChangeExtension(tileSet.Image, null), new Rectangle(x, y, tileSet.TileWidth, tileSet.TileHeight)));
+                        // TODO: Make path correct 
+                        AddEntity(new Components.Sprite(Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(tileSetReference.Source), tileSet.Image), null), new Rectangle(x, y, tileSet.TileWidth, tileSet.TileHeight)), new Components.Dimensions(tileSet.TileWidth, tileSet.TileHeight));
                         id++;
                     }
                 }
@@ -97,13 +101,13 @@ namespace BluishEngine
             AddSystem(new Systems.SpriteLoader(this));
 
             base.LoadContent(content);
-        }     
+        }
 
         #region Map data classes
         private class MapData
         {
             public MapLayerData[] Layers { get; set; }
-            public TileSetData[] TileSets { get; set; }
+            public TileSetReference[] TileSets { get; set; }
         }
 
         private class MapLayerData
@@ -114,10 +118,15 @@ namespace BluishEngine
             public bool Visible { get; set; }
         }
 
+        private class TileSetReference
+        {
+            public int FirstGID { get; set; }
+            public string Source { get; set; }
+        }
+
         private class TileSetData
         {
-            public string Image { get; set; }
-            public int FirstGID { get; set; }
+            public string Image { get; set; }   
             public int TileWidth { get; set; }
             public int TileHeight { get; set; }
             public int ImageWidth { get; set; }

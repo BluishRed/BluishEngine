@@ -13,15 +13,14 @@ namespace BluishEngine
         public Vector2 Focus { get; set; }
         public float Rotation { get; set; }
         public float Zoom { get; set; }
+        protected Dimensions Dimensions { get; set; }
 
-        private Dimensions _screen;
-
-        public Camera()
+        public Camera(Dimensions screenDimensions)
         {
             Zoom = 1;
             Rotation = 0;
             Focus = Vector2.Zero;
-            _screen = Graphics.GameResolution;
+            Dimensions = screenDimensions;
         }
 
         public Matrix Transform()
@@ -29,7 +28,7 @@ namespace BluishEngine
             return Matrix.CreateTranslation(-Focus.X, -Focus.Y, 0)
                 * Matrix.CreateRotationZ(Rotation)
                 * Matrix.CreateScale(Zoom)
-                * Matrix.CreateTranslation(_screen.Width / 2, _screen.Height / 2, 0);
+                * Matrix.CreateTranslation(Dimensions.Width / 2, Dimensions.Height / 2, 0);
         }
     }
 }
