@@ -20,19 +20,23 @@ namespace BluishEngine.Systems
             {
                 Vector2 position = components.GetComponent<Components.Transform>().Position;
 
-                if (Input.IsKeyInState(components.GetComponent<Components.PositionControllable>().Keys[Direction.Up].Item1, components.GetComponent<Components.PositionControllable>().Keys[Direction.Up].Item2))
+                if (components.GetComponent<Components.PositionControllable>().Keys.ContainsKey(Direction.Up) 
+                    && Input.IsKeyInState(components.GetComponent<Components.PositionControllable>().Keys[Direction.Up].Item1, components.GetComponent<Components.PositionControllable>().Keys[Direction.Up].Item2))
                 {
                     position.Y -= 1;
                 }
-                if (Input.IsKeyInState(components.GetComponent<Components.PositionControllable>().Keys[Direction.Down].Item1, components.GetComponent<Components.PositionControllable>().Keys[Direction.Down].Item2))
+                if (components.GetComponent<Components.PositionControllable>().Keys.ContainsKey(Direction.Down) 
+                    && Input.IsKeyInState(components.GetComponent<Components.PositionControllable>().Keys[Direction.Down].Item1, components.GetComponent<Components.PositionControllable>().Keys[Direction.Down].Item2))
                 {
                     position.Y += 1;
                 }
-                if (Input.IsKeyInState(components.GetComponent<Components.PositionControllable>().Keys[Direction.Left].Item1, components.GetComponent<Components.PositionControllable>().Keys[Direction.Left].Item2))
+                if (components.GetComponent<Components.PositionControllable>().Keys.ContainsKey(Direction.Left) 
+                    && Input.IsKeyInState(components.GetComponent<Components.PositionControllable>().Keys[Direction.Left].Item1, components.GetComponent<Components.PositionControllable>().Keys[Direction.Left].Item2))
                 {
                     position.X -= 1;
                 }
-                if (Input.IsKeyInState(components.GetComponent<Components.PositionControllable>().Keys[Direction.Right].Item1, components.GetComponent<Components.PositionControllable>().Keys[Direction.Right].Item2))
+                if (components.GetComponent<Components.PositionControllable>().Keys.ContainsKey(Direction.Right) 
+                    && Input.IsKeyInState(components.GetComponent<Components.PositionControllable>().Keys[Direction.Right].Item1, components.GetComponent<Components.PositionControllable>().Keys[Direction.Right].Item2))
                 {
                     position.X += 1;
                 }
