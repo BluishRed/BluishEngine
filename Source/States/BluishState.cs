@@ -25,13 +25,16 @@ namespace BluishEngine
 
         public override void Draw(SpriteBatch spriteBatch)
         {
+
+            // TODO: Implement the depth
+
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, Camera.Transform());
             if (Map is not null)
                 Map.Draw(spriteBatch);
             base.Draw(spriteBatch);
             spriteBatch.End();
         }
-
+        
         public override void Update(GameTime gameTime)
         {
             if (Map is not null)

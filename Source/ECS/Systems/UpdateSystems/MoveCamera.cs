@@ -11,12 +11,14 @@ namespace BluishEngine.Systems
     public class MoveCamera : UpdateSystem
     {
         private Camera _camera;
+        private Map _map;
 
-        public MoveCamera(World world, Camera camera) : base(world, typeof(Components.CameraFollowable), typeof(Components.Transform), typeof(Components.Dimensions))
+        public MoveCamera(World world, Camera camera, Map map = null) : base(world, typeof(Components.CameraFollowable), typeof(Components.Transform), typeof(Components.Dimensions))
         {
             _camera = camera;
+            _map = map;
         }
-         
+        
         protected override void UpdateEntity(GameTime gameTime, int entity, ComponentCollection components)
         {
             if (components.GetComponent<Components.CameraFollowable>().Active)
@@ -24,14 +26,11 @@ namespace BluishEngine.Systems
                 _camera.Focus = new Vector2(components.GetComponent<Components.Transform>().Position.X + components.GetComponent<Components.Dimensions>().Width / 2, components.GetComponent<Components.Transform>().Position.Y + components.GetComponent<Components.Dimensions>().Height / 2);
             }
 
-            if (Input.IsKeyPressed(Keys.W))
+            if (_map is not null)
             {
-                _camera.Zoom *= 1.02f;
-            }
+                Rectangle viewport = _camera.GetViewport();
 
-            if (Input.IsKeyPressed(Keys.S))
-            {
-                _camera.Zoom *= 0.98f;
+                _camera.Focus = new Vector2(Graphics.GameResolution.X / 2 + Math.Clamp(viewport.X, 0, _map.Dimensions.X), Graphics.GameResolution.Y / 2 + Math.Clamp(viewport.Y, 0, _map.Dimensions.Y));
             }
         }
     }

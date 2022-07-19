@@ -8,8 +8,6 @@ using BluishFramework;
 
 namespace BluishEngine.Systems
 {
-
-    // TODO: Automate the adding of loading systems and make internal
     public class SpriteLoader : LoadSystem
     {
         public SpriteLoader(World world) : base(world, typeof(Components.Sprite))

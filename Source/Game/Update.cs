@@ -19,6 +19,11 @@ namespace BluishEngine
                 Exit();
             }
 
+            if (Input.IsKeyJustPressed(Keys.F11))
+            {
+                _graphics.ToggleFullScreen();
+            }
+
             StateManager.CurrentState.Update(gameTime);
         }
     }

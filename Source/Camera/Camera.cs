@@ -28,7 +28,7 @@ namespace BluishEngine
                 * Matrix.CreateTranslation(Dimensions.X / 2, Dimensions.Y / 2, 0);
         }
 
-        public Rectangle GetBoundingBox()
+        public Rectangle GetViewport()
         {
             Matrix invMatrix = Matrix.Invert(Transform());
 

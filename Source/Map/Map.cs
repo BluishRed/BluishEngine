@@ -11,6 +11,7 @@ namespace BluishEngine
     public class Map : World
     {
         public string Location { get; private set; }
+        public Point Dimensions { get; private set; }
         protected List<Entity[,]> Layers { get; private set; }
         protected Camera Camera { get; private set; }
         protected Point TileDimensions { get; private set; }
@@ -21,16 +22,16 @@ namespace BluishEngine
             Layers = new List<Entity[,]>();
             Camera = camera;
         }
-
+        
         public override void Draw(SpriteBatch spriteBatch)
         {
-            Rectangle boundingBox = Camera.GetBoundingBox();
+            Rectangle viewport = Camera.GetViewport();
 
             foreach (Entity[,] layer in Layers)
             {
-                for (int y = boundingBox.Y / TileDimensions.Y; y < Math.Ceiling((boundingBox.Y + boundingBox.Height) / (double)TileDimensions.Y); y++)
+                for (int y = viewport.Y / TileDimensions.Y; y < Math.Ceiling((viewport.Y + viewport.Height) / (double)TileDimensions.Y); y++)
                 {
-                    for (int x = boundingBox.X / TileDimensions.X; x < Math.Ceiling((boundingBox.X + boundingBox.Width) / (double)TileDimensions.X); x++)
+                    for (int x = viewport.X / TileDimensions.X; x < Math.Ceiling((viewport.X + viewport.Width) / (double)TileDimensions.X); x++)
                     {
                         if (x >= 0 && y >= 0 && layer[x, y] != 0)
                         {
@@ -46,7 +47,7 @@ namespace BluishEngine
                 }
             }
         }
-
+        
         public override void LoadContent(ContentManager content)
         {
             // Reading Data
@@ -60,10 +61,14 @@ namespace BluishEngine
             // Initialising Map Layers
 
             int layer = 0;
-            foreach (MapLayerData mapLayerData in data.Layers)
+            foreach (MapLayerData mapLayer in data.Layers)
             {
                 int tile = 0;
-                Layers.Add(new Entity[mapLayerData.Width, mapLayerData.Height]);
+                Layers.Add(new Entity[mapLayer.Width, mapLayer.Height]);
+
+                // TODO: Make the dimensions of the map correlate to the dimensions of the midground
+
+                Dimensions = new Point(mapLayer.Width, mapLayer.Height);
 
                 for (int y = 0; y < Layers[layer].GetLength(0); y++)
                 {
@@ -94,7 +99,6 @@ namespace BluishEngine
                 {
                     for (int x = 0; x < tileSet.ImageWidth; x += tileSet.TileWidth)
                     {
-                        // TODO: Make path correct 
                         AddEntity(new Components.Sprite(Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(tileSetReference.Source), tileSet.Image), null), new Rectangle(x, y, tileSet.TileWidth, tileSet.TileHeight)), new Components.Dimensions(tileSet.TileWidth, tileSet.TileHeight));
                         id++;
                     }
