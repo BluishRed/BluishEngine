@@ -19,7 +19,7 @@ namespace BluishEngine
         {
             _graphics = new GraphicsDeviceManager(this);
             Graphics.GameResolution = gameParameters.Dimensions;
-            Graphics.ScreenResolution = new Dimensions(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
+            Graphics.ScreenResolution = new Point(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
             StateManager.SetInitialState(gameParameters.InitialState);
             Content.RootDirectory = "Content";
             ContentProvider.Content = Content;
@@ -29,14 +29,14 @@ namespace BluishEngine
 
         protected sealed override void Initialize()
         {
-            _scale = Math.Min(Graphics.ScreenResolution.Height / Graphics.GameResolution.Height, Graphics.ScreenResolution.Width / Graphics.GameResolution.Width);
+            _scale = Math.Min(Graphics.ScreenResolution.Y / Graphics.GameResolution.Y, Graphics.ScreenResolution.X / Graphics.GameResolution.X);
             if (!_graphics.IsFullScreen)
             {
-                _graphics.PreferredBackBufferWidth = Graphics.GameResolution.Width * _scale;
-                _graphics.PreferredBackBufferHeight = Graphics.GameResolution.Height * _scale;
+                _graphics.PreferredBackBufferWidth = Graphics.GameResolution.X * _scale;
+                _graphics.PreferredBackBufferHeight = Graphics.GameResolution.Y * _scale;
                 _graphics.ApplyChanges();
             }
-            _gameScreen = new RenderTarget2D(GraphicsDevice, Graphics.GameResolution.Width, Graphics.GameResolution.Height);
+            _gameScreen = new RenderTarget2D(GraphicsDevice, Graphics.GameResolution.X, Graphics.GameResolution.Y);
 
             StateManager.Initialise();
 

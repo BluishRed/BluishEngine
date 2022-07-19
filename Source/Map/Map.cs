@@ -13,29 +13,32 @@ namespace BluishEngine
         public string Location { get; private set; }
         protected List<Entity[,]> Layers { get; private set; }
         protected Camera Camera { get; private set; }
-        protected Dimensions TileDimensions { get; private set; }
+        protected Point TileDimensions { get; private set; }
         
         public Map(string location, Camera camera)
         {
             Location = location;
             Layers = new List<Entity[,]>();
+            Camera = camera;
         }
 
         public override void Draw(SpriteBatch spriteBatch)
         {
+            Rectangle boundingBox = Camera.GetBoundingBox();
+
             foreach (Entity[,] layer in Layers)
             {
-                for (int y = 0; y < Graphics.GameResolution.Height / TileDimensions.Height; y++)
+                for (int y = boundingBox.Y / TileDimensions.Y; y < Math.Ceiling((boundingBox.Y + boundingBox.Height) / (double)TileDimensions.Y); y++)
                 {
-                    for (int x = 0; x < Graphics.GameResolution.Width / TileDimensions.Width; x++)
+                    for (int x = boundingBox.X / TileDimensions.X; x < Math.Ceiling((boundingBox.X + boundingBox.Width) / (double)TileDimensions.X); x++)
                     {
-                        if (layer[x, y] != 0)
+                        if (x >= 0 && y >= 0 && layer[x, y] != 0)
                         {
                             ComponentCollection tile = GetComponents(layer[x, y]);
-
+                            
                             spriteBatch.Draw(
                                 texture: tile.GetComponent<Components.Sprite>().Texture,
-                                position: new Vector2(x * 20, y * 20),
+                                position: new Vector2(x * TileDimensions.X, y * TileDimensions.Y),
                                 sourceRectangle: tile.GetComponent<Components.Sprite>().Source, Color.White
                             );
                         }
@@ -85,7 +88,7 @@ namespace BluishEngine
 
                 TileSetData tileSet = JsonSerializer.Deserialize<TileSetData>(File.ReadAllText(ContentProvider.RootDirectory + "/" + tileSetReference.Source), options);
 
-                TileDimensions = new Dimensions(tileSet.TileWidth, tileSet.TileHeight);
+                TileDimensions = new Point(tileSet.TileWidth, tileSet.TileHeight);
 
                 for (int y = 0; y < tileSet.ImageHeight; y += tileSet.TileHeight)
                 {

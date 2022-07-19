@@ -33,14 +33,6 @@ namespace BluishEngine.Systems
             {
                 _camera.Zoom *= 0.98f;
             }
-            if (Input.IsKeyPressed(Keys.A))
-            {
-                _camera.Rotation -= 0.02f;
-            }
-            if (Input.IsKeyPressed(Keys.D))
-            {
-                _camera.Rotation += 0.02f;
-            }
         }
     }
 }

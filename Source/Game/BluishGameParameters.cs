@@ -1,14 +1,18 @@
 ﻿using System;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using BluishFramework;
 
 namespace BluishEngine
 {
     public struct BluishGameParameters
     {
-        public Dimensions Dimensions { get; private set; }
+        public Point Dimensions { get; private set; }
         public Type InitialState { get; private set; }
 
-        public BluishGameParameters(Dimensions dimensions, Type initialState)
+        public BluishGameParameters(Point dimensions, Type initialState)
         {
             Dimensions = dimensions;
             if (initialState.IsSubclassOf(typeof(State)))

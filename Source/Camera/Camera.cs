@@ -11,14 +11,12 @@ namespace BluishEngine
     public class Camera
     {
         public Vector2 Focus { get; set; }
-        public float Rotation { get; set; }
         public float Zoom { get; set; }
-        protected Dimensions Dimensions { get; set; }
+        protected Point Dimensions { get; set; }
 
-        public Camera(Dimensions screenDimensions)
+        public Camera(Point screenDimensions)
         {
             Zoom = 1;
-            Rotation = 0;
             Focus = Vector2.Zero;
             Dimensions = screenDimensions;
         }
@@ -26,9 +24,18 @@ namespace BluishEngine
         public Matrix Transform()
         {
             return Matrix.CreateTranslation(-Focus.X, -Focus.Y, 0)
-                * Matrix.CreateRotationZ(Rotation)
                 * Matrix.CreateScale(Zoom)
-                * Matrix.CreateTranslation(Dimensions.Width / 2, Dimensions.Height / 2, 0);
+                * Matrix.CreateTranslation(Dimensions.X / 2, Dimensions.Y / 2, 0);
+        }
+
+        public Rectangle GetBoundingBox()
+        {
+            Matrix invMatrix = Matrix.Invert(Transform());
+
+            Point TL = Vector2.Transform(new Vector2(0, 0), invMatrix).ToPoint();
+            Point BR = Vector2.Transform(new Vector2(Dimensions.X, Dimensions.Y), invMatrix).ToPoint();
+
+            return new Rectangle(TL.X, TL.Y, BR.X - TL.X, BR.Y - TL.Y);
         }
     }
 }
