@@ -23,7 +23,7 @@ namespace BluishEngine
             set
             {
                 Focus = value.Center;
-                Zoom = (float)Dimensions.X / value.Width;
+                Zoom = (float)Dimensions.Y / value.Height;
             }
         }
         protected Point Dimensions { get; set; }
@@ -44,7 +44,7 @@ namespace BluishEngine
 
         public void ClampViewport(int minX, int maxX, int minY, int maxY)
         {
-            Viewport = new Rectangle(Math.Clamp(Viewport.X, minX, maxX - Dimensions.X), Math.Clamp(Viewport.Y, minY, maxY - Dimensions.Y), Viewport.Width, Viewport.Height);
+            Viewport = new Rectangle(Math.Clamp(Viewport.X, minX, maxX - Viewport.Width), Math.Clamp(Viewport.Y, minY, maxY - Viewport.Height), Viewport.Width, Viewport.Height);
         }
     }
 }
