@@ -25,15 +25,13 @@ namespace BluishEngine
         
         public override void Draw(SpriteBatch spriteBatch)
         {
-            Rectangle viewport = Camera.GetViewport();
-
             foreach (Entity[,] layer in Layers)
             {
-                for (int y = viewport.Y / TileDimensions.Y; y < Math.Ceiling((viewport.Y + viewport.Height) / (double)TileDimensions.Y); y++)
+                for (int y = Camera.Viewport.Y / TileDimensions.Y; y < Math.Ceiling((Camera.Viewport.Y + Camera.Viewport.Height) / (double)TileDimensions.Y); y++)
                 {
-                    for (int x = viewport.X / TileDimensions.X; x < Math.Ceiling((viewport.X + viewport.Width) / (double)TileDimensions.X); x++)
+                    for (int x = Camera.Viewport.X / TileDimensions.X; x < Math.Ceiling((Camera.Viewport.X + Camera.Viewport.Width) / (double)TileDimensions.X); x++)
                     {
-                        if (x >= 0 && y >= 0 && layer[x, y] != 0)
+                        if (layer[x, y] != 0)
                         {
                             ComponentCollection tile = GetComponents(layer[x, y]);
                             
@@ -93,6 +91,8 @@ namespace BluishEngine
 
                 TileSetData tileSet = JsonSerializer.Deserialize<TileSetData>(File.ReadAllText(ContentProvider.RootDirectory + "/" + tileSetReference.Source), options);
 
+                // TODO: Calculate the tile dimensions per layer
+
                 TileDimensions = new Point(tileSet.TileWidth, tileSet.TileHeight);
 
                 for (int y = 0; y < tileSet.ImageHeight; y += tileSet.TileHeight)
@@ -104,6 +104,8 @@ namespace BluishEngine
                     }
                 }
             }
+
+            Dimensions = new Point(Dimensions.X * TileDimensions.X, Dimensions.Y * TileDimensions.Y);
 
             AddSystem(new Systems.SpriteLoader(this));
 

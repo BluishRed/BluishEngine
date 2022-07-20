@@ -10,14 +10,28 @@ namespace BluishEngine
 {
     public class Camera
     {
-        public Vector2 Focus { get; set; }
+        public Point Focus { get; set; }
         public float Zoom { get; set; }
+        public Rectangle Viewport
+        { 
+            get
+            {
+                int width = (int)(Dimensions.X / Zoom);
+                int height = (int)(Dimensions.Y / Zoom);
+                return new Rectangle(Focus.X - width / 2, Focus.Y - height / 2, width, height);
+            }
+            set
+            {
+                Focus = value.Center;
+                Zoom = (float)Dimensions.X / value.Width;
+            }
+        }
         protected Point Dimensions { get; set; }
 
         public Camera(Point screenDimensions)
         {
             Zoom = 1;
-            Focus = Vector2.Zero;
+            Focus = Point.Zero;
             Dimensions = screenDimensions;
         }
 
@@ -28,14 +42,9 @@ namespace BluishEngine
                 * Matrix.CreateTranslation(Dimensions.X / 2, Dimensions.Y / 2, 0);
         }
 
-        public Rectangle GetViewport()
+        public void ClampViewport(int minX, int maxX, int minY, int maxY)
         {
-            Matrix invMatrix = Matrix.Invert(Transform());
-
-            Point TL = Vector2.Transform(new Vector2(0, 0), invMatrix).ToPoint();
-            Point BR = Vector2.Transform(new Vector2(Dimensions.X, Dimensions.Y), invMatrix).ToPoint();
-
-            return new Rectangle(TL.X, TL.Y, BR.X - TL.X, BR.Y - TL.Y);
+            Viewport = new Rectangle(Math.Clamp(Viewport.X, minX, maxX - Dimensions.X), Math.Clamp(Viewport.Y, minY, maxY - Dimensions.Y), Viewport.Width, Viewport.Height);
         }
     }
 }
