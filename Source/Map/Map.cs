@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using BluishFramework;
+using BluishEngine.Components;
 
 namespace BluishEngine
 {
@@ -27,25 +28,66 @@ namespace BluishEngine
         {
             foreach (Entity[,] layer in Layers)
             {
-                for (int y = Camera.Viewport.Y / TileDimensions.Y; y < Math.Ceiling((Camera.Viewport.Y + Camera.Viewport.Height) / (double)TileDimensions.Y); y++)
+                // TODO: Fix artifacts when zoomed
+
+                // TODO: Pass the correct depth
+                foreach (ComponentCollection tile in GetTilesInRegion(Camera.Viewport, 0))
                 {
-                    for (int x = Camera.Viewport.X / TileDimensions.X; x < Math.Ceiling((Camera.Viewport.X + Camera.Viewport.Width) / (double)TileDimensions.X); x++)
-                    {
-                        if (layer[x, y] != 0)
-                        {
-                            ComponentCollection tile = GetComponents(layer[x, y]);
-                            
-                            spriteBatch.Draw(
-                                texture: tile.GetComponent<Components.Sprite>().Texture,
-                                position: new Vector2(x * TileDimensions.X, y * TileDimensions.Y),
-                                sourceRectangle: tile.GetComponent<Components.Sprite>().Source, Color.White
-                            );
-                        }
-                    }
+                    spriteBatch.Draw(
+                        texture: tile.GetComponent<Sprite>().Texture,
+                        position: tile.GetComponent<Transform>().Position,
+                        sourceRectangle: tile.GetComponent<Sprite>().Source,
+                        color: Color.White
+                    );
                 }
             }
         }
-        
+
+        // TODO: Allow querying of different layers
+
+        public List<ComponentCollection> GetTilesInRegion(Rectangle region, float depth)
+        {
+            region.Location = TileCoordinates(region.Location);
+            region.Size = new Point(region.Size.X / Dimensions.X, region.Y / Dimensions.Y);
+            List<ComponentCollection> tiles = new List<ComponentCollection>();
+
+            for (int y = region.Top; y <= region.Bottom; y++)
+            {
+                for (int x = region.Left; x <= region.Right; x++)
+                {
+                    // TODO: Use the depth
+                    if (Layers[2][x, y] != 0)
+                    {
+                        ComponentCollection tile = GetComponents(Layers[2][x, y]);
+                        tile.AddComponent(new Transform(WorldCoordinates(new Vector2(x, y)), depth));
+                        tiles.Add(tile);
+                    }
+                }
+            }
+
+            return tiles;
+        }
+
+        public Point TileCoordinates(Point worldCoordinates)
+        {
+            return new Point(worldCoordinates.X / TileDimensions.X, worldCoordinates.Y / TileDimensions.Y);
+        }
+
+        public Vector2 TileCoordinates(Vector2 worldCoordinates)
+        {
+            return new Vector2((int)(worldCoordinates.X / TileDimensions.X), (int)(worldCoordinates.Y / TileDimensions.Y));
+        }
+
+        public Point WorldCoordinates(Point tileCoordinates)
+        {
+            return new Point(tileCoordinates.X * TileDimensions.X, tileCoordinates.Y * TileDimensions.Y);
+        }
+
+        public Vector2 WorldCoordinates(Vector2 tileCoordinates)
+        {
+            return new Vector2((int)(tileCoordinates.X * TileDimensions.X), (int)(tileCoordinates.Y * TileDimensions.Y));
+        }
+
         public override void LoadContent(ContentManager content)
         {
             // Reading Data
@@ -100,7 +142,16 @@ namespace BluishEngine
                     for (int x = 0; x < tileSet.ImageWidth; x += tileSet.TileWidth)
                     {
                         AddEntity(new Components.Sprite(Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(tileSetReference.Source), tileSet.Image), null), new Rectangle(x, y, tileSet.TileWidth, tileSet.TileHeight)), new Components.Dimensions(tileSet.TileWidth, tileSet.TileHeight));
+
                         id++;
+                    }
+                }
+
+                if (tileSet.Tiles is not null)
+                {
+                    foreach (Tiles tile in tileSet.Tiles)
+                    {
+                        AddComponent(tile.ID + tileSetReference.FirstGID, new Components.Collidable(new Rectangle(tile.ObjectGroup.Objects[0].X, tile.ObjectGroup.Objects[0].Y, tile.ObjectGroup.Objects[0].Width, tile.ObjectGroup.Objects[0].Height)));
                     }
                 }
             }
@@ -140,6 +191,26 @@ namespace BluishEngine
             public int TileHeight { get; set; }
             public int ImageWidth { get; set; }
             public int ImageHeight { get; set; }
+            public Tiles[] Tiles { get; set; }
+        }
+
+        private class Tiles
+        { 
+            public int ID { get; set; }
+            public TileObjectGroup ObjectGroup { get; set; }
+        }
+
+        private class TileObjectGroup
+        { 
+            public TileObject[] Objects { get; set; }
+        }
+
+        private class TileObject
+        {
+            public int Width { get; set; }
+            public int Height { get; set; }
+            public int X { get; set; }
+            public int Y { get; set; }
         }
         #endregion
     }

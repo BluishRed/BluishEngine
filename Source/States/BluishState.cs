@@ -22,10 +22,9 @@ namespace BluishEngine
         {
             Map = new Map(location, Camera);
         }
-
+        
         public override void Draw(SpriteBatch spriteBatch)
         {
-
             // TODO: Implement the depth
 
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, Camera.Transform());
@@ -39,7 +38,24 @@ namespace BluishEngine
         {
             if (Map is not null)
                 Map.Update(gameTime);
+
+            // TODO: Remove this eventually
+
+            if (Input.IsKeyJustPressed(Keys.W))
+            {
+                Camera.Zoom *= 2f;
+            }
+            if (Input.IsKeyJustPressed(Keys.S))
+            {
+                Camera.Zoom *= 0.5f;
+            }
+
             base.Update(gameTime);
+
+            // TODO: Move this
+
+            if (Map is not null)
+                Camera.ClampViewport(0, Map.Dimensions.X, 0, Map.Dimensions.Y);
         }
 
         public override void LoadContent()
