@@ -45,10 +45,13 @@ namespace BluishEngine
 
         // TODO: Allow querying of different layers
 
+        /// <summary>
+        /// Returns a <see cref="List{}"/> of Tile instances, each having a <see cref="Transform"/> component
+        /// </summary>
         public List<ComponentCollection> GetTilesInRegion(Rectangle region, float depth)
         {
             region.Location = TileCoordinates(region.Location);
-            region.Size = new Point(region.Size.X / Dimensions.X, region.Y / Dimensions.Y);
+            region.Size = new Point((region.Size.X + TileDimensions.X + 1) / TileDimensions.X, (region.Size.Y + TileDimensions.Y + 1) / TileDimensions.Y);
             List<ComponentCollection> tiles = new List<ComponentCollection>();
 
             for (int y = region.Top; y <= region.Bottom; y++)
@@ -58,7 +61,7 @@ namespace BluishEngine
                     // TODO: Use the depth
                     if (Layers[2][x, y] != 0)
                     {
-                        ComponentCollection tile = GetComponents(Layers[2][x, y]);
+                        ComponentCollection tile = GetComponents(Layers[2][x, y]).CopyCollection();
                         tile.AddComponent(new Transform(WorldCoordinates(new Vector2(x, y)), depth));
                         tiles.Add(tile);
                     }

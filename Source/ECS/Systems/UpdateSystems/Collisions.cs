@@ -20,6 +20,8 @@ namespace BluishEngine.Systems
 
         protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
         {
+            // TODO: Tidy this up
+
             Point vel = new Point((int)Math.Ceiling(components.GetComponent<KinematicBody>().Velocity.X), (int)Math.Ceiling(components.GetComponent<KinematicBody>().Velocity.Y));
             Point pos = components.GetComponent<Transform>().Position.ToPoint();
             float depth = components.GetComponent<Transform>().Depth;
@@ -28,20 +30,44 @@ namespace BluishEngine.Systems
 
             if (vel.X < 0)
             {
-                Rectangle check = new Rectangle(pos.X - vel.X, pos.Y, vel.X, height);
+                Rectangle check = new Rectangle(pos.X + vel.X, pos.Y, -vel.X, height);
+                ResolveCollision(check, depth, ref vel);
             }
             else if (vel.X > 0)
             {
-                
+                Rectangle check = new Rectangle(pos.X + width, pos.Y, vel.X, height);
+                ResolveCollision(check, depth, ref vel);
             }
 
-            if (vel.Y > 0)
+            if (vel.Y < 0)
             {
-
+                Rectangle check = new Rectangle(pos.X, pos.Y + vel.Y, width, -vel.Y);
+                ResolveCollision(check, depth, ref vel);
             }
-            else if (vel.Y < 0)
+            else if (vel.Y > 0)
             {
+                Rectangle check = new Rectangle(pos.X, pos.Y + 1 + height - vel.Y, width, vel.Y);
+                ResolveCollision(check, depth, ref vel);
+            }
 
+            components.GetComponent<KinematicBody>().Velocity = vel.ToVector2();
+        }
+
+        protected void ResolveCollision(Rectangle check, float depth, ref Point velocity)
+        {
+            foreach (ComponentCollection tile in Map.GetTilesInRegion(check, depth))
+            {
+                if (tile.HasComponent<Collidable>())
+                {
+                    Rectangle tileBoundingRegion = new Rectangle(tile.GetComponent<Collidable>().BoundingBox.Location + tile.GetComponent<Transform>().Position.ToPoint(), tile.GetComponent<Collidable>().BoundingBox.Size);
+
+                    if (tileBoundingRegion.Intersects(check))
+                    {
+                        velocity = Point.Zero;
+
+                        // TODO: Check if another solid block and move player to the closest block
+                    }
+                }
             }
         }
     }

@@ -19,30 +19,39 @@ namespace BluishEngine.Systems
         {
             if (components.GetComponent<PositionControllable>().Active)
             {
-                Vector2 position = components.GetComponent<Transform>().Position;
+                Vector2 velocity = components.GetComponent<KinematicBody>().Velocity;
 
                 if (components.GetComponent<PositionControllable>().Keys.ContainsKey(Direction.Up) 
                     && Input.IsKeyInState(components.GetComponent<PositionControllable>().Keys[Direction.Up].Item1, components.GetComponent<PositionControllable>().Keys[Direction.Up].Item2))
                 {
-                    position.Y -= 1f;
+                    velocity.Y = -1f;
                 }
-                if (components.GetComponent<PositionControllable>().Keys.ContainsKey(Direction.Down) 
+                else if (components.GetComponent<PositionControllable>().Keys.ContainsKey(Direction.Down) 
                     && Input.IsKeyInState(components.GetComponent<PositionControllable>().Keys[Direction.Down].Item1, components.GetComponent<PositionControllable>().Keys[Direction.Down].Item2))
                 {
-                    position.Y += 1f;
+                    velocity.Y = 1f;
                 }
+                else
+                {
+                    velocity.Y = 0f;
+                }
+
                 if (components.GetComponent<PositionControllable>().Keys.ContainsKey(Direction.Left) 
                     && Input.IsKeyInState(components.GetComponent<PositionControllable>().Keys[Direction.Left].Item1, components.GetComponent<PositionControllable>().Keys[Direction.Left].Item2))
                 {
-                    position.X -= 1f;
+                    velocity.X = -1f;
                 }
-                if (components.GetComponent<PositionControllable>().Keys.ContainsKey(Direction.Right) 
+                else if (components.GetComponent<PositionControllable>().Keys.ContainsKey(Direction.Right) 
                     && Input.IsKeyInState(components.GetComponent<PositionControllable>().Keys[Direction.Right].Item1, components.GetComponent<PositionControllable>().Keys[Direction.Right].Item2))
                 {
-                    position.X += 1f;
+                    velocity.X = 1f;
+                }
+                else
+                {
+                    velocity.X = 0f;
                 }
 
-                components.GetComponent<Transform>().Position = position;
+                components.GetComponent<KinematicBody>().Velocity = velocity;
             } 
         }
     }
