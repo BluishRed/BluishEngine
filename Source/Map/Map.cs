@@ -13,6 +13,7 @@ namespace BluishEngine
     {
         public string Location { get; private set; }
         public Point Dimensions { get; private set; }
+        public Rectangle Bounds { get; private set; }
         protected List<Entity[,]> Layers { get; private set; }
         protected Camera Camera { get; private set; }
         protected Point TileDimensions { get; private set; }
@@ -26,12 +27,12 @@ namespace BluishEngine
         
         public override void Draw(SpriteBatch spriteBatch)
         {
-            foreach (Entity[,] layer in Layers)
+            for (int layer = 0; layer < Layers.Count; layer++)
             {
                 // TODO: Fix artifacts when zoomed
 
                 // TODO: Pass the correct depth
-                foreach (ComponentCollection tile in GetTilesInRegion(Camera.Viewport, 0))
+                foreach (ComponentCollection tile in GetTilesInRegion(Camera.Viewport, layer))
                 {
                     spriteBatch.Draw(
                         texture: tile.GetComponent<Sprite>().Texture,
@@ -43,12 +44,10 @@ namespace BluishEngine
             }
         }
 
-        // TODO: Allow querying of different layers
-
         /// <summary>
-        /// Returns a <see cref="List{}"/> of Tile instances, each having a <see cref="Transform"/> component
+        /// Returns a <see cref="List{T}"/> of Tile instances, each having a <see cref="Transform"/> component
         /// </summary>
-        public List<ComponentCollection> GetTilesInRegion(Rectangle region, float depth)
+        public List<ComponentCollection> GetTilesInRegion(Rectangle region, int layer)
         {
             region.Location = TileCoordinates(region.Location);
             region.Size = new Point((region.Size.X + TileDimensions.X + 1) / TileDimensions.X, (region.Size.Y + TileDimensions.Y + 1) / TileDimensions.Y);
@@ -57,12 +56,12 @@ namespace BluishEngine
             for (int y = region.Top; y <= region.Bottom; y++)
             {
                 for (int x = region.Left; x <= region.Right; x++)
-                {
-                    // TODO: Use the depth
-                    if (Layers[2][x, y] != 0)
+                {        
+                    if (Layers[layer][x, y] != 0)
                     {
-                        ComponentCollection tile = GetComponents(Layers[2][x, y]).CopyCollection();
-                        tile.AddComponent(new Transform(WorldCoordinates(new Vector2(x, y)), depth));
+                        ComponentCollection tile = GetComponents(Layers[layer][x, y]).CopyCollection();
+                        // TODO: Use the depth
+                        tile.AddComponent(new Transform(WorldCoordinates(new Vector2(x, y)), 0));
                         tiles.Add(tile);
                     }
                 }
@@ -112,6 +111,7 @@ namespace BluishEngine
                 // TODO: Make the dimensions of the map correlate to the dimensions of the midground
 
                 Dimensions = new Point(mapLayer.Width, mapLayer.Height);
+                Bounds = new Rectangle(Point.Zero, Dimensions);
 
                 for (int y = 0; y < Layers[layer].GetLength(0); y++)
                 {
@@ -144,7 +144,7 @@ namespace BluishEngine
                 {
                     for (int x = 0; x < tileSet.ImageWidth; x += tileSet.TileWidth)
                     {
-                        AddEntity(new Components.Sprite(Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(tileSetReference.Source), tileSet.Image), null), new Rectangle(x, y, tileSet.TileWidth, tileSet.TileHeight)), new Components.Dimensions(tileSet.TileWidth, tileSet.TileHeight));
+                        AddEntity(new Sprite(Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(tileSetReference.Source), tileSet.Image), null), new Rectangle(x, y, tileSet.TileWidth, tileSet.TileHeight)), new Components.Dimensions(tileSet.TileWidth, tileSet.TileHeight));
 
                         id++;
                     }
@@ -162,6 +162,8 @@ namespace BluishEngine
             Dimensions = new Point(Dimensions.X * TileDimensions.X, Dimensions.Y * TileDimensions.Y);
 
             AddSystem(new Systems.SpriteLoader(this));
+
+            Camera.Bounds = new Rectangle(Point.Zero, Dimensions);
 
             base.LoadContent(content);
         }

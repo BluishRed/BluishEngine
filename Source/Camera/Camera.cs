@@ -10,24 +10,37 @@ namespace BluishEngine
 {
     public class Camera
     {
-        public Point Focus { get; set; }
+        private Point _focus;
+        public Point Focus 
+        { 
+            get
+            {
+                return _focus;
+            }
+            set
+            {
+                _focus = value;
+                ClampViewportToBounds();
+            }
+        }
         public float Zoom { get; set; }
         public Rectangle Viewport
         {
             get
             {
-                int width = (int)Math.Ceiling(Dimensions.X / Zoom) + 1;
-                int height = (int)Math.Ceiling(Dimensions.Y / Zoom) + 1;
+                int width = (int)Math.Ceiling(Dimensions.X / Zoom);
+                int height = (int)Math.Ceiling(Dimensions.Y / Zoom);
                 return new Rectangle(Focus.X - (int)Math.Ceiling(width / 2f), Focus.Y - (int)Math.Ceiling(height / 2f), width, height);
             }
             set
             {
                 Focus = value.Center;
                 Zoom = (float)Dimensions.Y / value.Height;
+                ClampViewportToBounds();
             }
         }
+        public Rectangle? Bounds { get; set; }
         protected Point Dimensions { get; set; }
-        protected Rectangle Bounds { get; set; }
 
         public Camera(Point screenDimensions)
         {
@@ -43,9 +56,10 @@ namespace BluishEngine
                 * Matrix.CreateTranslation(Dimensions.X / 2, Dimensions.Y / 2, 0);
         }
         
-        public void ClampViewport(int minX, int maxX, int minY, int maxY)
+        private void ClampViewportToBounds()
         {
-            Focus = new Rectangle(Math.Clamp(Viewport.X, minX, maxX - Viewport.Width), Math.Clamp(Viewport.Y, minY, maxY - Viewport.Height), Viewport.Width, Viewport.Height).Center;
+            if (Bounds is not null)
+                _focus = new Rectangle(Math.Clamp(Viewport.X, Bounds.Value.Left, Bounds.Value.Right - Viewport.Width), Math.Clamp(Viewport.Y, Bounds.Value.Top, Bounds.Value.Bottom - Viewport.Height), Viewport.Width, Viewport.Height).Center;
         }
     }
 }

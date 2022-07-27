@@ -51,11 +51,6 @@ namespace BluishEngine
             }
 
             base.Update(gameTime);
-
-            // TODO: Move this
-
-            if (Map is not null)
-                Camera.ClampViewport(0, Map.Dimensions.X, 0, Map.Dimensions.Y);
         }
 
         public override void LoadContent()
