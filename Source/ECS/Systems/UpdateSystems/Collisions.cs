@@ -21,7 +21,8 @@ namespace BluishEngine.Systems
         {
             if (Map is not null)
             {
-                Point vel = new Point((int)Math.Ceiling(components.GetComponent<KinematicBody>().Velocity.X), (int)Math.Ceiling(components.GetComponent<KinematicBody>().Velocity.Y));
+                Vector2 vel = components.GetComponent<KinematicBody>().Velocity;
+                Point absVel = new Point((int)Math.Ceiling(Math.Abs(vel.X)), (int)Math.Ceiling(Math.Abs(vel.Y)));
                 Point pos = components.GetComponent<Transform>().Position.ToPoint();
                 float depth = components.GetComponent<Transform>().Depth;
                 int width = components.GetComponent<Dimensions>().Width;
@@ -31,29 +32,29 @@ namespace BluishEngine.Systems
 
                 if (vel.X < 0)
                 {
-                    Rectangle check = new Rectangle(pos.X + vel.X, pos.Y, -vel.X, height);
+                    Rectangle check = new Rectangle(pos.X - absVel.X, pos.Y, absVel.X, height);
                     if (WillCollide(check, depth)) vel.X = 0;
                 }
                 else if (vel.X > 0)
                 {
-                    Rectangle check = new Rectangle(pos.X + width, pos.Y, vel.X, height);
+                    Rectangle check = new Rectangle(pos.X + width, pos.Y, absVel.X, height);
                     if (WillCollide(check, depth)) vel.X = 0;
                 }
 
                 if (vel.Y < 0)
                 {
-                    Rectangle check = new Rectangle(pos.X, pos.Y + vel.Y, width, -vel.Y);
+                    Rectangle check = new Rectangle(pos.X, pos.Y - absVel.Y, width, absVel.Y);
                     if (WillCollide(check, depth)) vel.Y = 0;
                 }
                 else if (vel.Y > 0)
                 {
-                    Rectangle check = new Rectangle(pos.X, pos.Y + height, width, vel.Y);
+                    Rectangle check = new Rectangle(pos.X, pos.Y + height, width, absVel.Y);
                     if (WillCollide(check, depth)) vel.Y = 0;
                 }
 
-                components.GetComponent<KinematicBody>().Velocity = vel.ToVector2();
+                components.GetComponent<KinematicBody>().Velocity = vel;
             }
-            // TODO: Tidy this up  
+            // TODO: Tidy this up
         }
 
         protected bool WillCollide(Rectangle check, float depth)
@@ -62,11 +63,12 @@ namespace BluishEngine.Systems
             if (!Map.Bounds.Contains(check)) return true;
 
             // TODO: Use depth
-            foreach (ComponentCollection tile in Map.GetTilesInRegion(check, 2))
+            foreach (Map.TileLocation tileLocation in Map.GetTilesInRegion(check, 2))
             {
+                ComponentCollection tile = Map.GetComponents(tileLocation.Tile);
                 if (tile.HasComponent<Collidable>())
                 {
-                    Rectangle tileBoundingRegion = new Rectangle(tile.GetComponent<Collidable>().BoundingBox.Location + tile.GetComponent<Transform>().Position.ToPoint(), tile.GetComponent<Collidable>().BoundingBox.Size);
+                    Rectangle tileBoundingRegion = new Rectangle(tile.GetComponent<Collidable>().BoundingBox.Location + tileLocation.Position.ToPoint(), tile.GetComponent<Collidable>().BoundingBox.Size);
 
                     return tileBoundingRegion.Intersects(check);
                 }

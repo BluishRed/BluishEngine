@@ -9,50 +9,50 @@ using BluishEngine.Components;
 
 namespace BluishEngine.Systems
 {
-    public class MovePositions : UpdateSystem
+    public class ControlEntity : UpdateSystem
     {
-        public MovePositions(World world) : base(world, typeof(Transform), typeof(KinematicBody), typeof(PositionControllable))
+        public ControlEntity(World world) : base(world, typeof(Transform), typeof(KinematicBody), typeof(PositionControllable))
         {
         }
+
+        // TODO: Collision not working
+        // TODO: Camera stabilisation
 
         protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
         {
             if (components.GetComponent<PositionControllable>().Active)
             {
-                Vector2 velocity = components.GetComponent<KinematicBody>().Velocity;
+                Vector2 force = components.GetComponent<KinematicBody>().Force;
 
-                if (components.GetComponent<PositionControllable>().Keys.ContainsKey(Direction.Up) 
+                if (components.GetComponent<PositionControllable>().Keys.ContainsKey(Direction.Up)
                     && Input.IsKeyInState(components.GetComponent<PositionControllable>().Keys[Direction.Up].Item1, components.GetComponent<PositionControllable>().Keys[Direction.Up].Item2))
                 {
-                    velocity.Y = -1f;
+                    force.Y -= 1f;
                 }
-                else if (components.GetComponent<PositionControllable>().Keys.ContainsKey(Direction.Down) 
+                else if (components.GetComponent<PositionControllable>().Keys.ContainsKey(Direction.Down)
                     && Input.IsKeyInState(components.GetComponent<PositionControllable>().Keys[Direction.Down].Item1, components.GetComponent<PositionControllable>().Keys[Direction.Down].Item2))
                 {
-                    velocity.Y = 1f;
-                }
-                else
-                {
-                    velocity.Y = 0f;
+                    force.Y += 1f;
                 }
 
-                if (components.GetComponent<PositionControllable>().Keys.ContainsKey(Direction.Left) 
+                if (components.GetComponent<PositionControllable>().Keys.ContainsKey(Direction.Left)
                     && Input.IsKeyInState(components.GetComponent<PositionControllable>().Keys[Direction.Left].Item1, components.GetComponent<PositionControllable>().Keys[Direction.Left].Item2))
                 {
-                    velocity.X = -1f;
+                    force.X -= 1f;
                 }
-                else if (components.GetComponent<PositionControllable>().Keys.ContainsKey(Direction.Right) 
+                else if (components.GetComponent<PositionControllable>().Keys.ContainsKey(Direction.Right)
                     && Input.IsKeyInState(components.GetComponent<PositionControllable>().Keys[Direction.Right].Item1, components.GetComponent<PositionControllable>().Keys[Direction.Right].Item2))
                 {
-                    velocity.X = 1f;
-                }
-                else
-                {
-                    velocity.X = 0f;
+                    force.X += 1f;
                 }
 
-                components.GetComponent<KinematicBody>().Velocity = velocity;
-            } 
+                if (Input.IsKeyJustPressed(Keys.Space))
+                {
+                    force.Y -= 340;
+                }
+
+                components.GetComponent<KinematicBody>().Force = force;
+            }
         }
     }
 }

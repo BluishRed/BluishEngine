@@ -30,13 +30,13 @@ namespace BluishEngine
             for (int layer = 0; layer < Layers.Count; layer++)
             {
                 // TODO: Fix artifacts when zoomed
-
-                // TODO: Pass the correct depth
-                foreach (ComponentCollection tile in GetTilesInRegion(Camera.Viewport, layer))
+                foreach (TileLocation tileLocation in GetTilesInRegion(Camera.Viewport, layer))
                 {
+                    ComponentCollection tile = GetComponents(tileLocation.Tile);
+
                     spriteBatch.Draw(
                         texture: tile.GetComponent<Sprite>().Texture,
-                        position: tile.GetComponent<Transform>().Position,
+                        position: tileLocation.Position,
                         sourceRectangle: tile.GetComponent<Sprite>().Source,
                         color: Color.White
                     );
@@ -45,24 +45,21 @@ namespace BluishEngine
         }
 
         /// <summary>
-        /// Returns a <see cref="List{T}"/> of Tile instances, each having a <see cref="Transform"/> component
+        /// Returns an iterable set of <see cref="TileLocation"/>, each containing the tile ID and its subsequent world location as a <see cref="Vector2"/>
         /// </summary>
-        public List<ComponentCollection> GetTilesInRegion(Rectangle region, int layer)
+        public HashSet<TileLocation> GetTilesInRegion(Rectangle region, int layer)
         {
             region.Location = TileCoordinates(region.Location);
             region.Size = new Point((region.Size.X + TileDimensions.X + 1) / TileDimensions.X, (region.Size.Y + TileDimensions.Y + 1) / TileDimensions.Y);
-            List<ComponentCollection> tiles = new List<ComponentCollection>();
+            HashSet<TileLocation> tiles = new HashSet<TileLocation>();
 
             for (int y = region.Top; y <= region.Bottom; y++)
             {
                 for (int x = region.Left; x <= region.Right; x++)
-                {        
+                {
                     if (Layers[layer][x, y] != 0)
                     {
-                        ComponentCollection tile = GetComponents(Layers[layer][x, y]).CopyCollection();
-                        // TODO: Use the depth
-                        tile.AddComponent(new Transform(WorldCoordinates(new Vector2(x, y)), 0));
-                        tiles.Add(tile);
+                        tiles.Add(new TileLocation(WorldCoordinates(new Vector2(x, y)), Layers[layer][x, y]));
                     }
                 }
             }
@@ -123,7 +120,7 @@ namespace BluishEngine
                 }
                 layer++;
             }
-
+             
             // Loading Tilesets
 
             AddEntity();
@@ -144,7 +141,7 @@ namespace BluishEngine
                 {
                     for (int x = 0; x < tileSet.ImageWidth; x += tileSet.TileWidth)
                     {
-                        AddEntity(new Sprite(Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(tileSetReference.Source), tileSet.Image), null), new Rectangle(x, y, tileSet.TileWidth, tileSet.TileHeight)), new Components.Dimensions(tileSet.TileWidth, tileSet.TileHeight));
+                        AddEntity(new KinematicBody(70), new Sprite(Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(tileSetReference.Source), tileSet.Image), null), new Rectangle(x, y, tileSet.TileWidth, tileSet.TileHeight)), new Components.Dimensions(tileSet.TileWidth, tileSet.TileHeight));
 
                         id++;
                     }
@@ -161,11 +158,28 @@ namespace BluishEngine
 
             Dimensions = new Point(Dimensions.X * TileDimensions.X, Dimensions.Y * TileDimensions.Y);
 
-            AddSystem(new Systems.SpriteLoader(this));
+            AddSystems();
 
             Camera.Bounds = new Rectangle(Point.Zero, Dimensions);
 
             base.LoadContent(content);
+        }
+
+        private void AddSystems()
+        {
+            AddSystem(new Systems.SpriteLoader(this));
+        }
+
+        public class TileLocation
+        {
+            public Vector2 Position { get; private set; }
+            public Entity Tile { get; private set; }
+
+            public TileLocation(Vector2 position, int tile)
+            {
+                Position = position;
+                Tile = tile;
+            }
         }
 
         #region Map data classes
