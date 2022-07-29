@@ -55,6 +55,7 @@ namespace BluishEngine
 
             for (int y = region.Top; y <= region.Bottom; y++)
             {
+
                 for (int x = region.Left; x <= region.Right; x++)
                 {
                     if (Layers[layer][x, y] != 0)
@@ -141,7 +142,7 @@ namespace BluishEngine
                 {
                     for (int x = 0; x < tileSet.ImageWidth; x += tileSet.TileWidth)
                     {
-                        AddEntity(new KinematicBody(70), new Sprite(Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(tileSetReference.Source), tileSet.Image), null), new Rectangle(x, y, tileSet.TileWidth, tileSet.TileHeight)), new Components.Dimensions(tileSet.TileWidth, tileSet.TileHeight));
+                        AddEntity(new Sprite(Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(tileSetReference.Source), tileSet.Image), null), new Rectangle(x, y, tileSet.TileWidth, tileSet.TileHeight)), new Components.Dimensions(tileSet.TileWidth, tileSet.TileHeight));
 
                         id++;
                     }
@@ -170,6 +171,9 @@ namespace BluishEngine
             AddSystem(new Systems.SpriteLoader(this));
         }
 
+        /// <summary>
+        /// Represents a particular tile on the map as its tile ID and its world location
+        /// </summary>
         public class TileLocation
         {
             public Vector2 Position { get; private set; }
