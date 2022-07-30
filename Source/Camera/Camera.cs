@@ -10,8 +10,8 @@ namespace BluishEngine
 {
     public class Camera
     {
-        private Point _focus;
-        public Point Focus 
+        private Vector2 _focus;
+        public Vector2 Focus 
         { 
             get
             {
@@ -30,11 +30,11 @@ namespace BluishEngine
             {
                 int width = (int)Math.Ceiling(Dimensions.X / Zoom);
                 int height = (int)Math.Ceiling(Dimensions.Y / Zoom);
-                return new Rectangle(Focus.X - (int)Math.Ceiling(width / 2f), Focus.Y - (int)Math.Ceiling(height / 2f), width, height);
+                return new Rectangle((int)(Focus.X - Math.Ceiling(width / 2f)), (int)(Focus.Y - (int)Math.Ceiling(height / 2f)), width, height);
             }
             set
             {
-                Focus = value.Center;
+                Focus = value.Center.ToVector2();
                 Zoom = (float)Dimensions.Y / value.Height;
                 ClampViewportToBounds();
             }
@@ -45,7 +45,7 @@ namespace BluishEngine
         public Camera(Point screenDimensions)
         {
             Zoom = 1;
-            Focus = Point.Zero;
+            Focus = Vector2.Zero;
             Dimensions = screenDimensions;
         }
 
@@ -59,7 +59,10 @@ namespace BluishEngine
         private void ClampViewportToBounds()
         {
             if (Bounds is not null)
-                _focus = new Rectangle(Math.Clamp(Viewport.X, Bounds.Value.Left, Bounds.Value.Right - Viewport.Width), Math.Clamp(Viewport.Y, Bounds.Value.Top, Bounds.Value.Bottom - Viewport.Height), Viewport.Width, Viewport.Height).Center;
+                _focus = new Vector2(
+                    Math.Clamp(_focus.X, Bounds.Value.Left + Viewport.Width / 2, Bounds.Value.Right - Viewport.Width / 2), 
+                    Math.Clamp(_focus.Y, Bounds.Value.Top + Viewport.Height / 2, Bounds.Value.Bottom - Viewport.Height / 2)
+                );
         }
     }
 }

@@ -55,7 +55,6 @@ namespace BluishEngine
 
             for (int y = region.Top; y <= region.Bottom; y++)
             {
-
                 for (int x = region.Left; x <= region.Right; x++)
                 {
                     if (Layers[layer][x, y] != 0)
@@ -121,7 +120,7 @@ namespace BluishEngine
                 }
                 layer++;
             }
-             
+            
             // Loading Tilesets
 
             AddEntity();
@@ -147,6 +146,7 @@ namespace BluishEngine
                         id++;
                     }
                 }
+                
 
                 if (tileSet.Tiles is not null)
                 {

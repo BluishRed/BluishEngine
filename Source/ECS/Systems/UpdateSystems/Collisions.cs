@@ -12,36 +12,34 @@ namespace BluishEngine.Systems
     {
         protected Map? Map { get; private set; }
 
-        public Collision(World world, Map? map = null) : base(world, typeof(Collidable), typeof(KinematicBody), typeof(Transform), typeof(Dimensions))
+        public Collision(World world, Map? map = null) : base(world, typeof(Collidable), typeof(KinematicBody), typeof(Transform))
         {
             Map = map;
         }
 
         protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
         {
+            Vector2 vel = components.GetComponent<KinematicBody>().Velocity;
+
+            // TODO: If collision is sideways then it won't work
             if (Map is not null)
             {
-
-                Vector2 vel = components.GetComponent<KinematicBody>().Velocity;
-
-                // TODO: If collision is sideways then it won't work
-
                 ResolveMapCollisions(
-                    components.GetComponent<Dimensions>().Width, 
-                    components.GetComponent<Dimensions>().Height,
+                    components.GetComponent<Collidable>().BoundingBox.Width,
+                    components.GetComponent<Collidable>().BoundingBox.Height,
                     components.GetComponent<Transform>().Depth,
-                    components.GetComponent<Transform>().Position, 
+                    components.GetComponent<Transform>().Position + components.GetComponent<Collidable>().BoundingBox.Location.ToVector2(),
                     ref vel
                 );
-                
-                components.GetComponent<KinematicBody>().Velocity = vel;
             }
+
+            components.GetComponent<KinematicBody>().Velocity = vel;
         }
 
         // TODO: Tidy this up
-
         protected void ResolveMapCollisions(int width, int height, float depth, Vector2 pos, ref Vector2 vel)
         {
+
             if (vel.X != 0)
             {
                 Rectangle check;
@@ -59,17 +57,17 @@ namespace BluishEngine.Systems
                         {
                             Rectangle tileBoundingRegion = new Rectangle(tile.GetComponent<Collidable>().BoundingBox.Location + tileLocation.Position.ToPoint(), tile.GetComponent<Collidable>().BoundingBox.Size);
 
-                            if (tileBoundingRegion.Intersects(check) && (tileBoundingRegion.Right > x || x == -1)) 
+                            if (tileBoundingRegion.Intersects(check) && (tileBoundingRegion.Right > x || x == -1))
                                 x = tileBoundingRegion.Right;
                         }
                     }
-                     
+
                     if (x > 0)
                         vel.X = Math.Min(0, x - pos.X);
                 }
                 else
                 {
-                    check = new Rectangle((int)(pos.X + width + vel.X), (int)pos.Y, (int)Math.Ceiling(vel.X), height);
+                    check = new Rectangle((int)pos.X + width, (int)pos.Y, (int)Math.Ceiling(vel.X), height);
 
                     int x = -1;
 

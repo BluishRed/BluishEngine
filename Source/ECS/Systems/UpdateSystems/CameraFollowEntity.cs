@@ -22,7 +22,7 @@ namespace BluishEngine.Systems
         {
             if (components.GetComponent<CameraFollowable>().Active)
             {
-                _camera.Focus = new Vector2(components.GetComponent<Transform>().Position.X + components.GetComponent<Dimensions>().Width / 2, components.GetComponent<Transform>().Position.Y + components.GetComponent<Dimensions>().Height / 2).ToPoint();
+                _camera.Focus = new Vector2(components.GetComponent<Transform>().Position.X + components.GetComponent<Dimensions>().Width / 2, components.GetComponent<Transform>().Position.Y + components.GetComponent<Dimensions>().Height / 2);
             }
         }
     }
