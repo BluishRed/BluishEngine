@@ -28,6 +28,11 @@ namespace BluishEngine
         {
             get
             {
+                //Matrix inverse = Matrix.Invert(Transform());
+                //Point TL = Vector2.Transform(Vector2.Zero, inverse).ToPoint();
+                //Point BR = Vector2.Transform(Dimensions.ToVector2(), inverse).ToPoint();
+
+                //return new Rectangle(TL, BR - TL);
                 int width = (int)Math.Ceiling(Dimensions.X / Zoom);
                 int height = (int)Math.Ceiling(Dimensions.Y / Zoom);
                 return new Rectangle((int)(Focus.X - Math.Ceiling(width / 2f)), (int)(Focus.Y - (int)Math.Ceiling(height / 2f)), width, height);

@@ -36,7 +36,7 @@ namespace BluishEngine
 
                     spriteBatch.Draw(
                         texture: tile.GetComponent<Sprite>().Texture,
-                        position: tileLocation.Position,
+                        position: new Vector2(tileLocation.Position.X + Camera.Focus.X % 1, tileLocation.Position.Y + Camera.Focus.Y % 1),
                         sourceRectangle: tile.GetComponent<Sprite>().Source,
                         color: Color.White
                     );
@@ -50,7 +50,7 @@ namespace BluishEngine
         public HashSet<TileLocation> GetTilesInRegion(Rectangle region, int layer)
         {
             region.Location = TileCoordinates(region.Location);
-            region.Size = new Point((region.Size.X + TileDimensions.X + 1) / TileDimensions.X, (region.Size.Y + TileDimensions.Y + 1) / TileDimensions.Y);
+            region.Size = new Point((region.Size.X + TileDimensions.X - 1) / TileDimensions.X, (region.Size.Y + TileDimensions.Y +-1) / TileDimensions.Y);
             HashSet<TileLocation> tiles = new HashSet<TileLocation>();
 
             for (int y = region.Top; y <= region.Bottom; y++)
