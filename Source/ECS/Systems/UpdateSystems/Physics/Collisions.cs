@@ -39,7 +39,6 @@ namespace BluishEngine.Systems
         // TODO: Tidy this up
         protected void ResolveMapCollisions(int width, int height, float depth, Vector2 pos, ref Vector2 vel)
         {
-
             if (vel.X != 0)
             {
                 Rectangle check;
@@ -48,43 +47,19 @@ namespace BluishEngine.Systems
                 {
                     check = new Rectangle((int)(pos.X + vel.X), (int)pos.Y, (int)Math.Ceiling(-vel.X), height);
 
-                    int x = -1;
+                    List<Rectangle> collidableTiles = GetObstructingHitBoxesInRegion(check, depth);
 
-                    foreach (Map.TileLocation tileLocation in Map.GetTilesInRegion(check, 2))
-                    {
-                        ComponentCollection tile = Map.GetComponents(tileLocation.Tile);
-                        if (tile.HasComponent<Collidable>())
-                        {
-                            Rectangle tileBoundingRegion = new Rectangle(tile.GetComponent<Collidable>().BoundingBox.Location + tileLocation.Position.ToPoint(), tile.GetComponent<Collidable>().BoundingBox.Size);
-
-                            if (tileBoundingRegion.Intersects(check) && (tileBoundingRegion.Right > x || x == -1))
-                                x = tileBoundingRegion.Right;
-                        }
-                    }
-
-                    if (x > 0)
-                        vel.X = Math.Min(0, x - pos.X);
+                    if (collidableTiles.Count > 0)
+                        vel.X = Math.Min(0, MaxX(collidableTiles) - pos.X);
                 }
                 else
                 {
                     check = new Rectangle((int)pos.X + width, (int)pos.Y, (int)Math.Ceiling(vel.X), height);
 
-                    int x = -1;
+                    List<Rectangle> collidableTiles = GetObstructingHitBoxesInRegion(check, depth);
 
-                    foreach (Map.TileLocation tileLocation in Map.GetTilesInRegion(check, 2))
-                    {
-                        ComponentCollection tile = Map.GetComponents(tileLocation.Tile);
-                        if (tile.HasComponent<Collidable>())
-                        {
-                            Rectangle tileBoundingRegion = new Rectangle(tile.GetComponent<Collidable>().BoundingBox.Location + tileLocation.Position.ToPoint(), tile.GetComponent<Collidable>().BoundingBox.Size);
-
-                            if (tileBoundingRegion.Intersects(check) && (tileBoundingRegion.Left < x || x == -1))
-                                x = tileBoundingRegion.Left;
-                        }
-                    }
-
-                    if (x > 0)
-                        vel.X = Math.Max(0, x - pos.X - width);
+                    if (collidableTiles.Count > 0)
+                        vel.X = Math.Max(0, MinX(collidableTiles) - pos.X - width);
                 }
             }
 
@@ -94,47 +69,94 @@ namespace BluishEngine.Systems
 
                 if (vel.Y < 0)
                 {
-                    check = new Rectangle((int)(pos.X), (int)(pos.Y + vel.Y), width, (int)-vel.Y);
+                    check = new Rectangle((int)pos.X, (int)(pos.Y + vel.Y), width, (int)Math.Ceiling(-vel.Y));
 
-                    int y = -1;
+                    List<Rectangle> collidableTiles = GetObstructingHitBoxesInRegion(check, depth);
 
-                    foreach (Map.TileLocation tileLocation in Map.GetTilesInRegion(check, 2))
-                    {
-                        ComponentCollection tile = Map.GetComponents(tileLocation.Tile);
-                        if (tile.HasComponent<Collidable>())
-                        {
-                            Rectangle tileBoundingRegion = new Rectangle(tile.GetComponent<Collidable>().BoundingBox.Location + tileLocation.Position.ToPoint(), tile.GetComponent<Collidable>().BoundingBox.Size);
-
-                            if (tileBoundingRegion.Intersects(check) && (tileBoundingRegion.Bottom > y || y == -1)) 
-                                y = tileBoundingRegion.Bottom;
-                        }
-                    }
-
-                    if (y > 0)
-                        vel.Y = Math.Min(0, pos.Y - y);
+                    if (collidableTiles.Count > 0)
+                        vel.Y = Math.Min(0, MaxY(collidableTiles) - pos.Y);
                 }
                 else
                 {
                     check = new Rectangle((int)pos.X, (int)(pos.Y + height + vel.Y), width, (int)Math.Ceiling(vel.Y));
 
-                    int y = -1;
+                    List<Rectangle> collidableTiles = GetObstructingHitBoxesInRegion(check, depth);
 
-                    foreach (Map.TileLocation tileLocation in Map.GetTilesInRegion(check, 2))
-                    {
-                        ComponentCollection tile = Map.GetComponents(tileLocation.Tile);
-                        if (tile.HasComponent<Collidable>())
-                        {
-                            Rectangle tileBoundingRegion = new Rectangle(tile.GetComponent<Collidable>().BoundingBox.Location + tileLocation.Position.ToPoint(), tile.GetComponent<Collidable>().BoundingBox.Size);
-
-                            if (tileBoundingRegion.Intersects(check) && (tileBoundingRegion.Top < y || y == -1))
-                                y = tileBoundingRegion.Top;
-                        }
-                    }
-
-                    if (y > 0)
-                        vel.Y = Math.Max(0, y - pos.Y - height);
+                    if (collidableTiles.Count > 0)
+                        vel.Y = Math.Max(0, MinY(collidableTiles) - pos.Y - height);
                 }
             }
+        }
+
+        private List<Rectangle> GetObstructingHitBoxesInRegion(Rectangle region, float depth)
+        {
+            List<Rectangle> hitboxes = new List<Rectangle>();
+
+            foreach(Map.TileLocation tileLocation in Map.GetTilesInRegion(region, 2))
+            {
+                ComponentCollection tile = Map.GetComponents(tileLocation.Tile);
+                if (tile.HasComponent<Collidable>())
+                {
+                    Rectangle tileBoundingRegion = new Rectangle(tile.GetComponent<Collidable>().BoundingBox.Location + tileLocation.Position.ToPoint(), tile.GetComponent<Collidable>().BoundingBox.Size);
+
+                    if (tileBoundingRegion.Intersects(region))
+                        hitboxes.Add(tileBoundingRegion);
+                }
+            }
+
+            return hitboxes;
+        }
+
+        private int MinX(List<Rectangle> tileHitBoxes)
+        {
+            int x = tileHitBoxes[0].Left;
+
+            for (int i = 1; i < tileHitBoxes.Count; i++)
+            {
+                if (tileHitBoxes[i].Left < x)
+                    x = tileHitBoxes[i].Left;
+            }
+
+            return x;
+        }
+
+        private int MaxX(List<Rectangle> tileHitBoxes)
+        {
+            int x = tileHitBoxes[0].Right;
+
+            for (int i = 1; i < tileHitBoxes.Count; i++)
+            {
+                if (tileHitBoxes[i].Right > x)
+                    x = tileHitBoxes[i].Left;
+            }
+
+            return x;
+        }
+
+        private int MinY(List<Rectangle> tileHitBoxes)
+        {
+            int y = tileHitBoxes[0].Top;
+
+            for (int i = 1; i < tileHitBoxes.Count; i++)
+            {
+                if (tileHitBoxes[i].Top < y)
+                    y = tileHitBoxes[i].Left;
+            }
+
+            return y;
+        }
+
+        private int MaxY(List<Rectangle> tileHitBoxes)
+        {
+            int y = tileHitBoxes[0].Bottom;
+
+            for (int i = 1; i < tileHitBoxes.Count; i++)
+            {
+                if (tileHitBoxes[i].Bottom > y)
+                    y = tileHitBoxes[i].Left;
+            }
+
+            return y;
         }
     }
 }
