@@ -11,6 +11,10 @@ namespace BluishEngine.Systems
 {
     public class ControlEntity : UpdateSystem
     {
+
+        const float _speed = 11f;
+        const float _jump = 320f;
+
         public ControlEntity(World world) : base(world, typeof(Transform), typeof(KinematicBody), typeof(PositionControllable))
         {
         }
@@ -27,28 +31,28 @@ namespace BluishEngine.Systems
                 if (components.GetComponent<PositionControllable>().Keys.ContainsKey(Direction.Up)
                     && Input.IsKeyInState(components.GetComponent<PositionControllable>().Keys[Direction.Up].Item1, components.GetComponent<PositionControllable>().Keys[Direction.Up].Item2))
                 {
-                    force.Y -= 1f;
+                    force.Y -= _speed;
                 }
                 else if (components.GetComponent<PositionControllable>().Keys.ContainsKey(Direction.Down)
                     && Input.IsKeyInState(components.GetComponent<PositionControllable>().Keys[Direction.Down].Item1, components.GetComponent<PositionControllable>().Keys[Direction.Down].Item2))
                 {
-                    force.Y += 1f;
+                    force.Y += _speed;
                 }
 
                 if (components.GetComponent<PositionControllable>().Keys.ContainsKey(Direction.Left)
                     && Input.IsKeyInState(components.GetComponent<PositionControllable>().Keys[Direction.Left].Item1, components.GetComponent<PositionControllable>().Keys[Direction.Left].Item2))
                 {
-                    force.X -= 1f;
+                    force.X -= _speed;
                 }
                 else if (components.GetComponent<PositionControllable>().Keys.ContainsKey(Direction.Right)
                     && Input.IsKeyInState(components.GetComponent<PositionControllable>().Keys[Direction.Right].Item1, components.GetComponent<PositionControllable>().Keys[Direction.Right].Item2))
                 {
-                    force.X += 1f;
+                    force.X += _speed;
                 }
 
                 if (Input.IsKeyJustPressed(Keys.Space))
                 {
-                    force.Y -= 340;
+                    force.Y -= _jump;
                 }
 
                 components.GetComponent<KinematicBody>().Force = force;
