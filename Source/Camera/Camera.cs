@@ -8,9 +8,15 @@ using BluishFramework;
 
 namespace BluishEngine
 {
+    /// <summary>
+    /// Wrapper function for a <see cref="Matrix"/> that transforms world coordinates to screen coordinates
+    /// </summary>
     public class Camera
     {
         private Vector2 _focus;
+        /// <summary>
+        /// The center of the viewport
+        /// </summary>
         public Vector2 Focus 
         { 
             get
@@ -23,7 +29,13 @@ namespace BluishEngine
                 ClampViewportToBounds();
             }
         }
+        /// <summary>
+        /// A <see cref="float"/> representing the zoom level, with <c>1</c> being the default zoom
+        /// </summary>
         public float Zoom { get; set; }
+        /// <summary>
+        /// The viewable area of the world as a <see cref="Rectangle"/>
+        /// </summary>
         public Rectangle Viewport
         {
             get
@@ -39,9 +51,15 @@ namespace BluishEngine
                 ClampViewportToBounds();
             }
         }
+        /// <summary>
+        /// An optional <see cref="Rectangle"/> restricting the range of movement of this <see cref="Camera"/>
+        /// </summary>
         public Rectangle? Bounds { get; set; }
         protected Point Dimensions { get; set; }
 
+        /// <param name="screenDimensions">
+        /// The size of the screen in pixels
+        /// </param>
         public Camera(Point screenDimensions)
         {
             Zoom = 1;
@@ -49,6 +67,12 @@ namespace BluishEngine
             Dimensions = screenDimensions;
         }
 
+        /// <summary>
+        /// Encapsulates this <see cref="Camera"/> as a <see cref="Matrix"/>
+        /// </summary>
+        /// <returns>
+        /// A <see cref="Matrix"/> that transforms world coordinates to screen coordinates
+        /// </returns>
         public Matrix Transform()
         {
             return Matrix.CreateTranslation(-Focus.X, -Focus.Y, 0)

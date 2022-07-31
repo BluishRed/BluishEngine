@@ -47,7 +47,7 @@ namespace BluishEngine.Systems
                 {
                     check = new Rectangle((int)(pos.X + vel.X), (int)pos.Y, (int)Math.Ceiling(-vel.X), height);
 
-                    List<Rectangle> collidableTiles = GetObstructingHitBoxesInRegion(check, depth);
+                    List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth);
 
                     if (collidableTiles.Count > 0)
                         vel.X = Math.Min(0, MaxX(collidableTiles) - pos.X);
@@ -56,7 +56,7 @@ namespace BluishEngine.Systems
                 {
                     check = new Rectangle((int)pos.X + width, (int)pos.Y, (int)Math.Ceiling(vel.X), height);
 
-                    List<Rectangle> collidableTiles = GetObstructingHitBoxesInRegion(check, depth);
+                    List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth);
 
                     if (collidableTiles.Count > 0)
                         vel.X = Math.Max(0, MinX(collidableTiles) - pos.X - width);
@@ -71,7 +71,7 @@ namespace BluishEngine.Systems
                 {
                     check = new Rectangle((int)pos.X, (int)(pos.Y + vel.Y), width, (int)Math.Ceiling(-vel.Y));
 
-                    List<Rectangle> collidableTiles = GetObstructingHitBoxesInRegion(check, depth);
+                    List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth);
 
                     if (collidableTiles.Count > 0)
                         vel.Y = Math.Min(0, MaxY(collidableTiles) - pos.Y);
@@ -80,7 +80,7 @@ namespace BluishEngine.Systems
                 {
                     check = new Rectangle((int)pos.X, (int)(pos.Y + height + vel.Y), width, (int)Math.Ceiling(vel.Y));
 
-                    List<Rectangle> collidableTiles = GetObstructingHitBoxesInRegion(check, depth);
+                    List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth);
 
                     if (collidableTiles.Count > 0)
                         vel.Y = Math.Max(0, MinY(collidableTiles) - pos.Y - height);
@@ -88,7 +88,7 @@ namespace BluishEngine.Systems
             }
         }
 
-        private List<Rectangle> GetObstructingHitBoxesInRegion(Rectangle region, float depth)
+        private List<Rectangle> GetHitBoxesInRegion(Rectangle region, float depth)
         {
             List<Rectangle> hitboxes = new List<Rectangle>();
 

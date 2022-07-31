@@ -36,7 +36,7 @@ namespace BluishEngine
 
                     spriteBatch.Draw(
                         texture: tile.GetComponent<Sprite>().Texture,
-                        position: new Vector2(tileLocation.Position.X + Camera.Focus.X % 1, tileLocation.Position.Y + Camera.Focus.Y % 1),
+                        position: tileLocation.Position,
                         sourceRectangle: tile.GetComponent<Sprite>().Source,
                         color: Color.White
                     );
@@ -45,8 +45,11 @@ namespace BluishEngine
         }
         
         /// <summary>
-        /// Returns an iterable set of <see cref="TileLocation"/>, each containing the tile ID and its subsequent world location as a <see cref="Vector2"/>
+        /// Gets all the tile types and locations from this <see cref="Map"/> at the given <paramref name="region"/> and <paramref name="layer"/>
         /// </summary>
+        /// <returns>
+        /// An iterable set of <see cref="TileLocation"/>, each containing the tile ID and its subsequent world location as a <see cref="Vector2"/>
+        /// </returns>
         public HashSet<TileLocation> GetTilesInRegion(Rectangle region, int layer)
         {
             region.Location = TileCoordinates(region.Location);
@@ -59,7 +62,7 @@ namespace BluishEngine
                 {
                     if (Layers[layer][x, y] != 0)
                     {
-                        tiles.Add(new TileLocation(WorldCoordinates(new Vector2(x, y)), Layers[layer][x, y]));
+                        tiles.Add(new TileLocation(WorldCoordinates(new Vector2(x, y)) + new Vector2(Camera.Focus.X % 1, Camera.Focus.Y % 1), Layers[layer][x, y]));
                     }
                 }
             }
@@ -67,6 +70,12 @@ namespace BluishEngine
             return tiles;
         }
 
+        /// <summary>
+        /// Converts <paramref name="worldCoordinates"/> to its equivalent coordinate in terms of tiles
+        /// </summary>
+        /// <returns>
+        /// A <see cref="Point"/> representing the tile coordinates of <paramref name="worldCoordinates"/>
+        /// </returns>
         public Point TileCoordinates(Point worldCoordinates)
         {
             return new Point(worldCoordinates.X / TileDimensions.X, worldCoordinates.Y / TileDimensions.Y);
