@@ -14,12 +14,12 @@ namespace BluishEngine.Components
     public class Collidable : Component
     {
         /// <summary>
-        /// 
+        /// The <see cref="Rectangle"/> that defines the bounding box of this entity. The coordinates of the rectangle are relative to the top left of the entity
         /// </summary>
         public Rectangle BoundingBox { get; set; }
         
         /// <param name="boundingBox">
-        /// 
+        /// The bounding box relative to the top left of the entity
         /// </param>
         public Collidable(Rectangle boundingBox)
         {

@@ -29,6 +29,7 @@ namespace BluishEngine
                 ClampViewportToBounds();
             }
         }
+
         /// <summary>
         /// A <see cref="float"/> representing the zoom level, with <c>1</c> being the default zoom
         /// </summary>
@@ -79,7 +80,7 @@ namespace BluishEngine
                 * Matrix.CreateScale(Zoom)
                 * Matrix.CreateTranslation(Dimensions.X / 2, Dimensions.Y / 2, 0);
         }
-        
+
         private void ClampViewportToBounds()
         {
             if (Bounds is not null)

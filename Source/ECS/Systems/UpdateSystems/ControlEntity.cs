@@ -15,7 +15,7 @@ namespace BluishEngine.Systems
         const float _speed = 11f;
         const float _jump = 320f;
 
-        public ControlEntity(World world) : base(world, typeof(Transform), typeof(KinematicBody), typeof(PositionControllable))
+        public ControlEntity(World world) : base(world, typeof(Transform), typeof(KinematicBody), typeof(PositionControllable), typeof(KinematicState))
         {
         }
 
@@ -50,7 +50,7 @@ namespace BluishEngine.Systems
                     force.X += _speed;
                 }
 
-                if (Input.IsKeyJustPressed(Keys.Space))
+                if (Input.IsKeyJustPressed(Keys.Space) && components.GetComponent<KinematicState>().Position == KinematicState.PositionState.Ground)
                 {
                     force.Y -= _jump;
                 }

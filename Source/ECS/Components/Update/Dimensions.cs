@@ -8,6 +8,9 @@ using BluishFramework;
 
 namespace BluishEngine.Components
 {
+    /// <summary>
+    /// Component containing the width and height of the entity
+    /// </summary>
     public class Dimensions : Component
     {
         public int Width { get; set; }
