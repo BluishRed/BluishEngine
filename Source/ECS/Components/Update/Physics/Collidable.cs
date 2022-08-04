@@ -9,7 +9,7 @@ using BluishFramework;
 namespace BluishEngine.Components
 {
     /// <summary>
-    /// Component signifying that the entity can collide with the map and other entities
+    /// Component signifying that the entity can collide with the map and other collidable entities
     /// </summary>
     public class Collidable : Component
     {

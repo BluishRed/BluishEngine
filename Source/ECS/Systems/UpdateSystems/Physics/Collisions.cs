@@ -20,7 +20,7 @@ namespace BluishEngine.Systems
         protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
         { 
             Vector2 vel = components.GetComponent<KinematicBody>().Velocity;
-            KinematicState.PositionState positionState = components.GetComponent<KinematicState>().Position;
+            bool onGround = components.GetComponent<KinematicState>().OnGround;
 
             // TODO: If collision is sideways then it won't work
             if (Map is not null)
@@ -31,16 +31,16 @@ namespace BluishEngine.Systems
                     components.GetComponent<Transform>().Depth,
                     components.GetComponent<Transform>().Position + components.GetComponent<Collidable>().BoundingBox.Location.ToVector2(),
                     ref vel,
-                    ref positionState
+                    ref onGround
                 );
             }
 
             components.GetComponent<KinematicBody>().Velocity = vel;
-            components.GetComponent<KinematicState>().Position = positionState;
+            components.GetComponent<KinematicState>().OnGround = onGround;
         }
 
         // TODO: Tidy this up
-        protected void ResolveMapCollisions(int width, int height, float depth, Vector2 pos, ref Vector2 vel, ref KinematicState.PositionState positionState)
+        protected void ResolveMapCollisions(int width, int height, float depth, Vector2 pos, ref Vector2 vel, ref bool onGround)
         {
             if (vel.X != 0)
             {
@@ -66,7 +66,7 @@ namespace BluishEngine.Systems
                 }
             }
 
-            positionState = KinematicState.PositionState.Air;
+            onGround = false;
 
             if (vel.Y != 0)
             {
@@ -90,7 +90,7 @@ namespace BluishEngine.Systems
                     if (collidableTiles.Count > 0)
                     {
                         vel.Y = Math.Max(0, MinY(collidableTiles) - pos.Y - height);
-                        positionState = KinematicState.PositionState.Ground;
+                        onGround = true;
                     }
                 }
             }

@@ -19,9 +19,6 @@ namespace BluishEngine.Systems
         {
         }
 
-        // TODO: Collision not working
-        // TODO: Camera stabilisation
-
         protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
         {
             if (components.GetComponent<PositionControllable>().Active)
@@ -50,7 +47,7 @@ namespace BluishEngine.Systems
                     force.X += _speed;
                 }
 
-                if (Input.IsKeyJustPressed(Keys.Space) && components.GetComponent<KinematicState>().Position == KinematicState.PositionState.Ground)
+                if (Input.IsKeyJustPressed(Keys.Space) && components.GetComponent<KinematicState>().OnGround)
                 {
                     force.Y -= _jump;
                 }

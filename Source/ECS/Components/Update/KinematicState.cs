@@ -9,27 +9,11 @@ namespace BluishEngine.Components
 {
     public class KinematicState : Component
     {
-        public enum PositionState
-        { 
-            Ground,
-            Air
-        }
-
-        public enum MovementState
-        {
-            Stopped,
-            Walking,
-            Running,
-            Jumping
-        }
-
-        public PositionState Position { get; set; }
-        public MovementState Movement { get; set; }
+        public bool OnGround { get; set; }
 
         public KinematicState()
         {
-            Position = PositionState.Ground;
-            Movement = MovementState.Stopped;
+            
         }
     }
 }
