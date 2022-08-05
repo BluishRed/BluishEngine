@@ -13,7 +13,7 @@ namespace BluishEngine.Components
 
         public KinematicState()
         {
-            
+
         }
     }
 }

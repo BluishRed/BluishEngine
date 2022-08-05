@@ -114,7 +114,7 @@ namespace BluishEngine
                 int tile = 0;
                 Layers.Add(new Entity[mapLayer.Width, mapLayer.Height]);
 
-                // TODO: Make the dimensions of the map correlate to the dimensions of the midground
+                // TODO: Make the dimensions of the map correlate to the dimensions of the midground (Or largest layer)?
 
                 Dimensions = new Point(mapLayer.Width, mapLayer.Height);
                 Bounds = new Rectangle(Point.Zero, Dimensions);
@@ -134,6 +134,7 @@ namespace BluishEngine
 
             AddEntity();
 
+            // TODO: Check if they are sorted already anyway, so this is redundant
             Array.Sort(data.TileSets, (x, y) => x.FirstGID.CompareTo(y.FirstGID));
 
             foreach (TileSetReference tileSetReference in data.TileSets)
@@ -150,18 +151,20 @@ namespace BluishEngine
                 {
                     for  (int x = 0; x < tileSet.ImageWidth; x += tileSet.TileWidth)
                     {
-                        AddEntity(new Sprite(Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(tileSetReference.Source), tileSet.Image), null), new Rectangle(x, y, tileSet.TileWidth, tileSet.TileHeight)), new Components.Dimensions(tileSet.TileWidth, tileSet.TileHeight));
+                        AddEntity(
+                            new Sprite(Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(tileSetReference.Source), tileSet.Image), null), new Rectangle(x, y, tileSet.TileWidth, tileSet.TileHeight)), 
+                            new Dimensions(tileSet.TileWidth, tileSet.TileHeight)
+                        );
 
                         id++;
                     }
                 }
                 
-
                 if (tileSet.Tiles is not null)
                 {
                     foreach (Tiles tile in tileSet.Tiles)
                     {
-                        AddComponent(tile.ID + tileSetReference.FirstGID, new Components.Collidable(new Rectangle(tile.ObjectGroup.Objects[0].X, tile.ObjectGroup.Objects[0].Y, tile.ObjectGroup.Objects[0].Width, tile.ObjectGroup.Objects[0].Height)));
+                        AddComponent(tile.ID + tileSetReference.FirstGID, new Collidable(new Rectangle(tile.ObjectGroup.Objects[0].X, tile.ObjectGroup.Objects[0].Y, tile.ObjectGroup.Objects[0].Width, tile.ObjectGroup.Objects[0].Height)));
                     }
                 }
             }

@@ -47,7 +47,7 @@ namespace BluishEngine.Systems
                     force.X += _speed;
                 }
 
-                if (Input.IsKeyJustPressed(Keys.Space) && components.GetComponent<KinematicState>().OnGround)
+                if (Input.IsKeyPressed(Keys.Space) && components.GetComponent<KinematicState>().OnGround)
                 {
                     force.Y -= _jump;
                 }

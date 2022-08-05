@@ -19,6 +19,7 @@ namespace BluishEngine.Systems
 
         protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
         { 
+            Vector2 pos = components.GetComponent<Transform>().Position + components.GetComponent<Collidable>().BoundingBox.Location.ToVector2();
             Vector2 vel = components.GetComponent<KinematicBody>().Velocity;
             bool onGround = components.GetComponent<KinematicState>().OnGround;
 
@@ -29,18 +30,19 @@ namespace BluishEngine.Systems
                     components.GetComponent<Collidable>().BoundingBox.Width,
                     components.GetComponent<Collidable>().BoundingBox.Height,
                     components.GetComponent<Transform>().Depth,
-                    components.GetComponent<Transform>().Position + components.GetComponent<Collidable>().BoundingBox.Location.ToVector2(),
+                    ref pos,
                     ref vel,
                     ref onGround
                 );
             }
-
+            
+            components.GetComponent<Transform>().Position = pos - components.GetComponent<Collidable>().BoundingBox.Location.ToVector2();
             components.GetComponent<KinematicBody>().Velocity = vel;
             components.GetComponent<KinematicState>().OnGround = onGround;
         }
 
         // TODO: Tidy this up
-        protected void ResolveMapCollisions(int width, int height, float depth, Vector2 pos, ref Vector2 vel, ref bool onGround)
+        protected void ResolveMapCollisions(int width, int height, float depth, ref Vector2 pos, ref Vector2 vel, ref bool onGround)
         {
             if (vel.X != 0)
             {
@@ -53,7 +55,10 @@ namespace BluishEngine.Systems
                     List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth);
 
                     if (collidableTiles.Count > 0)
-                        vel.X = Math.Min(0, MaxX(collidableTiles) - pos.X);
+                    {
+                        vel.X = 0;
+                        pos.X += Math.Min(0, MaxX(collidableTiles) - pos.X);
+                    }
                 }
                 else
                 {
@@ -62,7 +67,10 @@ namespace BluishEngine.Systems
                     List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth);
 
                     if (collidableTiles.Count > 0)
-                        vel.X = Math.Max(0, MinX(collidableTiles) - pos.X - width);
+                    {
+                        vel.X = 0;
+                        pos.X += Math.Max(0, MinX(collidableTiles) - pos.X - width);
+                    }
                 }
             }
 
@@ -79,7 +87,10 @@ namespace BluishEngine.Systems
                     List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth);
 
                     if (collidableTiles.Count > 0)
-                        vel.Y = Math.Min(0, MaxY(collidableTiles) - pos.Y);
+                    {
+                        vel.Y = 0;
+                        pos.Y += Math.Min(0, MaxY(collidableTiles) - pos.Y);
+                    }                
                 }
                 else
                 {
@@ -89,7 +100,8 @@ namespace BluishEngine.Systems
 
                     if (collidableTiles.Count > 0)
                     {
-                        vel.Y = Math.Max(0, MinY(collidableTiles) - pos.Y - height);
+                        vel.Y = 0;
+                        pos.Y += Math.Max(0, MinY(collidableTiles) - pos.Y - height);
                         onGround = true;
                     }
                 }
