@@ -53,7 +53,7 @@ namespace BluishEngine
         public HashSet<TileLocation> GetTilesInRegion(Rectangle region, int layer)
         {  
             region.Location = TileCoordinates(region.Location);
-            region.Size = new Point((region.Size.X + TileDimensions.X - 1) / TileDimensions.X, (region.Size.Y + TileDimensions.Y +-1) / TileDimensions.Y);
+            region.Size = new Point((region.Size.X + TileDimensions.X - 1) / TileDimensions.X, (region.Size.Y + TileDimensions.Y - 1) / TileDimensions.Y);
             HashSet<TileLocation> tiles = new HashSet<TileLocation>();
 
             for (int y = region.Top; y <= region.Bottom; y++)
@@ -141,7 +141,7 @@ namespace BluishEngine
             {
                 int id = tileSetReference.FirstGID;
 
-                TileSetData tileSet = JsonSerializer.Deserialize<TileSetData>(File.ReadAllText(ContentProvider.RootDirectory + "/" + tileSetReference.Source), options);
+                TileSetData tileSet = JsonSerializer.Deserialize<TileSetData>(File.ReadAllText(ContentProvider.RootDirectory + "/" + Path.Combine(Path.GetDirectoryName(Location), tileSetReference.Source)), options);
 
                 // TODO: Calculate the tile dimensions per layer
 
@@ -162,9 +162,26 @@ namespace BluishEngine
                 
                 if (tileSet.Tiles is not null)
                 {
-                    foreach (Tiles tile in tileSet.Tiles)
+                    foreach (Tile tile in tileSet.Tiles)
                     {
-                        AddComponent(tile.ID + tileSetReference.FirstGID, new Collidable(new Rectangle(tile.ObjectGroup.Objects[0].X, tile.ObjectGroup.Objects[0].Y, tile.ObjectGroup.Objects[0].Width, tile.ObjectGroup.Objects[0].Height)));
+                        foreach (TileObject tileObject in tile.ObjectGroup.Objects)
+                        {
+                            // TODO: Clean this up
+
+                            if (tileObject.Type == "Collidable")
+                            {
+                                bool jumpThrough = false;
+
+                                if (tileObject.Properties is not null)
+                                {
+                                    List<ObjectProperty> properties = tileObject.Properties.ToList();
+
+                                    jumpThrough = properties.FindIndex(o => o.Name == "JumpThrough" && o.Value.GetBoolean()) != -1;
+                                }
+
+                                AddComponent(tile.ID + tileSetReference.FirstGID, new Collidable(new Rectangle(tile.ObjectGroup.Objects[0].X, tile.ObjectGroup.Objects[0].Y, tile.ObjectGroup.Objects[0].Width, tile.ObjectGroup.Objects[0].Height), jumpThrough ? new HashSet<Direction>() { Direction.Up, Direction.Left, Direction.Right } : null));
+                            }
+                        }
                     }
                 }
             }
@@ -226,10 +243,10 @@ namespace BluishEngine
             public int TileHeight { get; set; }
             public int ImageWidth { get; set; }
             public int ImageHeight { get; set; }
-            public Tiles[] Tiles { get; set; }
+            public Tile[] Tiles { get; set; }
         }
 
-        private class Tiles
+        private class Tile
         { 
             public int ID { get; set; }
             public TileObjectGroup ObjectGroup { get; set; }
@@ -246,6 +263,15 @@ namespace BluishEngine
             public int Height { get; set; }
             public int X { get; set; }
             public int Y { get; set; }
+            public string Type { get; set; }
+            public ObjectProperty[] Properties { get; set; }
+        }
+
+        private class ObjectProperty
+        { 
+            public string Name { get; set; }
+            public string Type { get; set; }
+            public JsonElement Value { get; set; }
         }
         #endregion
     }

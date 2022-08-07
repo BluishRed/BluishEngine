@@ -17,13 +17,29 @@ namespace BluishEngine.Components
         /// The <see cref="Rectangle"/> that defines the bounding box of this entity. The coordinates of the rectangle are relative to the top left of the entity
         /// </summary>
         public Rectangle BoundingBox { get; set; }
-        
+        /// <summary>
+        /// Optional <see cref="HashSet{T}"/> containing directions that the entity cannot be collided from
+        /// </summary>
+        public HashSet<Direction> ExcludedDirections { get; set; }
+
         /// <param name="boundingBox">
         /// The bounding box relative to the top left of the entity
         /// </param>
-        public Collidable(Rectangle boundingBox)
+        /// <param name="excludedDirections">
+        /// Optional <see cref="HashSet{T}"/> containing directions that the entity cannot be collided from
+        /// </param>
+        public Collidable(Rectangle boundingBox, HashSet<Direction> excludedDirections = null)
         {
             BoundingBox = boundingBox;
+
+            if (excludedDirections is null)
+            {
+                ExcludedDirections = new HashSet<Direction>();
+            }
+            else
+            {
+                ExcludedDirections = excludedDirections;
+            }
         }
     }
 }

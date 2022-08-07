@@ -18,12 +18,11 @@ namespace BluishEngine.Systems
         }
 
         protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
-        { 
+        {
             Vector2 pos = components.GetComponent<Transform>().Position + components.GetComponent<Collidable>().BoundingBox.Location.ToVector2();
             Vector2 vel = components.GetComponent<KinematicBody>().Velocity;
             bool onGround = components.GetComponent<KinematicState>().OnGround;
 
-            // TODO: If collision is sideways then it won't work
             if (Map is not null)
             {
                 ResolveMapCollisions(
@@ -41,7 +40,6 @@ namespace BluishEngine.Systems
             components.GetComponent<KinematicState>().OnGround = onGround;
         }
 
-        // TODO: Tidy this up
         protected void ResolveMapCollisions(int width, int height, float depth, ref Vector2 pos, ref Vector2 vel, ref bool onGround)
         {
             if (vel.X != 0)
@@ -50,9 +48,9 @@ namespace BluishEngine.Systems
 
                 if (vel.X < 0)
                 {
-                    check = new Rectangle((int)(pos.X + vel.X), (int)pos.Y, (int)Math.Ceiling(-vel.X), height);
+                    check = new Rectangle((int)(pos.X + vel.X), (int)(pos.Y + vel.Y), (int)Math.Ceiling(-vel.X), height);
 
-                    List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth);
+                    List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth, Direction.Left);
 
                     if (collidableTiles.Count > 0)
                     {
@@ -62,9 +60,9 @@ namespace BluishEngine.Systems
                 }
                 else
                 {
-                    check = new Rectangle((int)pos.X + width, (int)pos.Y, (int)Math.Ceiling(vel.X), height);
+                    check = new Rectangle((int)pos.X + width, (int)(pos.Y + vel.Y), (int)Math.Ceiling(vel.X), height);
 
-                    List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth);
+                    List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth, Direction.Right);
 
                     if (collidableTiles.Count > 0)
                     {
@@ -82,21 +80,21 @@ namespace BluishEngine.Systems
 
                 if (vel.Y < 0)
                 {
-                    check = new Rectangle((int)pos.X, (int)(pos.Y + vel.Y), width, (int)Math.Ceiling(-vel.Y));
+                    check = new Rectangle((int)(pos.X + vel.X), (int)(pos.Y + vel.Y), width, (int)Math.Ceiling(-vel.Y));
 
-                    List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth);
+                    List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth, Direction.Up);
 
                     if (collidableTiles.Count > 0)
                     {
                         vel.Y = 0;
                         pos.Y += Math.Min(0, MaxY(collidableTiles) - pos.Y);
-                    }                
+                    }
                 }
                 else
                 {
-                    check = new Rectangle((int)pos.X, (int)(pos.Y + height + vel.Y), width, (int)Math.Ceiling(vel.Y));
+                    check = new Rectangle((int)(pos.X + vel.X), (int)(pos.Y + height + vel.Y), width, (int)Math.Ceiling(vel.Y));
 
-                    List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth);
+                    List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth, Direction.Down);
 
                     if (collidableTiles.Count > 0)
                     {
@@ -108,7 +106,7 @@ namespace BluishEngine.Systems
             }
         }
 
-        private List<Rectangle> GetHitBoxesInRegion(Rectangle region, float depth)
+        private List<Rectangle> GetHitBoxesInRegion(Rectangle region, float depth, Direction direction)
         {
             List<Rectangle> hitboxes = new List<Rectangle>();
 
@@ -119,7 +117,7 @@ namespace BluishEngine.Systems
                 {
                     Rectangle tileBoundingRegion = new Rectangle(tile.GetComponent<Collidable>().BoundingBox.Location + tileLocation.Position.ToPoint(), tile.GetComponent<Collidable>().BoundingBox.Size);
 
-                    if (tileBoundingRegion.Intersects(region))
+                    if (tileBoundingRegion.Intersects(region) && !tile.GetComponent<Collidable>().ExcludedDirections.Contains(direction))
                         hitboxes.Add(tileBoundingRegion);
                 }
             }
