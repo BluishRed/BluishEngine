@@ -15,6 +15,7 @@ namespace BluishEngine
         public Point Dimensions { get; private set; }
         public Rectangle Bounds { get; private set; }
         protected List<Entity[,]> Layers { get; private set; }
+        protected List<Rectangle> Rooms { get; private set; }
         protected Camera Camera { get; private set; }
         protected Point TileDimensions { get; private set; }
         
@@ -22,6 +23,7 @@ namespace BluishEngine
         {
             Location = location;
             Layers = new List<Entity[,]>();
+            Rooms = new List<Rectangle>();
             Camera = camera;
         }
         
@@ -29,7 +31,6 @@ namespace BluishEngine
         {
             for (int layer = 0; layer < Layers.Count; layer++)
             {
-                // TODO: Fix artifacts when zoomed
                 foreach (TileLocation tileLocation in GetTilesInRegion(Camera.Viewport, layer))
                 {
                     ComponentCollection tile = GetComponents(tileLocation.Tile);
@@ -70,30 +71,20 @@ namespace BluishEngine
             return tiles;
         }
 
-        /// <summary>
-        /// Converts <paramref name="worldCoordinates"/> to its equivalent coordinate in terms of tiles
-        /// </summary>
-        /// <returns>
-        /// A <see cref="Point"/> representing the tile coordinates of <paramref name="worldCoordinates"/>
-        /// </returns>
-        public Point TileCoordinates(Point worldCoordinates)
+        public Rectangle GetRoomContainingVector(Vector2 vector2)
         {
-            return new Point(worldCoordinates.X / TileDimensions.X, worldCoordinates.Y / TileDimensions.Y);
-        }
+            // TODO: Optimise this
 
-        public Vector2 TileCoordinates(Vector2 worldCoordinates)
-        {
-            return new Vector2((int)(worldCoordinates.X / TileDimensions.X), (int)(worldCoordinates.Y / TileDimensions.Y));
-        }
+            foreach (Rectangle room in Rooms)
+            {
+                if (room.Contains(vector2))
+                {
+                    return room;
+                }
+            }
 
-        public Point WorldCoordinates(Point tileCoordinates)
-        {
-            return new Point(tileCoordinates.X * TileDimensions.X, tileCoordinates.Y * TileDimensions.Y);
-        }
-
-        public Vector2 WorldCoordinates(Vector2 tileCoordinates)
-        {
-            return new Vector2((int)(tileCoordinates.X * TileDimensions.X), (int)(tileCoordinates.Y * TileDimensions.Y));
+            // TODO: Change this
+            return Rectangle.Empty;
         }
 
         public override void LoadContent(ContentManager content)
@@ -108,34 +99,44 @@ namespace BluishEngine
 
             // Initialising Map Layers
 
-            int layer = 0;
+            // TODO: Make this work with object layers
+
             foreach (MapLayerData mapLayer in data.Layers)
             {
-                int tile = 0;
-                Layers.Add(new Entity[mapLayer.Width, mapLayer.Height]);
-
-                // TODO: Make the dimensions of the map correlate to the dimensions of the midground (Or largest layer)?
-
-                Dimensions = new Point(mapLayer.Width, mapLayer.Height);
-                Bounds = new Rectangle(Point.Zero, Dimensions);
-
-                for (int y = 0; y < Layers[layer].GetLength(0); y++)
+                if (mapLayer.Type == "tilelayer")
                 {
-                    for (int x = 0; x < Layers[layer].GetLength(1); x++)
+                    int tile = 0;
+                    Layers.Add(new Entity[mapLayer.Width, mapLayer.Height]);
+
+                    // TODO: Make the dimensions of the map correlate to the dimensions of the midground (Or largest layer)?
+
+                    Dimensions = new Point(mapLayer.Width, mapLayer.Height);
+                    Bounds = new Rectangle(Point.Zero, Dimensions);
+
+                    for (int y = 0; y < mapLayer.Height; y++)
                     {
-                        Layers[layer][x, y] = data.Layers[layer].Data[tile];
-                        tile++;
+                        for (int x = 0; x < mapLayer.Width; x++)
+                        {
+                            Layers[^1][x, y] = mapLayer.Data[tile];
+                            tile++;
+                        }
                     }
                 }
-                layer++;
+                else if (mapLayer.Type == "objectgroup")
+                {
+                    if (mapLayer.Name == "Rooms")
+                    {
+                        foreach (Object room in mapLayer.Objects)
+                        {
+                            Rooms.Add(new Rectangle(room.X, room.Y, room.Width, room.Height));
+                        }
+                    }
+                }
             }
             
             // Loading Tilesets
 
             AddEntity();
-
-            // TODO: Check if they are sorted already anyway, so this is redundant
-            Array.Sort(data.TileSets, (x, y) => x.FirstGID.CompareTo(y.FirstGID));
 
             foreach (TileSetReference tileSetReference in data.TileSets)
             {
@@ -164,7 +165,7 @@ namespace BluishEngine
                 {
                     foreach (Tile tile in tileSet.Tiles)
                     {
-                        foreach (TileObject tileObject in tile.ObjectGroup.Objects)
+                        foreach (Object tileObject in tile.ObjectGroup.Objects)
                         {
                             // TODO: Clean this up
 
@@ -201,6 +202,33 @@ namespace BluishEngine
         }
 
         /// <summary>
+        /// Converts <paramref name="worldCoordinates"/> to its equivalent coordinate in terms of tiles
+        /// </summary>
+        /// <returns>
+        /// A <see cref="Point"/> representing the tile coordinates of <paramref name="worldCoordinates"/>
+        /// </returns>
+        public Point TileCoordinates(Point worldCoordinates)
+        {
+            return new Point(worldCoordinates.X / TileDimensions.X, worldCoordinates.Y / TileDimensions.Y);
+        }
+
+        public Vector2 TileCoordinates(Vector2 worldCoordinates)
+        {
+            return new Vector2((int)(worldCoordinates.X / TileDimensions.X), (int)(worldCoordinates.Y / TileDimensions.Y));
+        }
+
+        public Point WorldCoordinates(Point tileCoordinates)
+        {
+            return new Point(tileCoordinates.X * TileDimensions.X, tileCoordinates.Y * TileDimensions.Y);
+        }
+
+        public Vector2 WorldCoordinates(Vector2 tileCoordinates)
+        {
+            return new Vector2((int)(tileCoordinates.X * TileDimensions.X), (int)(tileCoordinates.Y * TileDimensions.Y));
+        }
+
+
+        /// <summary>
         /// Represents a particular tile on the map as its tile ID and its world location
         /// </summary>
         public class TileLocation
@@ -224,10 +252,13 @@ namespace BluishEngine
 
         private class MapLayerData
         {
+            public string Name { get; set; }
             public int[] Data { get; set; }
+            public Object[] Objects { get; set; }
             public int Width { get; set; }
             public int Height { get; set; }
             public bool Visible { get; set; }
+            public string Type { get; set; }
         }
 
         private class TileSetReference
@@ -254,10 +285,10 @@ namespace BluishEngine
 
         private class TileObjectGroup
         { 
-            public TileObject[] Objects { get; set; }
+            public Object[] Objects { get; set; }
         }
 
-        private class TileObject
+        private class Object
         {
             public int Width { get; set; }
             public int Height { get; set; }
