@@ -29,11 +29,25 @@ namespace BluishEngine
                 ClampViewportToBounds();
             }
         }
+        private float _zoom;
 
         /// <summary>
         /// A <see cref="float"/> representing the zoom level, with <c>1</c> being the default zoom
         /// </summary>
-        public float Zoom { get; set; }
+        public float Zoom 
+        {
+            get
+            {
+                return _zoom;
+            }
+            set
+            {
+                if (Bounds.HasValue)
+                    _zoom = Math.Max(value, Math.Max((float)PixelDimensions.X / Bounds.Value.Width, (float)PixelDimensions.Y / Bounds.Value.Height));
+                else
+                    _zoom = value;
+            }
+        }
         /// <summary>
         /// The viewable area of the world as a <see cref="Rectangle"/>
         /// </summary>
@@ -41,14 +55,14 @@ namespace BluishEngine
         {
             get
             {
-                int width = (int)Math.Ceiling(Dimensions.X / Zoom);
-                int height = (int)Math.Ceiling(Dimensions.Y / Zoom);
+                int width = (int)Math.Ceiling(PixelDimensions.X / Zoom);
+                int height = (int)Math.Ceiling(PixelDimensions.Y / Zoom);
                 return new Rectangle((int)(Focus.X - Math.Ceiling(width / 2f)), (int)(Focus.Y - (int)Math.Ceiling(height / 2f)), width, height);
             }
             set
             {
                 Focus = value.Center.ToVector2();
-                Zoom = (float)Dimensions.Y / value.Height;
+                Zoom = (float)PixelDimensions.Y / value.Height;
                 ClampViewportToBounds();
             }
         }
@@ -56,16 +70,19 @@ namespace BluishEngine
         /// An optional <see cref="Rectangle"/> restricting the range of movement of this <see cref="Camera"/>
         /// </summary>
         public Rectangle? Bounds { get; set; }
-        protected Point Dimensions { get; set; }
+        /// <summary>
+        /// The dimensions of the viewport in pixels
+        /// </summary>
+        protected Point PixelDimensions { get; set; }
 
-        /// <param name="screenDimensions">
-        /// The size of the screen in pixels
+        /// <param name="pixelDimensions">
+        /// <inheritdoc cref="PixelDimensions" path="/summary"/>
         /// </param>
-        public Camera(Point screenDimensions)
+        public Camera(Point pixelDimensions)
         {
-            Zoom = 1;
+            _zoom = 1;
             Focus = Vector2.Zero;
-            Dimensions = screenDimensions;
+            PixelDimensions = pixelDimensions;
         }
 
         /// <summary>
@@ -77,13 +94,13 @@ namespace BluishEngine
         public Matrix Transform()
         {
             return Matrix.CreateTranslation(-Focus.X, -Focus.Y, 0)
-                * Matrix.CreateScale(Zoom)
-                * Matrix.CreateTranslation(Dimensions.X / 2, Dimensions.Y / 2, 0);
+                * Matrix.CreateScale(Zoom, Zoom, 1)
+                * Matrix.CreateTranslation(PixelDimensions.X / 2, PixelDimensions.Y / 2, 0);
         }
 
         private void ClampViewportToBounds()
         {
-            if (Bounds is not null)
+            if (Bounds.HasValue)
                 _focus = new Vector2(
                     Math.Clamp(_focus.X, Bounds.Value.Left + Viewport.Width / 2, Bounds.Value.Right - Viewport.Width / 2), 
                     Math.Clamp(_focus.Y, Bounds.Value.Top + Viewport.Height / 2, Bounds.Value.Bottom - Viewport.Height / 2)

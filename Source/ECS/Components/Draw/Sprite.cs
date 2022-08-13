@@ -14,7 +14,7 @@ namespace BluishEngine.Components
     public class Sprite : Component
     {
         /// <summary>
-        /// The location of the image
+        /// The content location
         /// </summary>
         public string Location { get; set; }
         /// <summary>
@@ -27,10 +27,10 @@ namespace BluishEngine.Components
         public Rectangle? Source { get; set; }
 
         /// <param name="location">
-        /// The location of the image
+        /// <inheritdoc cref="Location" path="/summary"/>
         /// </param>
         /// <param name="source">
-        /// An optional <see cref="Rectangle"/> specifying a particular part of the image
+        /// <inheritdoc cref="Source" path="/summary"/>
         /// </param>
         public Sprite(string location, Rectangle? source = null)
         {

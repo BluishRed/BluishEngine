@@ -9,12 +9,23 @@ using BluishEngine.Components;
 
 namespace BluishEngine
 {
+    /// <summary>
+    /// A <see cref="World"/> containing data on tiles and the structure of them in the form of layers
+    /// </summary>
     public class Map : World
     {
+        /// <summary>
+        /// Content location
+        /// </summary>
         public string Location { get; private set; }
+        // TODO: Add summary
         public Point Dimensions { get; private set; }
+        /// <summary>
+        /// A <see cref="Rectangle"/> with location <see cref="Point.Zero"/> and a size of <see cref="Dimensions"/>
+        /// </summary>
         public Rectangle Bounds { get; private set; }
         protected List<Entity[,]> Layers { get; private set; }
+        protected List<float> Depths { get; private set; }
         protected List<Rectangle> Rooms { get; private set; }
         protected Camera Camera { get; private set; }
         protected Point TileDimensions { get; private set; }
@@ -24,6 +35,7 @@ namespace BluishEngine
             Location = location;
             Layers = new List<Entity[,]>();
             Rooms = new List<Rectangle>();
+            Depths = new List<float>();
             Camera = camera;
         }
         
@@ -39,8 +51,13 @@ namespace BluishEngine
                         texture: tile.GetComponent<Sprite>().Texture,
                         position: tileLocation.Position,
                         sourceRectangle: tile.GetComponent<Sprite>().Source,
-                        color: Color.White
-                    );
+                        color: Color.White,
+                        rotation: 0f,
+                        origin: Vector2.Zero,
+                        scale: 1,
+                        effects: SpriteEffects.None,
+                        layerDepth: Depths[layer]
+                    );  
                 }
             }
         }
@@ -83,8 +100,7 @@ namespace BluishEngine
                 }
             }
 
-            // TODO: Change this
-            return Rectangle.Empty;
+            throw new Exception($"There is no room that contains {vector2}");
         }
 
         public override void LoadContent(ContentManager content)
@@ -99,7 +115,8 @@ namespace BluishEngine
 
             // Initialising Map Layers
 
-            // TODO: Make this work with object layers
+
+            Depths.Add(0f);
 
             foreach (MapLayerData mapLayer in data.Layers)
             {
@@ -108,8 +125,12 @@ namespace BluishEngine
                     int tile = 0;
                     Layers.Add(new Entity[mapLayer.Width, mapLayer.Height]);
 
-                    // TODO: Make the dimensions of the map correlate to the dimensions of the midground (Or largest layer)?
+                    // TODO: Properly implement depths
 
+                    Depths.Add(Depths[^1] + 1f / data.Layers.Length);
+
+                    // TODO: Make the dimensions of the map correlate to the dimensions of the midground (Or largest layer)?
+                     
                     Dimensions = new Point(mapLayer.Width, mapLayer.Height);
                     Bounds = new Rectangle(Point.Zero, Dimensions);
 
@@ -121,7 +142,7 @@ namespace BluishEngine
                             tile++;
                         }
                     }
-                }
+                } 
                 else if (mapLayer.Type == "objectgroup")
                 {
                     if (mapLayer.Name == "Rooms")
@@ -133,6 +154,8 @@ namespace BluishEngine
                     }
                 }
             }
+
+            Depths.RemoveAt(0);
             
             // Loading Tilesets
 

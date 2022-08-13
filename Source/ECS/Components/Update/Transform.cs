@@ -11,12 +11,16 @@ namespace BluishEngine.Components
     public class Transform : Component
     {
         public Vector2 Position { get; set; }
+        public float Rotation { get; set; }
         public float Depth { get; set; }
+        public float Scale { get; set; }
 
-        public Transform(Vector2 position, float depth)
+        public Transform(Vector2 position, float depth, float rotation, float scale)
         {
             Position = position;
+            Rotation = rotation;
             Depth = depth;
+            Scale = scale;
         }
     }
 }

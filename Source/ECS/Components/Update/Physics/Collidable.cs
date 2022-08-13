@@ -23,10 +23,10 @@ namespace BluishEngine.Components
         public HashSet<Direction> ExcludedDirections { get; set; }
 
         /// <param name="boundingBox">
-        /// The bounding box relative to the top left of the entity
+        /// <inheritdoc cref="BoundingBox" path="/summary"/>
         /// </param>
         /// <param name="excludedDirections">
-        /// Optional <see cref="HashSet{T}"/> containing directions that the entity cannot be collided from
+        /// <inheritdoc cref="ExcludedDirections" path="/summary"/>
         /// </param>
         public Collidable(Rectangle boundingBox, HashSet<Direction> excludedDirections = null)
         {

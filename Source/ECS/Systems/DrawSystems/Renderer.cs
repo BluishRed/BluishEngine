@@ -11,13 +11,13 @@ namespace BluishEngine.Systems
 {
     public class Renderer : DrawSystem
     {
-        public Renderer(World world) : base(world, typeof(Components.Sprite), typeof(Transform))
+        public Renderer(World world) : base(world, typeof(Sprite), typeof(Transform))
         {
         }
 
         protected override void DrawEntity(SpriteBatch spriteBatch, Entity entity, ComponentCollection components)
         {
-            spriteBatch.Draw(components.GetComponent<Components.Sprite>().Texture, components.GetComponent<Transform>().Position, components.GetComponent<Components.Sprite>().Source, Color.White);
+            spriteBatch.Draw(components.GetComponent<Sprite>().Texture, components.GetComponent<Transform>().Position, components.GetComponent<Sprite>().Source, Color.White, components.GetComponent<Transform>().Rotation, Vector2.Zero, components.GetComponent<Transform>().Scale, SpriteEffects.None, components.GetComponent<Transform>().Depth);
         }
     }
 }

@@ -17,7 +17,7 @@ namespace BluishEngine.Components
         /// </summary>
         public Vector2 Force { get; set; }
         /// <summary>
-        /// The veloctity vector that is persistant across frames
+        /// The velocity vector that is persistant across frames
         /// </summary>
         public Vector2 Velocity { get; set; }
         /// <summary>
@@ -26,7 +26,7 @@ namespace BluishEngine.Components
         public float Mass { get; set; }
 
         /// <param name="mass">
-        /// The mass scalar of the entity
+        /// <inheritdoc cref="Mass" path="/summary"/>
         /// </param>
         public KinematicBody(float mass)
         {
