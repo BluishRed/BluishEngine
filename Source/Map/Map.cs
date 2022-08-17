@@ -81,7 +81,7 @@ namespace BluishEngine
                 {
                     if (Layers[layer][x, y] != 0)
                     {
-                        tiles.Add(new TileLocation(WorldCoordinates(new Vector2(x, y)), Layers[layer][x, y]));
+                        tiles.Add(new TileLocation(WorldCoordinates(new Vector2(x, y)) + new Vector2(Camera.Position.X % 1, Camera.Position.Y % 1), Layers[layer][x, y]));
                     }
                 }
             }
