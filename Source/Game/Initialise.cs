@@ -30,12 +30,9 @@ namespace BluishEngine
         protected sealed override void Initialize()
         {
             _scale = Math.Min(Graphics.ScreenResolution.Y / Graphics.GameResolution.Y, Graphics.ScreenResolution.X / Graphics.GameResolution.X);
-            if (!_graphics.IsFullScreen)
-            {
-                _graphics.PreferredBackBufferWidth = Graphics.GameResolution.X * _scale;
-                _graphics.PreferredBackBufferHeight = Graphics.GameResolution.Y * _scale;
-                _graphics.ApplyChanges();
-            }
+            _graphics.PreferredBackBufferWidth = Graphics.ScreenResolution.X;
+            _graphics.PreferredBackBufferHeight = Graphics.ScreenResolution.Y;
+            _graphics.ApplyChanges();
             _gameScreen = new RenderTarget2D(GraphicsDevice, Graphics.GameResolution.X, Graphics.GameResolution.Y);
 
             StateManager.Initialise();

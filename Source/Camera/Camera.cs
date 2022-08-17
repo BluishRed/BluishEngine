@@ -5,7 +5,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using BluishFramework;
 
-
 namespace BluishEngine
 {
     /// <summary>
@@ -13,28 +12,10 @@ namespace BluishEngine
     /// </summary>
     public class Camera
     {
-        private Vector2 _focus;
-        /// <summary>
-        /// The center of the viewport
-        /// </summary>
-        public Vector2 Focus 
-        { 
-            get
-            {
-                return _focus;
-            }
-            set
-            {
-                _focus = value;
-                ClampViewportToBounds();
-            }
-        }
-        private float _zoom;
-
         /// <summary>
         /// A <see cref="float"/> representing the zoom level, with <c>1</c> being the default zoom
         /// </summary>
-        public float Zoom 
+        public float Zoom
         {
             get
             {
@@ -43,11 +24,25 @@ namespace BluishEngine
             set
             {
                 if (Bounds.HasValue)
-                    _zoom = Math.Max(value, Math.Max((float)PixelDimensions.X / Bounds.Value.Width, (float)PixelDimensions.Y / Bounds.Value.Height));
+                    _zoom = Math.Max(value, Math.Max((float)_defaultDimensions.X / Bounds.Value.Width, (float)_defaultDimensions.Y / Bounds.Value.Height));
                 else
                     _zoom = value;
             }
         }
+
+        public Vector2 Position
+        {
+            get
+            {
+                return _position;
+            }
+            set
+            {
+                _position = value;
+                ClampViewportToBounds();
+            }
+        }
+
         /// <summary>
         /// The viewable area of the world as a <see cref="Rectangle"/>
         /// </summary>
@@ -55,34 +50,32 @@ namespace BluishEngine
         {
             get
             {
-                int width = (int)Math.Ceiling(PixelDimensions.X / Zoom);
-                int height = (int)Math.Ceiling(PixelDimensions.Y / Zoom);
-                return new Rectangle((int)(Focus.X - Math.Ceiling(width / 2f)), (int)(Focus.Y - (int)Math.Ceiling(height / 2f)), width, height);
+                return new Rectangle((int)Position.X, (int)Position.Y, (int)Math.Ceiling(_defaultDimensions.X / Zoom), (int)Math.Ceiling(_defaultDimensions.Y / Zoom));
             }
             set
             {
-                Focus = value.Center.ToVector2();
-                Zoom = (float)PixelDimensions.Y / value.Height;
+                Position = value.Location.ToVector2();
+                Zoom = value.Width / _defaultDimensions.X;
                 ClampViewportToBounds();
             }
         }
+
         /// <summary>
         /// An optional <see cref="Rectangle"/> restricting the range of movement of this <see cref="Camera"/>
         /// </summary>
         public Rectangle? Bounds { get; set; }
-        /// <summary>
-        /// The dimensions of the viewport in pixels
-        /// </summary>
-        protected Point PixelDimensions { get; set; }
 
-        /// <param name="pixelDimensions">
-        /// <inheritdoc cref="PixelDimensions" path="/summary"/>
+        private Vector2 _position;
+        private float _zoom;
+        private Point _defaultDimensions;
+
+        /// <param name="viewportDimensions">
+        /// <inheritdoc cref="ViewportDimensions" path="/summary"/>
         /// </param>
-        public Camera(Point pixelDimensions)
+        public Camera(Point defaultViewportDimensions)
         {
-            _zoom = 1;
-            Focus = Vector2.Zero;
-            PixelDimensions = pixelDimensions;
+            _defaultDimensions = defaultViewportDimensions;
+            Viewport = new Rectangle(Point.Zero, _defaultDimensions);
         }
 
         /// <summary>
@@ -93,18 +86,25 @@ namespace BluishEngine
         /// </returns>
         public Matrix Transform()
         {
-            return Matrix.CreateTranslation(-Focus.X, -Focus.Y, 0)
-                * Matrix.CreateScale(Zoom, Zoom, 1)
-                * Matrix.CreateTranslation(PixelDimensions.X / 2, PixelDimensions.Y / 2, 0);
+            return Matrix.CreateTranslation(-Position.X, -Position.Y, 0)
+                * Matrix.CreateScale(Zoom, Zoom, 1);
+        }
+
+        /// <summary>
+        /// Sets <paramref name="centre"/> to the middle of the <see cref="Viewport"/>
+        /// </summary>
+        public void FocusOn(Vector2 centre)
+        {
+            Position = new Vector2(centre.X - Viewport.Size.X / 2, centre.Y - Viewport.Size.Y / 2);
         }
 
         private void ClampViewportToBounds()
         {
             if (Bounds.HasValue)
-                _focus = new Vector2(
-                    Math.Clamp(_focus.X, Bounds.Value.Left + Viewport.Width / 2, Bounds.Value.Right - Viewport.Width / 2), 
-                    Math.Clamp(_focus.Y, Bounds.Value.Top + Viewport.Height / 2, Bounds.Value.Bottom - Viewport.Height / 2)
-                );
+            {
+                _position.X = Math.Clamp(_position.X, Bounds.Value.Left, Bounds.Value.Right - Viewport.Width);
+                _position.Y = Math.Clamp(_position.Y, Bounds.Value.Top, Bounds.Value.Bottom - Viewport.Height);
+            }
         }
     }
 }

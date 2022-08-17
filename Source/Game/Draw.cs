@@ -13,9 +13,7 @@ namespace BluishEngine
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.SetRenderTarget(_gameScreen);
-
             StateManager.CurrentState.Draw(_spriteBatch);
-
             GraphicsDevice.SetRenderTarget(null);
 
             _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);

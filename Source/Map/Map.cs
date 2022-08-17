@@ -18,6 +18,7 @@ namespace BluishEngine
         /// Content location
         /// </summary>
         public string Location { get; private set; }
+
         // TODO: Add summary
         public Point Dimensions { get; private set; }
         /// <summary>
@@ -80,7 +81,7 @@ namespace BluishEngine
                 {
                     if (Layers[layer][x, y] != 0)
                     {
-                        tiles.Add(new TileLocation(WorldCoordinates(new Vector2(x, y)) + new Vector2(Camera.Focus.X % 1, Camera.Focus.Y % 1), Layers[layer][x, y]));
+                        tiles.Add(new TileLocation(WorldCoordinates(new Vector2(x, y)), Layers[layer][x, y]));
                     }
                 }
             }
@@ -124,8 +125,6 @@ namespace BluishEngine
                 {
                     int tile = 0;
                     Layers.Add(new Entity[mapLayer.Width, mapLayer.Height]);
-
-                    // TODO: Properly implement depths
 
                     Depths.Add(Depths[^1] + 1f / data.Layers.Length);
 
@@ -190,8 +189,6 @@ namespace BluishEngine
                     {
                         foreach (Object tileObject in tile.ObjectGroup.Objects)
                         {
-                            // TODO: Clean this up
-
                             if (tileObject.Type == "Collidable")
                             {
                                 bool jumpThrough = false;

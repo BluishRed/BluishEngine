@@ -29,7 +29,7 @@ namespace BluishEngine.Systems
                 if (_map is not null)
                     _camera.Bounds = _map.GetRoomContainingVector(centre);
 
-                _camera.Focus = centre;
+                _camera.FocusOn(centre);
             }
         }
     }
