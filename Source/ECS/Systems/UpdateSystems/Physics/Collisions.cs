@@ -60,7 +60,7 @@ namespace BluishEngine.Systems
                 }
                 else
                 {
-                    check = new Rectangle((int)pos.X + width, (int)(pos.Y + vel.Y), (int)Math.Ceiling(vel.X), height);
+                    check = new Rectangle((int)Math.Ceiling(pos.X + width), (int)(pos.Y + vel.Y), (int)Math.Ceiling(vel.X), height);
 
                     List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth, Direction.Right);
 

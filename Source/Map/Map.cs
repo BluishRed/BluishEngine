@@ -50,7 +50,7 @@ namespace BluishEngine
 
                     spriteBatch.Draw(
                         texture: tile.GetComponent<Sprite>().Texture,
-                        position: tileLocation.Position,
+                        position: tileLocation.Position + new Vector2(Camera.Position.X % 1, Camera.Position.Y % 1),
                         sourceRectangle: tile.GetComponent<Sprite>().Source,
                         color: Color.White,
                         rotation: 0f,
@@ -58,7 +58,7 @@ namespace BluishEngine
                         scale: 1,
                         effects: SpriteEffects.None,
                         layerDepth: Depths[layer]
-                    );  
+                    );
                 }
             }
         }
@@ -78,10 +78,10 @@ namespace BluishEngine
             for (int y = region.Top; y <= region.Bottom; y++)
             {
                 for (int x = region.Left; x <= region.Right; x++)
-                {
+                { 
                     if (Layers[layer][x, y] != 0)
                     {
-                        tiles.Add(new TileLocation(WorldCoordinates(new Vector2(x, y)) + new Vector2(Camera.Position.X % 1, Camera.Position.Y % 1), Layers[layer][x, y]));
+                        tiles.Add(new TileLocation(WorldCoordinates(new Vector2(x, y)), Layers[layer][x, y]));
                     }
                 }
             }

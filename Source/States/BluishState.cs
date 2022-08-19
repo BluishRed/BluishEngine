@@ -48,6 +48,8 @@ namespace BluishEngine
                 Camera.Zoom *= 0.5f;
             }
 
+            Camera.Update(gameTime);
+
             base.Update(gameTime);
         }
 
