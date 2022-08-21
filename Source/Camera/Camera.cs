@@ -38,8 +38,11 @@ namespace BluishEngine
             }
             set
             {
-                _position = value;
-                ClampViewportToBounds();
+                if (_canManuallyMove)
+                {
+                    _position = value;
+                    ClampViewportToBounds();
+                }  
             }
         }
         /// <summary>
@@ -53,20 +56,35 @@ namespace BluishEngine
             }
             set
             {
-                Position = value.Location.ToVector2();
                 Zoom = value.Width / _defaultDimensions.X;
+                Position = value.Location.ToVector2();
                 ClampViewportToBounds();
             }
         }
         /// <summary>
         /// An optional <see cref="Rectangle"/> restricting the range of movement of this <see cref="Camera"/>
         /// </summary>
-        public Rectangle? Bounds { get; set; }
+        public Rectangle? Bounds { 
+            get
+            {
+                return _bounds;
+            }
+            set
+            {
+                if (_canManuallyMove)
+                {
+                    _bounds = value;
+                }
+            }
+        }
 
+        private bool _canManuallyMove;
         private Vector2 _position;
         private float _zoom;
+        private Rectangle? _bounds;
         private Point _defaultDimensions;
         private List<CameraEffect> _effects;
+        private List<CameraEffect> _effectsToRemove;
 
         /// <param name="viewportDimensions">
         /// <inheritdoc cref="ViewportDimensions" path="/summary"/>
@@ -75,6 +93,8 @@ namespace BluishEngine
         {
             _defaultDimensions = defaultViewportDimensions;
             _effects = new List<CameraEffect>();
+            _effectsToRemove = new List<CameraEffect>();
+            _canManuallyMove = true;
             Viewport = new Rectangle(Point.Zero, _defaultDimensions);
         }
 
@@ -104,14 +124,19 @@ namespace BluishEngine
             {
                 effect.Update(gameTime);
 
-                if (effect.Finished)
-                    _effects.Remove(effect);
+                if (effect.Completed)
+                    _effectsToRemove.Add(effect);
+            }
+
+            foreach(CameraEffect effect in _effectsToRemove)
+            {
+                _effects.Remove(effect);
             }
         }
 
         public void SlideTo(Vector2 destination, float duration)
         {
-            _effects.Add(new Swipe(destination, duration));
+            _effects.Add(new Swipe(this, destination, duration));
         }
 
         private void ClampViewportToBounds()
@@ -125,18 +150,26 @@ namespace BluishEngine
 
         class CameraEffect
         {
-            public bool Finished { get; private set; }
+            public bool Completed { get; private set; }
+            protected float Duration { get; private set; }
+            protected float ElapsedTime { get; private set; }
+            protected Camera Camera { get; private set; }
 
-            private float _duration;
-
-            public CameraEffect(float duration)
+            public CameraEffect(Camera camera, float duration)
             {
-                _duration = duration;
+                Duration = duration;
+                ElapsedTime = 0;
+                Camera = camera;
             }
 
-            public void Update(GameTime gameTime)
+            public virtual void Update(GameTime gameTime)
             {
-
+                ElapsedTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                if (ElapsedTime >= Duration)
+                {
+                    Completed = true;
+                    Camera._canManuallyMove = true;
+                }
             }
         }
 
@@ -144,9 +177,16 @@ namespace BluishEngine
         {
             private Vector2 _destination;
 
-            public Swipe(Vector2 destination, float duration) : base(duration)
+            public Swipe(Camera camera, Vector2 destination, float duration) : base(camera, duration)
             {
                 _destination = destination;
+                camera._canManuallyMove = false;
+            }
+
+            public override void Update(GameTime gameTime)
+            {
+                Camera._position = Vector2.Lerp(Camera.Position, _destination, ElapsedTime / Duration);
+                base.Update(gameTime);
             }
         }
     }

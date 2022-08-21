@@ -36,9 +36,7 @@ namespace BluishEngine
         {
             if (Map is not null)
                 Map.Update(gameTime);
-
-            // TODO: Remove this eventually
-
+         
             if (Input.IsKeyJustPressed(Keys.W))
             {
                 Camera.Zoom *= 2f;
