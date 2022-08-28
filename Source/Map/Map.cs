@@ -116,7 +116,6 @@ namespace BluishEngine
 
             // Initialising Map Layers
 
-
             Depths.Add(0f);
 
             foreach (MapLayerData mapLayer in data.Layers)
