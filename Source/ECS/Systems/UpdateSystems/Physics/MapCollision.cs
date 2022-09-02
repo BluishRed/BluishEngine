@@ -8,11 +8,11 @@ using BluishEngine.Components;
 
 namespace BluishEngine.Systems
 {
-    public class Collision : UpdateSystem
+    public class MapCollision : UpdateSystem
     {
-        protected Map? Map { get; private set; }
+        protected Map Map { get; private set; }
 
-        public Collision(World world, Map? map = null) : base(world, typeof(Collidable), typeof(KinematicBody), typeof(Transform), typeof(KinematicState))
+        public MapCollision(World world, Map map) : base(world, typeof(Collidable), typeof(KinematicBody), typeof(Transform), typeof(KinematicState))
         {
             Map = map;
         }
@@ -23,17 +23,14 @@ namespace BluishEngine.Systems
             Vector2 vel = components.GetComponent<KinematicBody>().Velocity;
             bool onGround = components.GetComponent<KinematicState>().OnGround;
 
-            if (Map is not null)
-            {
-                ResolveMapCollisions(
-                    components.GetComponent<Collidable>().BoundingBox.Width,
-                    components.GetComponent<Collidable>().BoundingBox.Height,
-                    components.GetComponent<Transform>().Depth,
-                    ref pos,
-                    ref vel,
-                    ref onGround
-                );
-            }
+            ResolveMapCollisions(
+                components.GetComponent<Collidable>().BoundingBox.Width,
+                components.GetComponent<Collidable>().BoundingBox.Height,
+                components.GetComponent<Transform>().Depth,
+                ref pos,
+                ref vel,
+                ref onGround
+            );
             
             components.GetComponent<Transform>().Position = pos - components.GetComponent<Collidable>().BoundingBox.Location.ToVector2();
             components.GetComponent<KinematicBody>().Velocity = vel;
@@ -48,7 +45,7 @@ namespace BluishEngine.Systems
 
                 if (vel.X < 0)
                 {
-                    check = new Rectangle((int)(pos.X + vel.X), (int)(pos.Y + vel.Y), (int)Math.Ceiling(-vel.X), height);
+                    check = new Rectangle((int)(pos.X + vel.X), (int)(pos.Y + vel.Y), (int)Math.Round(-vel.X), height);
 
                     List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth, Direction.Left);
 
@@ -60,7 +57,7 @@ namespace BluishEngine.Systems
                 }
                 else
                 {
-                    check = new Rectangle((int)Math.Ceiling(pos.X + width), (int)(pos.Y + vel.Y), (int)Math.Ceiling(vel.X), height);
+                    check = new Rectangle((int)Math.Ceiling(pos.X + width), (int)(pos.Y + vel.Y), (int)Math.Round(vel.X), height);
 
                     List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth, Direction.Right);
 

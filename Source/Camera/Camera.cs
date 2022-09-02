@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using BluishFramework;
-using System.Runtime.InteropServices;
 
 namespace BluishEngine
 {
@@ -74,6 +73,7 @@ namespace BluishEngine
                 if (_canManuallyMove)
                 {
                     _bounds = value;
+                    ClampViewportToBounds();
                 }
             }
         }
@@ -83,7 +83,7 @@ namespace BluishEngine
         private float _zoom;
         private Rectangle? _bounds;
         private Point _defaultDimensions;
-        private List<CameraEffect> _effects;
+        private Dictionary<Type, CameraEffect> _effects;
         private List<CameraEffect> _effectsToRemove;
 
         /// <param name="viewportDimensions">
@@ -92,7 +92,7 @@ namespace BluishEngine
         public Camera(Point defaultViewportDimensions)
         {
             _defaultDimensions = defaultViewportDimensions;
-            _effects = new List<CameraEffect>();
+            _effects = new Dictionary<Type, CameraEffect>();
             _effectsToRemove = new List<CameraEffect>();
             _canManuallyMove = true;
             Viewport = new Rectangle(Point.Zero, _defaultDimensions);
@@ -106,37 +106,49 @@ namespace BluishEngine
         /// </returns>
         public Matrix Transform()
         {
-            return Matrix.CreateTranslation(-Position.X, -Position.Y, 0)
+            return Matrix.CreateTranslation(-(int)Position.X, -(int)Position.Y, 0)
                 * Matrix.CreateScale(Zoom, Zoom, 1);
         }
-
+        
         /// <summary>
         /// Sets <paramref name="centre"/> to the middle of the <see cref="Viewport"/>
         /// </summary>
         public void FocusOn(Vector2 centre)
         {
-            Position = new Vector2(centre.X - Viewport.Size.X / 2, centre.Y - Viewport.Size.Y / 2);
+            Position = centre - Viewport.Size.ToVector2() / 2;
+        }
+        
+        public void SmoothFocusOn(GameTime gameTime, Vector2 centre, float smoothing)
+        {
+            Position = Vector2.SmoothStep(Position, centre - Viewport.Size.ToVector2() / 2, 1 - (float)Math.Pow(smoothing, gameTime.ElapsedGameTime.TotalSeconds * 10));
         }
 
         public void Update(GameTime gameTime)
         {
-            foreach (CameraEffect effect in _effects)
+            foreach (CameraEffect effect in _effects.Values)
             {
                 effect.Update(gameTime);
 
                 if (effect.Completed)
+                {
                     _effectsToRemove.Add(effect);
+                }
             }
 
-            foreach(CameraEffect effect in _effectsToRemove)
+            foreach (CameraEffect effect in _effectsToRemove)
             {
-                _effects.Remove(effect);
+                if (_effects[effect.GetType()] == effect)
+                {
+                    _effects.Remove(effect.GetType());
+                }
             }
+
+            _effectsToRemove.Clear();
         }
 
         public void SlideTo(Vector2 destination, float duration)
         {
-            _effects.Add(new Swipe(this, destination, duration));
+            _effects[typeof(Swipe)] = new Swipe(this, destination, duration);
         }
 
         private void ClampViewportToBounds()
@@ -180,12 +192,13 @@ namespace BluishEngine
             public Swipe(Camera camera, Vector2 destination, float duration) : base(camera, duration)
             {
                 _destination = destination;
-                camera._canManuallyMove = false;
             }
 
             public override void Update(GameTime gameTime)
             {
-                Camera._position = Vector2.Lerp(Camera.Position, _destination, ElapsedTime / Duration);
+                Camera._canManuallyMove = false;
+                Camera._position = Vector2.SmoothStep(Camera.Position, _destination, MathHelper.SmoothStep(0, 1, ElapsedTime / Duration));
+                Camera._position.Round();
                 base.Update(gameTime);
             }
         }

@@ -24,6 +24,7 @@ namespace BluishEngine.Components
         /// The mass scalar of the entity
         /// </summary>
         public float Mass { get; set; }
+        public bool CanMove { get; set; }
 
         /// <param name="mass">
         /// <inheritdoc cref="Mass" path="/summary"/>
@@ -32,6 +33,8 @@ namespace BluishEngine.Components
         {
             Mass = mass;
             Force = Vector2.Zero;
+            Velocity = Vector2.Zero;
+            CanMove = true;
         }
     }
 }

@@ -50,7 +50,7 @@ namespace BluishEngine
 
                     spriteBatch.Draw(
                         texture: tile.GetComponent<Sprite>().Texture,
-                        position: tileLocation.Position + new Vector2(Camera.Position.X % 1, Camera.Position.Y % 1),
+                        position: tileLocation.Position,
                         sourceRectangle: tile.GetComponent<Sprite>().Source,
                         color: Color.White,
                         rotation: 0f,
@@ -100,7 +100,6 @@ namespace BluishEngine
                     return room;
                 }
             }
-
             throw new Exception($"There is no room that contains {vector2}");
         }
 
@@ -244,9 +243,8 @@ namespace BluishEngine
 
         public Vector2 WorldCoordinates(Vector2 tileCoordinates)
         {
-            return new Vector2((int)(tileCoordinates.X * TileDimensions.X), (int)(tileCoordinates.Y * TileDimensions.Y));
+            return new Vector2(tileCoordinates.X * TileDimensions.X, tileCoordinates.Y * TileDimensions.Y);
         }
-
 
         /// <summary>
         /// Represents a particular tile on the map as its tile ID and its world location
