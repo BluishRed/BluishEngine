@@ -70,7 +70,7 @@ namespace BluishEngine
         /// An iterable set of <see cref="TileLocation"/>, each containing the tile ID and its subsequent world location as a <see cref="Vector2"/>
         /// </returns>
         public HashSet<TileLocation> GetTilesInRegion(Rectangle region, int layer)
-        {  
+        {
             region.Location = TileCoordinates(region.Location);
             region.Size = new Point((region.Size.X + TileDimensions.X - 1) / TileDimensions.X, (region.Size.Y + TileDimensions.Y - 1) / TileDimensions.Y);
             HashSet<TileLocation> tiles = new HashSet<TileLocation>();

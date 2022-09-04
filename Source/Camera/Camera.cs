@@ -32,6 +32,9 @@ namespace BluishEngine
                     _zoom = value;
             }
         }
+        /// <summary>
+        /// The location of the top-left corner of the viewport
+        /// </summary>
         public Vector2 Position
         {
             get
@@ -121,16 +124,37 @@ namespace BluishEngine
             Position = centre - Viewport.Size.ToVector2() / 2;
         }
         
-        public void SmoothFocusOn(GameTime gameTime, Vector2 centre, float smoothing)
+        public void SmoothFocusOn(GameTime gameTime, Vector2 centre, float smoothing, Vector2 velocity)
         {
-            Vector2 camCentre = Position + Viewport.Size.ToVector2() / 2;
-            Position = Vector2.SmoothStep(Position, centre - Viewport.Size.ToVector2() / 2, 1 - (float)Math.Pow(smoothing, gameTime.ElapsedGameTime.TotalSeconds * 25)); 
+            // TODO: Tidy this up
 
-            if (Math.Abs(camCentre.X - centre.X) <= 0.5f)
+            Vector2 cameraCentre = Position + Viewport.Size.ToVector2() / 2;
+            Vector2 newPosition = Vector2.SmoothStep(Position, centre - Viewport.Size.ToVector2() / 2, 1 - (float)Math.Pow(smoothing, gameTime.ElapsedGameTime.TotalSeconds * 25));
+            Vector2 cameraVelocity = newPosition - Position;
+
+            if (Math.Abs(velocity.X - cameraVelocity.X) < 0.25f)
+            {
+                Position += new Vector2(velocity.X, 0);
+            }
+            else
+            {
+                Position = new Vector2(newPosition.X, Position.Y);
+            }
+
+            if (Math.Abs(velocity.Y - cameraVelocity.Y) < 0.25f)
+            {
+                Position += new Vector2(0, velocity.Y);
+            }
+            else
+            {
+                Position = new Vector2(Position.X, newPosition.Y);
+            }
+
+            if (Math.Abs(cameraCentre.X - centre.X) <= 0.5f)
             {
                 Position = new Vector2(centre.X - Viewport.Width / 2, Position.Y);
             }
-            if (Math.Abs(camCentre.Y - centre.Y) <= 0.5f)
+            if (Math.Abs(cameraCentre.Y - centre.Y) <= 0.5f)
             {
                 Position = new Vector2(Position.X, centre.Y - Viewport.Height / 2);
             }
