@@ -36,15 +36,6 @@ namespace BluishEngine
         {
             if (Map is not null)
                 Map.Update(gameTime);
-         
-            if (Input.IsKeyJustPressed(Keys.W))
-            {
-                Camera.Zoom *= 2f;
-            }
-            if (Input.IsKeyJustPressed(Keys.S))
-            {
-                Camera.Zoom *= 0.5f;
-            }
 
             Camera.Update(gameTime);
 

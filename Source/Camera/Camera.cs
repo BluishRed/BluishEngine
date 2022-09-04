@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using BluishFramework;
+using System.Diagnostics;
 
 namespace BluishEngine
 {
@@ -23,6 +24,8 @@ namespace BluishEngine
             }
             set
             {
+                _position -= new Vector2(Viewport.Width / 2 * (1 - value/_zoom), Viewport.Height / 2 * (1 - value/_zoom));
+
                 if (Bounds.HasValue)
                     _zoom = Math.Max(value, Math.Max((float)_defaultDimensions.X / Bounds.Value.Width, (float)_defaultDimensions.Y / Bounds.Value.Height));
                 else
@@ -106,7 +109,7 @@ namespace BluishEngine
         /// </returns>
         public Matrix Transform()
         {
-            return Matrix.CreateTranslation(-(int)Position.X, -(int)Position.Y, 0)
+            return Matrix.CreateTranslation(-Position.X, -Position.Y, 0)
                 * Matrix.CreateScale(Zoom, Zoom, 1);
         }
         
@@ -120,7 +123,17 @@ namespace BluishEngine
         
         public void SmoothFocusOn(GameTime gameTime, Vector2 centre, float smoothing)
         {
-            Position = Vector2.SmoothStep(Position, centre - Viewport.Size.ToVector2() / 2, 1 - (float)Math.Pow(smoothing, gameTime.ElapsedGameTime.TotalSeconds * 10));
+            Vector2 camCentre = Position + Viewport.Size.ToVector2() / 2;
+            Position = Vector2.SmoothStep(Position, centre - Viewport.Size.ToVector2() / 2, 1 - (float)Math.Pow(smoothing, gameTime.ElapsedGameTime.TotalSeconds * 25)); 
+
+            if (Math.Abs(camCentre.X - centre.X) <= 0.5f)
+            {
+                Position = new Vector2(centre.X - Viewport.Width / 2, Position.Y);
+            }
+            if (Math.Abs(camCentre.Y - centre.Y) <= 0.5f)
+            {
+                Position = new Vector2(Position.X, centre.Y - Viewport.Height / 2);
+            }
         }
 
         public void Update(GameTime gameTime)
@@ -148,7 +161,12 @@ namespace BluishEngine
 
         public void SlideTo(Vector2 destination, float duration)
         {
-            _effects[typeof(Swipe)] = new Swipe(this, destination, duration);
+            _effects[typeof(Pan)] = new Pan(this, destination, duration);
+        }
+
+        public void ZoomBy(float factor, float duration)
+        {
+            _effects[typeof(SmoothZoom)] = new SmoothZoom(this, factor, duration);
         }
 
         private void ClampViewportToBounds()
@@ -185,11 +203,11 @@ namespace BluishEngine
             }
         }
 
-        class Swipe : CameraEffect
+        class Pan : CameraEffect
         {
             private Vector2 _destination;
 
-            public Swipe(Camera camera, Vector2 destination, float duration) : base(camera, duration)
+            public Pan(Camera camera, Vector2 destination, float duration) : base(camera, duration)
             {
                 _destination = destination;
             }
@@ -199,6 +217,24 @@ namespace BluishEngine
                 Camera._canManuallyMove = false;
                 Camera._position = Vector2.SmoothStep(Camera.Position, _destination, MathHelper.SmoothStep(0, 1, ElapsedTime / Duration));
                 Camera._position.Round();
+                base.Update(gameTime);
+            }
+        }
+
+        class SmoothZoom : CameraEffect
+        {
+            private float _factor;
+            private float _initialZoom;
+
+            public SmoothZoom(Camera camera, float factor, float duration) : base(camera, duration)
+            {
+                _factor = factor;
+                _initialZoom = camera.Zoom;
+            }
+
+            public override void Update(GameTime gameTime)
+            {
+                Camera.Zoom = MathHelper.SmoothStep(Camera.Zoom, _initialZoom * _factor, MathHelper.SmoothStep(0, 1, ElapsedTime / Duration));
                 base.Update(gameTime);
             }
         }

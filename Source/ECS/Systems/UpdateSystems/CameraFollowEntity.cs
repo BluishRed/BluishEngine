@@ -29,9 +29,9 @@ namespace BluishEngine.Systems
 
             if (components.GetComponent<CameraFollowable>().Active)
             {
-                Vector2 centre = new Vector2(components.GetComponent<Transform>().Position.X + components.GetComponent<Dimensions>().Width / 2, components.GetComponent<Transform>().Position.Y + components.GetComponent<Dimensions>().Height / 2);
+                Vector2 centre = new Vector2(components.GetComponent<Transform>().Position.X + components.GetComponent<Dimensions>().Width / 2f, components.GetComponent<Transform>().Position.Y + components.GetComponent<Dimensions>().Height / 2f);
 
-                _camera.SmoothFocusOn(gameTime, centre, 0.16f);
+                _camera.SmoothFocusOn(gameTime, centre, 0.4f);
 
                 if (_map is not null)
                 {
@@ -49,7 +49,16 @@ namespace BluishEngine.Systems
 
                     _previousRoom = newRoom;
                 }
-            }        
+
+                if (Input.IsKeyJustPressed(Keys.W))
+                {
+                    _camera.ZoomBy(2, 0.5f);
+                }
+                if (Input.IsKeyJustPressed(Keys.S))
+                {
+                    _camera.ZoomBy(0.5f, 0.5f);
+                }
+            }
         }
     }
 }
