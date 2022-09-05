@@ -93,7 +93,7 @@ namespace BluishEngine
         private List<CameraEffect> _effectsToRemove;
 
         // TODO: Maybe make variable depending on the speed of the entity?
-        private const int DeadZoneRadius = 12;
+        private const int DeadZoneRadius = 12 ;
 
         /// <param name="viewportDimensions">
         /// <inheritdoc cref="ViewportDimensions" path="/summary"/>
@@ -149,6 +149,10 @@ namespace BluishEngine
             if (Math.Abs(centre.Y - Viewport.Center.Y) > DeadZoneRadius && Math.Abs(velocity.Y) != 0)
             {
                 position.Y += velocity.Y;
+            }
+            else if (velocity.Y == 0)
+            {
+                position.Y = MathHelper.SmoothStep(position.Y, centre.Y - Viewport.Height / 2, 1 - (float)Math.Pow(smoothing / 1.1f, gameTime.ElapsedGameTime.TotalSeconds * 25));
             }
             else
             {
