@@ -25,6 +25,15 @@ namespace BluishEngine.Systems
             // TODO: Make resistance more robust with minimum velocities
             vel.X *= 0.85f;
 
+            if (Math.Abs(vel.X) < 0.1f)
+            {
+                vel.X = 0;
+            }
+            if (Math.Abs(vel.Y) < 0.1f)
+            {
+                vel.Y = 0;
+            }
+
             components.GetComponent<KinematicBody>().Velocity = vel;
             components.GetComponent<KinematicBody>().Force = Vector2.Zero;
         }

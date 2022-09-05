@@ -92,6 +92,9 @@ namespace BluishEngine
         private Dictionary<Type, CameraEffect> _effects;
         private List<CameraEffect> _effectsToRemove;
 
+        // TODO: Maybe make variable depending on the speed of the entity?
+        private const int DeadZoneRadius = 12;
+
         /// <param name="viewportDimensions">
         /// <inheritdoc cref="ViewportDimensions" path="/summary"/>
         /// </param>
@@ -126,38 +129,33 @@ namespace BluishEngine
         
         public void SmoothFocusOn(GameTime gameTime, Vector2 centre, float smoothing, Vector2 velocity)
         {
-            // TODO: Tidy this up
+            // TODO: Prevent big offset when coming from the edge of the bounds
 
-            Vector2 cameraCentre = Position + Viewport.Size.ToVector2() / 2;
-            Vector2 newPosition = Vector2.SmoothStep(Position, centre - Viewport.Size.ToVector2() / 2, 1 - (float)Math.Pow(smoothing, gameTime.ElapsedGameTime.TotalSeconds * 25));
-            Vector2 cameraVelocity = newPosition - Position;
+            Vector2 position = Position;
 
-            if (Math.Abs(velocity.X - cameraVelocity.X) < 0.25f)
+            if (Math.Abs(centre.X - Viewport.Center.X) > DeadZoneRadius && Math.Abs(velocity.X) != 0)
             {
-                Position += new Vector2(velocity.X, 0);
+                position.X += velocity.X;
+            }
+            else if (velocity.X == 0)
+            {
+                position.X = MathHelper.SmoothStep(position.X, centre.X - Viewport.Width / 2, 1 - (float)Math.Pow(smoothing / 1.1f, gameTime.ElapsedGameTime.TotalSeconds * 25));
             }
             else
             {
-                Position = new Vector2(newPosition.X, Position.Y);
+                position.X = MathHelper.SmoothStep(position.X, centre.X - Viewport.Width / 2, 1 - (float)Math.Pow(smoothing, gameTime.ElapsedGameTime.TotalSeconds * 25));
             }
 
-            if (Math.Abs(velocity.Y - cameraVelocity.Y) < 0.25f)
+            if (Math.Abs(centre.Y - Viewport.Center.Y) > DeadZoneRadius && Math.Abs(velocity.Y) != 0)
             {
-                Position += new Vector2(0, velocity.Y);
+                position.Y += velocity.Y;
             }
             else
             {
-                Position = new Vector2(Position.X, newPosition.Y);
+                position.Y = MathHelper.SmoothStep(position.Y, centre.Y - Viewport.Height / 2, 1 - (float)Math.Pow(smoothing, gameTime.ElapsedGameTime.TotalSeconds * 25));
             }
 
-            if (Math.Abs(cameraCentre.X - centre.X) <= 0.5f)
-            {
-                Position = new Vector2(centre.X - Viewport.Width / 2, Position.Y);
-            }
-            if (Math.Abs(cameraCentre.Y - centre.Y) <= 0.5f)
-            {
-                Position = new Vector2(Position.X, centre.Y - Viewport.Height / 2);
-            }
+            Position = position;
         }
 
         public void Update(GameTime gameTime)

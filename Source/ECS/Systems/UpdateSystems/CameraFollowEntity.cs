@@ -1,12 +1,7 @@
-﻿using System;
-using System.Diagnostics;
-using System.Collections.Generic;
+﻿using BluishEngine.Components;
+using BluishFramework;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Graphics;
-using BluishFramework;
-using BluishEngine.Components;
-using Microsoft.Xna.Framework.Media;
 
 namespace BluishEngine.Systems
 {
@@ -28,9 +23,9 @@ namespace BluishEngine.Systems
             // TODO: Lock entity in place while room transitions
 
             if (components.GetComponent<CameraFollowable>().Active)
-            {          
+            {
                 Vector2 centre = new Vector2(components.GetComponent<Transform>().Position.X + components.GetComponent<Dimensions>().Width / 2f, components.GetComponent<Transform>().Position.Y + components.GetComponent<Dimensions>().Height / 2f);
-                _camera.SmoothFocusOn(gameTime, centre, 0.3f, components.GetComponent<KinematicBody>().Velocity);
+                _camera.SmoothFocusOn(gameTime, centre, 0.6f, components.GetComponent<KinematicBody>().Velocity);
 
                 if (_map is not null)
                 {

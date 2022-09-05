@@ -31,7 +31,7 @@ namespace BluishEngine
             base.Draw(spriteBatch);
             spriteBatch.End();
         }
-        
+
         public override void Update(GameTime gameTime)
         {
             if (Map is not null)
