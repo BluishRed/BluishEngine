@@ -20,11 +20,11 @@ namespace BluishEngine.Components
         /// The velocity vector that is persistant across frames
         /// </summary>
         public Vector2 Velocity { get; set; }
+        public Vector2 Acceleration { get; set; }
         /// <summary>
         /// The mass scalar of the entity
         /// </summary>
         public float Mass { get; set; }
-        public bool CanMove { get; set; }
 
         /// <param name="mass">
         /// <inheritdoc cref="Mass" path="/summary"/>
@@ -34,7 +34,7 @@ namespace BluishEngine.Components
             Mass = mass;
             Force = Vector2.Zero;
             Velocity = Vector2.Zero;
-            CanMove = true;
+            Acceleration = Vector2.Zero;
         }
     }
 }

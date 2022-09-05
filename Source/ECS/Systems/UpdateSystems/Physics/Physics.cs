@@ -18,23 +18,40 @@ namespace BluishEngine.Systems
 
         protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
         {
+            // TODO: Tidy up
+
+            Vector2 previousVelocity = components.GetComponent<KinematicBody>().Velocity;
             components.GetComponent<KinematicBody>().Force += new Vector2(0, _gravity * components.GetComponent<KinematicBody>().Mass);
             components.GetComponent<KinematicBody>().Velocity += components.GetComponent<KinematicBody>().Force / components.GetComponent<KinematicBody>().Mass;
-            Vector2 vel = components.GetComponent<KinematicBody>().Velocity;
+            
+            Vector2 velocity = components.GetComponent<KinematicBody>().Velocity;
 
-            // TODO: Make resistance more robust with minimum velocities
-            vel.X *= 0.85f;
+            velocity.X *= 0.85f;
 
-            if (Math.Abs(vel.X) < 0.1f)
+            if (Math.Abs(velocity.X) < 0.1f)
             {
-                vel.X = 0;
+                velocity.X = 0;
             }
-            if (Math.Abs(vel.Y) < 0.1f)
+            if (Math.Abs(velocity.Y) < 0.1f)
             {
-                vel.Y = 0;
+                velocity.Y = 0;
             }
 
-            components.GetComponent<KinematicBody>().Velocity = vel;
+            components.GetComponent<KinematicBody>().Velocity = velocity;
+
+            Vector2 acceleration = velocity - previousVelocity;
+
+            if (Math.Abs(acceleration.X) < 0.001f)
+            {
+                acceleration.X = 0;
+            }
+            if (Math.Abs(acceleration.Y) < 0.001f)
+            {
+                acceleration.Y = 0;
+            }
+
+            components.GetComponent<KinematicBody>().Acceleration = acceleration;
+
             components.GetComponent<KinematicBody>().Force = Vector2.Zero;
         }
     }

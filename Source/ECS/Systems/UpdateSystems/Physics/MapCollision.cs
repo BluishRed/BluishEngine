@@ -19,84 +19,90 @@ namespace BluishEngine.Systems
 
         protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
         {
-            Vector2 pos = components.GetComponent<Transform>().Position + components.GetComponent<Collidable>().BoundingBox.Location.ToVector2();
-            Vector2 vel = components.GetComponent<KinematicBody>().Velocity;
+            Vector2 position = components.GetComponent<Transform>().Position + components.GetComponent<Collidable>().BoundingBox.Location.ToVector2();
+            Vector2 velocity = components.GetComponent<KinematicBody>().Velocity;
+            Vector2 acceleration = components.GetComponent<KinematicBody>().Acceleration;
             bool onGround = components.GetComponent<KinematicState>().OnGround;
 
             ResolveMapCollisions(
                 components.GetComponent<Collidable>().BoundingBox.Width,
                 components.GetComponent<Collidable>().BoundingBox.Height,
                 components.GetComponent<Transform>().Depth,
-                ref pos,
-                ref vel,
+                ref position,
+                ref velocity,
+                ref acceleration,
                 ref onGround
             );
             
-            components.GetComponent<Transform>().Position = pos - components.GetComponent<Collidable>().BoundingBox.Location.ToVector2();
-            components.GetComponent<KinematicBody>().Velocity = vel;
+            components.GetComponent<Transform>().Position = position - components.GetComponent<Collidable>().BoundingBox.Location.ToVector2();
+            components.GetComponent<KinematicBody>().Velocity = velocity;
             components.GetComponent<KinematicState>().OnGround = onGround;
         }
 
-        protected void ResolveMapCollisions(int width, int height, float depth, ref Vector2 pos, ref Vector2 vel, ref bool onGround)
+        protected void ResolveMapCollisions(int width, int height, float depth, ref Vector2 position, ref Vector2 velocity, ref Vector2 acceleration, ref bool onGround)
         {
-            if (vel.X != 0)
+            if (velocity.X != 0)
             {
                 Rectangle check;
 
-                if (vel.X < 0)
+                if (velocity.X < 0)
                 {
-                    check = new Rectangle((int)(pos.X + vel.X), (int)(pos.Y + vel.Y), (int)Math.Round(-vel.X), height);
+                    check = new Rectangle((int)(position.X + velocity.X), (int)(position.Y + velocity.Y), (int)Math.Round(-velocity.X), height);
 
                     List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth, Direction.Left);
 
                     if (collidableTiles.Count > 0)
                     {
-                        vel.X = 0;
-                        pos.X += Math.Min(0, MaxX(collidableTiles) - pos.X);
+                        velocity.X = 0;
+                        acceleration.X = 0;
+                        position.X += Math.Min(0, MaxX(collidableTiles) - position.X);
                     }
                 }
                 else
                 {
-                    check = new Rectangle((int)Math.Ceiling(pos.X + width), (int)(pos.Y + vel.Y), (int)Math.Round(vel.X), height);
+                    check = new Rectangle((int)Math.Ceiling(position.X + width), (int)(position.Y + velocity.Y), (int)Math.Round(velocity.X), height);
 
                     List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth, Direction.Right);
 
                     if (collidableTiles.Count > 0)
                     {
-                        vel.X = 0;
-                        pos.X += Math.Max(0, MinX(collidableTiles) - pos.X - width);
+                        velocity.X = 0;
+                        acceleration.X = 0;
+                        position.X += Math.Max(0, MinX(collidableTiles) - position.X - width);
                     }
                 }
             }
 
             onGround = false;
 
-            if (vel.Y != 0)
+            if (velocity.Y != 0)
             {
                 Rectangle check;
 
-                if (vel.Y < 0)
+                if (velocity.Y < 0)
                 {
-                    check = new Rectangle((int)(pos.X + vel.X), (int)(pos.Y + vel.Y), width, (int)Math.Ceiling(-vel.Y));
+                    check = new Rectangle((int)(position.X + velocity.X), (int)(position.Y + velocity.Y), width, (int)Math.Ceiling(-velocity.Y));
 
                     List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth, Direction.Up);
 
                     if (collidableTiles.Count > 0)
                     {
-                        vel.Y = 0;
-                        pos.Y += Math.Min(0, MaxY(collidableTiles) - pos.Y);
+                        velocity.Y = 0;
+                        acceleration.Y = 0;
+                        position.Y += Math.Min(0, MaxY(collidableTiles) - position.Y);
                     }
                 }
                 else
                 {
-                    check = new Rectangle((int)(pos.X + vel.X), (int)(pos.Y + height + vel.Y), width, (int)Math.Ceiling(vel.Y));
+                    check = new Rectangle((int)(position.X + velocity.X), (int)(position.Y + height + velocity.Y), width, (int)Math.Ceiling(velocity.Y));
 
                     List<Rectangle> collidableTiles = GetHitBoxesInRegion(check, depth, Direction.Down);
 
                     if (collidableTiles.Count > 0)
                     {
-                        vel.Y = 0;
-                        pos.Y += Math.Max(0, MinY(collidableTiles) - pos.Y - height);
+                        velocity.Y = 0;
+                        acceleration.Y = 0;
+                        position.Y += Math.Max(0, MinY(collidableTiles) - position.Y - height);
                         onGround = true;
                     }
                 }

@@ -1,7 +1,11 @@
-﻿using BluishEngine.Components;
-using BluishFramework;
+﻿using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using BluishFramework;
+using System.Diagnostics;
+using BluishEngine.Components;
 
 namespace BluishEngine.Systems
 {
@@ -13,7 +17,7 @@ namespace BluishEngine.Systems
 
         public CameraFollowEntity(World world, Camera camera, Map map = null) : base(world, typeof(CameraFollowable), typeof(Transform), typeof(KinematicBody), typeof(Dimensions))
         {
-            _camera = camera;
+            _camera = camera; 
             _map = map;
             _previousRoom = new Rectangle(0, 0, 320, 180);
         }
@@ -25,7 +29,7 @@ namespace BluishEngine.Systems
             if (components.GetComponent<CameraFollowable>().Active)
             {
                 Vector2 centre = new Vector2(components.GetComponent<Transform>().Position.X + components.GetComponent<Dimensions>().Width / 2f, components.GetComponent<Transform>().Position.Y + components.GetComponent<Dimensions>().Height / 2f);
-                _camera.SmoothFocusOn(gameTime, centre, 0.6f, components.GetComponent<KinematicBody>().Velocity);
+                _camera.SmoothFocusOn(gameTime, centre, 0.6f, components.GetComponent<KinematicBody>().Velocity, components.GetComponent<KinematicBody>().Acceleration);
 
                 if (_map is not null)
                 {

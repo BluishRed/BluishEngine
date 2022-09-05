@@ -92,9 +92,6 @@ namespace BluishEngine
         private Dictionary<Type, CameraEffect> _effects;
         private List<CameraEffect> _effectsToRemove;
 
-        // TODO: Maybe make variable depending on the speed of the entity?
-        private const int DeadZoneRadius = 12 ;
-
         /// <param name="viewportDimensions">
         /// <inheritdoc cref="ViewportDimensions" path="/summary"/>
         /// </param>
@@ -127,32 +124,21 @@ namespace BluishEngine
             Position = centre - Viewport.Size.ToVector2() / 2;
         }
         
-        public void SmoothFocusOn(GameTime gameTime, Vector2 centre, float smoothing, Vector2 velocity)
+        public void SmoothFocusOn(GameTime gameTime, Vector2 centre, float smoothing, Vector2 velocity, Vector2 acceleration)
         {
-            // TODO: Prevent big offset when coming from the edge of the bounds
-
             Vector2 position = Position;
 
-            if (Math.Abs(centre.X - Viewport.Center.X) > DeadZoneRadius && Math.Abs(velocity.X) != 0)
+            if (Math.Abs(acceleration.X) == 0 && velocity.X != 0)
             {
                 position.X += velocity.X;
             }
-            else if (velocity.X == 0)
-            {
-                position.X = MathHelper.SmoothStep(position.X, centre.X - Viewport.Width / 2, 1 - (float)Math.Pow(smoothing / 1.1f, gameTime.ElapsedGameTime.TotalSeconds * 25));
-            }
             else
             {
-                position.X = MathHelper.SmoothStep(position.X, centre.X - Viewport.Width / 2, 1 - (float)Math.Pow(smoothing, gameTime.ElapsedGameTime.TotalSeconds * 25));
+                position.X = MathHelper.SmoothStep(position.X, centre.X - Viewport.Width / 2, 1 - (float)Math.Pow(smoothing, gameTime.ElapsedGameTime.TotalSeconds * 25));position.X = MathHelper.SmoothStep(position.X, centre.X - Viewport.Width / 2, 1 - (float)Math.Pow(smoothing, gameTime.ElapsedGameTime.TotalSeconds * 25));
             }
-
-            if (Math.Abs(centre.Y - Viewport.Center.Y) > DeadZoneRadius && Math.Abs(velocity.Y) != 0)
+            if (Math.Abs(acceleration.Y) == 0 && velocity.Y != 0)
             {
                 position.Y += velocity.Y;
-            }
-            else if (velocity.Y == 0)
-            {
-                position.Y = MathHelper.SmoothStep(position.Y, centre.Y - Viewport.Height / 2, 1 - (float)Math.Pow(smoothing / 1.1f, gameTime.ElapsedGameTime.TotalSeconds * 25));
             }
             else
             {
