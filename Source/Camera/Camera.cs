@@ -24,7 +24,7 @@ namespace BluishEngine
             }
             set
             {
-                _position -= new Vector2(Viewport.Width / 2 * (1 - value/_zoom), Viewport.Height / 2 * (1 - value/_zoom));
+                _position -= new Vector2(Viewport.Width / 2f * (1 - value/_zoom), Viewport.Height / 2f * (1 - value/_zoom));
 
                 if (Bounds.HasValue)
                     _zoom = Math.Max(value, Math.Max((float)_defaultDimensions.X / Bounds.Value.Width, (float)_defaultDimensions.Y / Bounds.Value.Height));
