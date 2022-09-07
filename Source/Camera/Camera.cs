@@ -112,7 +112,7 @@ namespace BluishEngine
         /// </returns>
         public Matrix Transform()
         {
-            return Matrix.CreateTranslation(-Position.X, -Position.Y, 0)
+            return Matrix.CreateTranslation(-(int)Position.X, -(int)Position.Y, 0)
                 * Matrix.CreateScale(Zoom, Zoom, 1);
         }
         
@@ -121,11 +121,13 @@ namespace BluishEngine
         /// </summary>
         public void FocusOn(Vector2 centre)
         {
-            Position = centre - Viewport.Size.ToVector2() / 2;
+            Position = Vector2.Floor(centre) - Viewport.Size.ToVector2() / 2f;
         }
         
         public void SmoothFocusOn(GameTime gameTime, Vector2 centre, float smoothing, Vector2 velocity, Vector2 acceleration)
         {
+            // TODO: Fix big offset
+
             Vector2 position = Position;
 
             if (Math.Abs(acceleration.X) == 0 && velocity.X != 0)
@@ -134,7 +136,7 @@ namespace BluishEngine
             }
             else
             {
-                position.X = MathHelper.SmoothStep(position.X, centre.X - Viewport.Width / 2, 1 - (float)Math.Pow(smoothing, gameTime.ElapsedGameTime.TotalSeconds * 25));position.X = MathHelper.SmoothStep(position.X, centre.X - Viewport.Width / 2, 1 - (float)Math.Pow(smoothing, gameTime.ElapsedGameTime.TotalSeconds * 25));
+                position.X = MathHelper.SmoothStep(position.X, centre.X - Viewport.Width / 2, 1 - (float)Math.Pow(smoothing, gameTime.ElapsedGameTime.TotalSeconds * 25)); position.X = MathHelper.SmoothStep(position.X, centre.X - Viewport.Width / 2, 1 - (float)Math.Pow(smoothing, gameTime.ElapsedGameTime.TotalSeconds * 25));
             }
             if (Math.Abs(acceleration.Y) == 0 && velocity.Y != 0)
             {

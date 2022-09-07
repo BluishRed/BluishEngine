@@ -28,8 +28,9 @@ namespace BluishEngine.Systems
 
             if (components.GetComponent<CameraFollowable>().Active)
             {
-                Vector2 centre = new Vector2(components.GetComponent<Transform>().Position.X + components.GetComponent<Dimensions>().Width / 2f, components.GetComponent<Transform>().Position.Y + components.GetComponent<Dimensions>().Height / 2f);
-                _camera.SmoothFocusOn(gameTime, centre, 0.6f, components.GetComponent<KinematicBody>().Velocity, components.GetComponent<KinematicBody>().Acceleration);
+                Vector2 centre = new Vector2(components.GetComponent<Transform>().Position.X + components.GetComponent<Dimensions>().Width / 2, components.GetComponent<Transform>().Position.Y + components.GetComponent<Dimensions>().Height / 2);
+                //_camera.SmoothFocusOn(gameTime, centre, 0.6f, components.GetComponent<KinematicBody>().Velocity, components.GetComponent<KinematicBody>().Acceleration);
+                _camera.FocusOn(centre);
 
                 if (_map is not null)
                 {
