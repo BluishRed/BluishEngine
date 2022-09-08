@@ -12,14 +12,16 @@ namespace BluishEngine.Systems
     public class CameraFollowEntity : UpdateSystem
     {
         private Camera _camera;
-        private Map _map;
+        private Map? _map;
+        private bool _canEntityMove;
         private Rectangle _previousRoom;
 
-        public CameraFollowEntity(World world, Camera camera, Map map = null) : base(world, typeof(CameraFollowable), typeof(Transform), typeof(KinematicBody), typeof(Dimensions))
+        public CameraFollowEntity(World world, Camera camera, Map? map = null) : base(world, typeof(CameraFollowable), typeof(Transform), typeof(KinematicBody), typeof(Dimensions))
         {
-            _camera = camera; 
+            _camera = camera;
             _map = map;
             _previousRoom = new Rectangle(0, 0, 320, 180);
+            _canEntityMove = true;
         }
 
         protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
@@ -33,20 +35,20 @@ namespace BluishEngine.Systems
 
                 if (_map is not null)
                 {
-                    Rectangle newRoom = _map.GetRoomContainingVector(centre);
+                    Rectangle currentRoom = _map.GetRoomContainingVector(centre);
 
-                    if (newRoom != _previousRoom)
+                    if (currentRoom != _previousRoom)
                     {
-                        _camera.Bounds = Rectangle.Union(_previousRoom, newRoom);
-                        _camera.SlideTo(GetNewRoomTarget(newRoom), 0.75f);
-                        components.GetComponent<KinematicBody>().CanMove = false;
+                        _camera.Bounds = Rectangle.Union(_previousRoom, currentRoom);
+                        _camera.SlideTo(GetRoomTarget(currentRoom), 0.6f, UnlockPlayer);
+                        _canEntityMove = false;
                     }
                     else
                     {
-                        _camera.Bounds = newRoom;
+                        _camera.Bounds = currentRoom;
                     }
 
-                    _previousRoom = newRoom;
+                    _previousRoom = currentRoom;
                 }
 
                 if (Input.IsKeyJustPressed(Keys.W))
@@ -57,18 +59,20 @@ namespace BluishEngine.Systems
                 {
                     _camera.ZoomBy(0.5f, 0.5f);
                 }
+
+                components.GetComponent<KinematicBody>().CanMove = _canEntityMove;
             }
         }
 
-        private Vector2 GetNewRoomTarget(Rectangle newRoom)
+        private Vector2 GetRoomTarget(Rectangle room)
         {
-            Vector2 target = newRoom.Location.ToVector2();
+            Vector2 target = room.Location.ToVector2();
 
-            if (newRoom.X > _previousRoom.X)
+            if (room.X > _previousRoom.X)
             {
                 target.X = _camera.Position.X + _camera.Viewport.Width;
             }
-            else if (newRoom.X < _previousRoom.X)
+            else if (room.X < _previousRoom.X)
             {
                 target.X = _camera.Position.X - _camera.Viewport.Width;
             }
@@ -77,11 +81,11 @@ namespace BluishEngine.Systems
                 target.X = _camera.Position.X;
             }
 
-            if (newRoom.Y > _previousRoom.Y)
+            if (room.Y > _previousRoom.Y)
             {
                 target.Y = _camera.Position.Y + _camera.Viewport.Height;
             }
-            else if (newRoom.Y < _previousRoom.Y)
+            else if (room.Y < _previousRoom.Y)
             {
                 target.Y = _camera.Position.Y - _camera.Viewport.Height;
             }
@@ -91,6 +95,11 @@ namespace BluishEngine.Systems
             }
 
             return target;
+        }
+
+        private void UnlockPlayer()
+        {
+            _canEntityMove = true;
         }
     }
 }

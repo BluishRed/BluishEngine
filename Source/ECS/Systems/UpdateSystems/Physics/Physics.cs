@@ -52,9 +52,9 @@ namespace BluishEngine.Systems
                 }
 
                 components.GetComponent<KinematicBody>().Acceleration = acceleration;
-
-                components.GetComponent<KinematicBody>().Force = Vector2.Zero;
             }
+
+            components.GetComponent<KinematicBody>().Force = Vector2.Zero;
         }
     }
 }

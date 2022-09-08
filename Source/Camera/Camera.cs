@@ -184,15 +184,15 @@ namespace BluishEngine
             _effectsToRemove.Clear();
         }
 
-        public void SlideTo(Vector2 destination, float duration)
+        public void SlideTo(Vector2 destination, float duration, Action? OnCompleted = null)
         {
-            _effects[typeof(Pan)] = new Pan(this, destination, duration);
+            _effects[typeof(Pan)] = new Pan(this, destination, duration, OnCompleted);
         }
 
-        public void ZoomBy(float factor, float duration)
+        public void ZoomBy(float factor, float duration, Action? OnCompleted = null)
         {
             if (!_effects.ContainsKey(typeof(SmoothZoom)) && _canManuallyMove)
-                _effects[typeof(SmoothZoom)] = new SmoothZoom(this, factor, duration);
+                _effects[typeof(SmoothZoom)] = new SmoothZoom(this, factor, duration, OnCompleted);
         }
 
         private void ClampViewportToBounds()
@@ -211,11 +211,14 @@ namespace BluishEngine
             protected float ElapsedTime { get; private set; }
             protected Camera Camera { get; private set; }
 
-            public CameraEffect(Camera camera, float duration)
+            private Action? _onCompleted;
+
+            public CameraEffect(Camera camera, float duration, Action? OnCompleted)
             {
                 Duration = duration;
                 ElapsedTime = 0;
                 Camera = camera;
+                _onCompleted = OnCompleted;
             }
 
             public virtual void Update(GameTime gameTime)
@@ -225,6 +228,7 @@ namespace BluishEngine
                 {
                     Completed = true;
                     Camera._canManuallyMove = true;
+                    _onCompleted?.Invoke();
                 }
             }
         }
@@ -234,7 +238,7 @@ namespace BluishEngine
             private Vector2 _destination;
             private Vector2 _direction;
 
-            public Pan(Camera camera, Vector2 destination, float duration) : base(camera, duration)
+            public Pan(Camera camera, Vector2 destination, float duration, Action? OnCompleted) : base(camera, duration, OnCompleted)
             {
                 _destination = destination;
                 _direction = destination - camera.Position;
@@ -243,7 +247,7 @@ namespace BluishEngine
             public override void Update(GameTime gameTime)
             {
                 Camera._canManuallyMove = false;
-                Camera._position = Vector2.SmoothStep(Camera.Position, _destination, MathHelper.SmoothStep(0, 1, ElapsedTime / Duration));
+                Camera._position = Vector2.SmoothStep(Camera.Position, _destination, ElapsedTime / Duration);
                 Camera._position = new Vector2((float)Math.Round(Camera._position.X, _direction.X < 0 ? MidpointRounding.ToZero : MidpointRounding.ToPositiveInfinity), (float)Math.Round(Camera._position.Y, _direction.Y < 0 ? MidpointRounding.ToZero : MidpointRounding.ToPositiveInfinity));
 
                 base.Update(gameTime);
@@ -260,7 +264,7 @@ namespace BluishEngine
             private float _factor;
             private float _initialZoom;
 
-            public SmoothZoom(Camera camera, float factor, float duration) : base(camera, duration)
+            public SmoothZoom(Camera camera, float factor, float duration, Action? OnCompleted) : base(camera, duration, OnCompleted)
             {
                 _factor = factor;
                 _initialZoom = camera.Zoom;
@@ -268,7 +272,7 @@ namespace BluishEngine
 
             public override void Update(GameTime gameTime)
             {
-                Camera.Zoom = MathHelper.SmoothStep(Camera.Zoom, _initialZoom * _factor, MathHelper.SmoothStep(0, 1, ElapsedTime / Duration));
+                Camera.Zoom = MathHelper.SmoothStep(Camera.Zoom, _initialZoom * _factor, ElapsedTime / Duration);
 
                 base.Update(gameTime);
 
