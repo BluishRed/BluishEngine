@@ -29,7 +29,6 @@ namespace BluishEngine.Systems
             if (components.GetComponent<CameraFollowable>().Active)
             {
                 Vector2 centre = new Vector2(components.GetComponent<Transform>().Position.X + components.GetComponent<Dimensions>().Width / 2, components.GetComponent<Transform>().Position.Y + components.GetComponent<Dimensions>().Height / 2);
-                //_camera.SmoothFocusOn(gameTime, centre, 0.6f, components.GetComponent<KinematicBody>().Velocity, components.GetComponent<KinematicBody>().Acceleration);
                 _camera.FocusOn(centre);
 
                 if (_map is not null)
@@ -39,7 +38,8 @@ namespace BluishEngine.Systems
                     if (newRoom != _previousRoom)
                     {
                         _camera.Bounds = Rectangle.Union(_previousRoom, newRoom);
-                        _camera.SlideTo(newRoom.Location.ToVector2(), 1f);
+                        _camera.SlideTo(GetNewRoomTarget(newRoom), 0.75f);
+                        components.GetComponent<KinematicBody>().CanMove = false;
                     }
                     else
                     {
@@ -58,6 +58,39 @@ namespace BluishEngine.Systems
                     _camera.ZoomBy(0.5f, 0.5f);
                 }
             }
+        }
+
+        private Vector2 GetNewRoomTarget(Rectangle newRoom)
+        {
+            Vector2 target = newRoom.Location.ToVector2();
+
+            if (newRoom.X > _previousRoom.X)
+            {
+                target.X = _camera.Position.X + _camera.Viewport.Width;
+            }
+            else if (newRoom.X < _previousRoom.X)
+            {
+                target.X = _camera.Position.X - _camera.Viewport.Width;
+            }
+            else
+            {
+                target.X = _camera.Position.X;
+            }
+
+            if (newRoom.Y > _previousRoom.Y)
+            {
+                target.Y = _camera.Position.Y + _camera.Viewport.Height;
+            }
+            else if (newRoom.Y < _previousRoom.Y)
+            {
+                target.Y = _camera.Position.Y - _camera.Viewport.Height;
+            }
+            else
+            {
+                target.Y = _camera.Position.Y;
+            }
+
+            return target;
         }
     }
 }

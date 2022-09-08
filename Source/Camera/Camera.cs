@@ -13,6 +13,8 @@ namespace BluishEngine
     /// </summary>
     public class Camera
     {
+        // TODO: Fix artefacts when zooming
+        // TODO: Fix shaking when zooming
         /// <summary>
         /// A <see cref="float"/> representing the zoom level, with <c>1</c> being the default zoom
         /// </summary>
@@ -24,12 +26,12 @@ namespace BluishEngine
             }
             set
             {
-                _position -= new Vector2(Viewport.Width / 2f * (1 - value/_zoom), Viewport.Height / 2f * (1 - value/_zoom));
-
                 if (Bounds.HasValue)
                     _zoom = Math.Max(value, Math.Max((float)_defaultDimensions.X / Bounds.Value.Width, (float)_defaultDimensions.Y / Bounds.Value.Height));
                 else
                     _zoom = value;
+
+                FocusOn(Viewport.Center.ToVector2());
             }
         }
         /// <summary>
@@ -57,7 +59,15 @@ namespace BluishEngine
         {
             get
             {
-                return new Rectangle((int)Position.X, (int)Position.Y, (int)Math.Ceiling(_defaultDimensions.X / Zoom), (int)Math.Ceiling(_defaultDimensions.Y / Zoom));
+                Matrix inverse = Matrix.Invert(Transform());
+
+                Vector2 TL = Vector2.Zero;
+                Vector2 BR = _defaultDimensions.ToVector2();
+
+                TL = Vector2.Transform(TL, inverse);
+                BR = Vector2.Transform(BR, inverse);
+
+                return new Rectangle(TL.ToPoint(), Vector2.Ceiling(BR - TL).ToPoint());
             }
             set
             {
@@ -124,6 +134,7 @@ namespace BluishEngine
             Position = Vector2.Floor(centre) - Viewport.Size.ToVector2() / 2f;
         }
         
+        // TODO: Get smooth focusing working
         public void SmoothFocusOn(GameTime gameTime, Vector2 centre, float smoothing, Vector2 velocity, Vector2 acceleration)
         {
             // TODO: Fix big offset
@@ -180,7 +191,8 @@ namespace BluishEngine
 
         public void ZoomBy(float factor, float duration)
         {
-            _effects[typeof(SmoothZoom)] = new SmoothZoom(this, factor, duration);
+            if (!_effects.ContainsKey(typeof(SmoothZoom)) && _canManuallyMove)
+                _effects[typeof(SmoothZoom)] = new SmoothZoom(this, factor, duration);
         }
 
         private void ClampViewportToBounds()
@@ -220,18 +232,26 @@ namespace BluishEngine
         class Pan : CameraEffect
         {
             private Vector2 _destination;
+            private Vector2 _direction;
 
             public Pan(Camera camera, Vector2 destination, float duration) : base(camera, duration)
             {
                 _destination = destination;
+                _direction = destination - camera.Position;
             }
 
             public override void Update(GameTime gameTime)
             {
                 Camera._canManuallyMove = false;
                 Camera._position = Vector2.SmoothStep(Camera.Position, _destination, MathHelper.SmoothStep(0, 1, ElapsedTime / Duration));
-                Camera._position.Round();
+                Camera._position = new Vector2((float)Math.Round(Camera._position.X, _direction.X < 0 ? MidpointRounding.ToZero : MidpointRounding.ToPositiveInfinity), (float)Math.Round(Camera._position.Y, _direction.Y < 0 ? MidpointRounding.ToZero : MidpointRounding.ToPositiveInfinity));
+
                 base.Update(gameTime);
+
+                if (Completed)
+                {
+                    Camera._position = _destination;
+                }
             }
         }
 
@@ -249,7 +269,13 @@ namespace BluishEngine
             public override void Update(GameTime gameTime)
             {
                 Camera.Zoom = MathHelper.SmoothStep(Camera.Zoom, _initialZoom * _factor, MathHelper.SmoothStep(0, 1, ElapsedTime / Duration));
+
                 base.Update(gameTime);
+
+                if (Completed)
+                {
+                    Camera.Zoom = _initialZoom * _factor;
+                }
             }
         }
     }
