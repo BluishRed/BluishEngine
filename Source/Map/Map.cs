@@ -78,7 +78,7 @@ namespace BluishEngine
             for (int y = region.Top; y <= region.Bottom; y++)
             {
                 for (int x = region.Left; x <= region.Right; x++)
-                { 
+                {
                     if (Layers[layer][x, y] != 0)
                     {
                         tiles.Add(new TileLocation(WorldCoordinates(new Vector2(x, y)), Layers[layer][x, y]));

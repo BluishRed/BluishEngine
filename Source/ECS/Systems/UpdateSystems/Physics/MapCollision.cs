@@ -113,6 +113,7 @@ namespace BluishEngine.Systems
         {
             List<Rectangle> hitboxes = new List<Rectangle>();
 
+            // TODO: Don't hardcode in the map layer
             foreach(Map.TileLocation tileLocation in Map.GetTilesInRegion(region, 2))
             {
                 ComponentCollection tile = Map.GetComponents(tileLocation.Tile);

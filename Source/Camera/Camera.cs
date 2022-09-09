@@ -231,6 +231,11 @@ namespace BluishEngine
                     _onCompleted?.Invoke();
                 }
             }
+
+            protected void Stop()
+            {
+                ElapsedTime = Duration;
+            }
         }
 
         class Pan : CameraEffect
@@ -249,6 +254,11 @@ namespace BluishEngine
                 Camera._canManuallyMove = false;
                 Camera._position = Vector2.SmoothStep(Camera.Position, _destination, ElapsedTime / Duration);
                 Camera._position = new Vector2((float)Math.Round(Camera._position.X, _direction.X < 0 ? MidpointRounding.ToZero : MidpointRounding.ToPositiveInfinity), (float)Math.Round(Camera._position.Y, _direction.Y < 0 ? MidpointRounding.ToZero : MidpointRounding.ToPositiveInfinity));
+
+                if (Camera._position == _destination)
+                {
+                    Stop();
+                }
 
                 base.Update(gameTime);
 
