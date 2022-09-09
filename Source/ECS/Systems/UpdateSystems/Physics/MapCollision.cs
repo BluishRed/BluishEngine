@@ -19,6 +19,8 @@ namespace BluishEngine.Systems
 
         protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
         {
+            // TODO: Make entity collide with bounds of rooms?
+
             Vector2 position = components.GetComponent<Transform>().Position + components.GetComponent<Collidable>().BoundingBox.Location.ToVector2();
             Vector2 velocity = components.GetComponent<KinematicBody>().Velocity;
             Vector2 acceleration = components.GetComponent<KinematicBody>().Acceleration;

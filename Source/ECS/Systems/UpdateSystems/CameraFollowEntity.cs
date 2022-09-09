@@ -38,7 +38,7 @@ namespace BluishEngine.Systems
                     if (currentRoom != _previousRoom)
                     {
                         _camera.Bounds = Rectangle.Union(_previousRoom, currentRoom);
-                        _camera.SlideTo(GetRoomTarget(currentRoom), 0.6f, UnlockPlayer);
+                        _camera.SlideTo(GetRoomTarget(centre), 0.6f, UnlockPlayer);
                         _canEntityMove = false;
                     }
                     else
@@ -62,37 +62,12 @@ namespace BluishEngine.Systems
             }
         }
 
-        private Vector2 GetRoomTarget(Rectangle room)
+        private Vector2 GetRoomTarget(Vector2 centre)
         {
-            Vector2 target = room.Location.ToVector2();
-
-            if (room.X > _previousRoom.X)
-            {
-                target.X = _camera.Position.X + _camera.Viewport.Width;
-            }
-            else if (room.X < _previousRoom.X)
-            {
-                target.X = _camera.Position.X - _camera.Viewport.Width;
-            }
-            else
-            {
-                target.X = _camera.Position.X;
-            }
-
-            if (room.Y > _previousRoom.Y)
-            {
-                target.Y = _camera.Position.Y + _camera.Viewport.Height;
-            }
-            else if (room.Y < _previousRoom.Y)
-            {
-                target.Y = _camera.Position.Y - _camera.Viewport.Height;
-            }
-            else
-            {
-                target.Y = _camera.Position.Y;
-            }
-
-            return target;
+            Camera camera = new Camera(_camera.Viewport.Size);
+            camera.Bounds = _map.GetRoomContainingVector(centre);
+            camera.FocusOn(centre);
+            return Vector2.Floor(camera.Position);
         }
 
         private void UnlockPlayer()

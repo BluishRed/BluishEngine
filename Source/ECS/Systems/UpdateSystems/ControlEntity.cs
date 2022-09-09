@@ -11,7 +11,7 @@ namespace BluishEngine.Systems
 {
     public class ControlEntity : UpdateSystem
     {
-
+        // TODO: Move these to (a) component(s)
         const float _speed = 11f;
         const float _jump = 320f;
 

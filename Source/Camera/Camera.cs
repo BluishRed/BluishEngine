@@ -252,7 +252,7 @@ namespace BluishEngine
             public override void Update(GameTime gameTime)
             {
                 Camera._canManuallyMove = false;
-                Camera._position = Vector2.SmoothStep(Camera.Position, _destination, ElapsedTime / Duration);
+                Camera._position = Vector2.SmoothStep(Camera.Position, _destination, MathHelper.SmoothStep(0, 1, ElapsedTime / Duration));
                 Camera._position = new Vector2((float)Math.Round(Camera._position.X, _direction.X < 0 ? MidpointRounding.ToZero : MidpointRounding.ToPositiveInfinity), (float)Math.Round(Camera._position.Y, _direction.Y < 0 ? MidpointRounding.ToZero : MidpointRounding.ToPositiveInfinity));
 
                 if (Camera._position == _destination)
@@ -282,7 +282,7 @@ namespace BluishEngine
 
             public override void Update(GameTime gameTime)
             {
-                Camera.Zoom = MathHelper.SmoothStep(Camera.Zoom, _initialZoom * _factor, ElapsedTime / Duration);
+                Camera.Zoom = MathHelper.SmoothStep(Camera.Zoom, _initialZoom * _factor, MathHelper.SmoothStep(0, 1, ElapsedTime / Duration));
 
                 base.Update(gameTime);
 
