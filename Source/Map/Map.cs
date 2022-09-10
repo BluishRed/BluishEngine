@@ -18,7 +18,6 @@ namespace BluishEngine
         /// Content location
         /// </summary>
         public string Location { get; private set; }
-
         // TODO: Add summary
         public Point Dimensions { get; private set; }
         /// <summary>
@@ -41,7 +40,7 @@ namespace BluishEngine
         }
         
         public override void Draw(SpriteBatch spriteBatch)
-        {
+        { 
             for (int layer = 0; layer < Layers.Count; layer++)
             {
                 foreach (TileLocation tileLocation in GetTilesInRegion(Camera.Viewport, layer))

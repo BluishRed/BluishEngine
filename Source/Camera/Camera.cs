@@ -137,8 +137,6 @@ namespace BluishEngine
         // TODO: Get smooth focusing working
         public void SmoothFocusOn(GameTime gameTime, Vector2 centre, float smoothing, Vector2 velocity, Vector2 acceleration)
         {
-            // TODO: Fix big offset
-
             Vector2 position = Position;
 
             if (Math.Abs(acceleration.X) == 0 && velocity.X != 0)
