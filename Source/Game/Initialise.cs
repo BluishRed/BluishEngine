@@ -23,8 +23,8 @@ namespace BluishEngine
             StateManager.SetInitialState(gameParameters.InitialState);
             Content.RootDirectory = "Content";
             ContentProvider.Content = Content;
-            _graphics.SynchronizeWithVerticalRetrace = true;
-            IsFixedTimeStep = false;
+            //_graphics.SynchronizeWithVerticalRetrace = true;
+            //IsFixedTimeStep = false;
         }
 
         protected sealed override void Initialize()

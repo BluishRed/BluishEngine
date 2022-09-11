@@ -17,14 +17,10 @@ namespace BluishEngine.Systems
 
         protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
         {
-            Vector2 force = components.GetComponent<KinematicBody>().Force;
-
             if (Input.IsKeyInState(components.GetComponent<CanJump>().Controls) && components.GetComponent<KinematicState>().OnGround)
             {
-                force.Y -= components.GetComponent<CanJump>().Force;
+                components.GetComponent<KinematicBody>().Force.Y -= components.GetComponent<CanJump>().Force;
             }
-
-            components.GetComponent<KinematicBody>().Force = force;
         }
     }
 }

@@ -16,15 +16,15 @@ namespace BluishEngine.Components
         /// <summary>
         /// The content location
         /// </summary>
-        public string Location { get; set; }
+        public string Location;
         /// <summary>
         /// The sprite data after it has been loaded
         /// </summary>
-        public Texture2D Texture { get; set; }
+        public Texture2D Texture;
         /// <summary>
         /// An optional <see cref="Rectangle"/> specifying a particular part of the image
         /// </summary>
-        public Rectangle? Source { get; set; }
+        public Rectangle? Source;
 
         /// <param name="location">
         /// <inheritdoc cref="Location" path="/summary"/>

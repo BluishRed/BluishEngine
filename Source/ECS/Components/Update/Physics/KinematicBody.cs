@@ -15,23 +15,23 @@ namespace BluishEngine.Components
         /// <summary>
         /// The force vector to apply this frame
         /// </summary>
-        public Vector2 Force { get; set; }
+        public Vector2 Force;
         /// <summary>
         /// The velocity vector that is persistant across frames
         /// </summary>
-        public Vector2 Velocity { get; set; }
+        public Vector2 Velocity;
         /// <summary>
         /// The change in velocity for this frame
         /// </summary>
-        public Vector2 Acceleration { get; set; }
+        public Vector2 Acceleration;
         /// <summary>
         /// The mass scalar of the entity
         /// </summary>
-        public float Mass { get; set; }
+        public float Mass;
         /// <summary>
         /// Flag indicating whether the entity can move
         /// </summary>
-        public bool CanMove { get; set; }
+        public bool CanMove;
 
         /// <param name="mass">
         /// <inheritdoc cref="Mass" path="/summary"/>

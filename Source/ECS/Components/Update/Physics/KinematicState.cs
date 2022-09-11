@@ -9,7 +9,7 @@ namespace BluishEngine.Components
 {
     public class KinematicState : Component
     {
-        public bool OnGround { get; set; }
+        public bool OnGround;
 
         public KinematicState()
         {

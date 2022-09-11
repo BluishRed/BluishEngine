@@ -10,7 +10,7 @@ namespace BluishEngine.Systems
 {
     public class Physics : UpdateSystem
     {
-        private const float _gravity = 0.3f;
+        private const float _gravity = 0.4f;
 
         public Physics(World world) : base(world, typeof(KinematicBody), typeof(KinematicState))
         {

@@ -14,23 +14,19 @@ namespace BluishEngine.Systems
         public Walking(World world) : base(world, typeof(KinematicBody), typeof(CanWalk), typeof(KinematicState))
         {
         }
-
+        
         protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
         {
             // TODO: Make 'walking' in the air defined better
 
-            Vector2 force = components.GetComponent<KinematicBody>().Force;
-
             if (Input.IsKeyInState(components.GetComponent<CanWalk>().LeftControls))
             {
-                force.X -= components.GetComponent<CanWalk>().Force;
+                components.GetComponent<KinematicBody>().Force.X -= components.GetComponent<CanWalk>().Force;
             }
             else if (Input.IsKeyInState(components.GetComponent<CanWalk>().RightControls))
             {
-                force.X += components.GetComponent<CanWalk>().Force;
+                components.GetComponent<KinematicBody>().Force.X += components.GetComponent<CanWalk>().Force;
             }
-
-            components.GetComponent<KinematicBody>().Force = force;
         }
     }
 }

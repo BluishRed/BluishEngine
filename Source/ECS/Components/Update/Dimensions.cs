@@ -13,8 +13,8 @@ namespace BluishEngine.Components
     /// </summary>
     public class Dimensions : Component
     {
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public int Width;
+        public int Height;
 
         public Dimensions(int width, int height)
         {
