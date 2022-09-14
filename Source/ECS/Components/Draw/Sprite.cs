@@ -22,7 +22,7 @@ namespace BluishEngine.Components
         /// </summary>
         public Texture2D Texture;
         /// <summary>
-        /// An optional <see cref="Rectangle"/> specifying a particular part of the image
+        /// An optional <see cref="Rectangle"/> specifying a particular part of the <see cref="Texture"/>
         /// </summary>
         public Rectangle? Source;
 
@@ -34,7 +34,7 @@ namespace BluishEngine.Components
         /// </param>
         public Sprite(string location, Rectangle? source = null)
         {
-            Location = location;            
+            Location = location;
             Source = source;
         }
     }

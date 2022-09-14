@@ -138,7 +138,7 @@ namespace BluishEngine
                             tile++;
                         }
                     }
-                } 
+                }
                 else if (mapLayer.Type == "objectgroup")
                 {
                     if (mapLayer.Name == "Rooms")

@@ -11,7 +11,7 @@ namespace BluishEngine.Systems
 {
     public class Walking : UpdateSystem
     {
-        public Walking(World world) : base(world, typeof(KinematicBody), typeof(CanWalk), typeof(KinematicState))
+        public Walking(World world) : base(world, typeof(KinematicBody), typeof(CanWalk))
         {
         }
         

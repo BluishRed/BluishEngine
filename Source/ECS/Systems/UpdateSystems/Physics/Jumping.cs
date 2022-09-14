@@ -11,13 +11,13 @@ namespace BluishEngine.Systems
 {
     public class Jumping : UpdateSystem
     {
-        public Jumping(World world) : base(world, typeof(KinematicBody), typeof(CanJump), typeof(KinematicState))
+        public Jumping(World world) : base(world, typeof(KinematicBody), typeof(CanJump), typeof(Collidable))
         {
         }
 
         protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
         {
-            if (Input.IsKeyInState(components.GetComponent<CanJump>().Controls) && components.GetComponent<KinematicState>().OnGround)
+            if (Input.IsKeyInState(components.GetComponent<CanJump>().Controls) && components.GetComponent<Collidable>().OnGround)
             {
                 components.GetComponent<KinematicBody>().Force.Y -= components.GetComponent<CanJump>().Force;
             }

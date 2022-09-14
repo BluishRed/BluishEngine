@@ -12,7 +12,7 @@ namespace BluishEngine.Systems
     {
         protected Map Map { get; private set; }
 
-        public MapCollision(World world, Map map) : base(world, typeof(Collidable), typeof(KinematicBody), typeof(Transform), typeof(KinematicState))
+        public MapCollision(World world, Map map) : base(world, typeof(Collidable), typeof(KinematicBody), typeof(Transform))
         {
             Map = map;
         }
@@ -30,7 +30,7 @@ namespace BluishEngine.Systems
                 ref position,
                 ref components.GetComponent<KinematicBody>().Velocity,
                 ref components.GetComponent<KinematicBody>().Acceleration,
-                ref components.GetComponent<KinematicState>().OnGround
+                ref components.GetComponent<Collidable>().OnGround
             );
             
             components.GetComponent<Transform>().Position = position - components.GetComponent<Collidable>().BoundingBox.Location.ToVector2();

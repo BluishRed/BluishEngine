@@ -21,6 +21,7 @@ namespace BluishEngine.Components
         /// Optional <see cref="HashSet{T}"/> containing directions that the entity cannot be collided from
         /// </summary>
         public HashSet<Direction> ExcludedDirections;
+        public bool OnGround;
 
         /// <param name="boundingBox">
         /// <inheritdoc cref="BoundingBox" path="/summary"/>
@@ -40,6 +41,8 @@ namespace BluishEngine.Components
             {
                 ExcludedDirections = excludedDirections;
             }
+
+            OnGround = false;
         }
     }
 }
