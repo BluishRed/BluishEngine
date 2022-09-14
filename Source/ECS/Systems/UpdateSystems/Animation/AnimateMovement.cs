@@ -19,8 +19,6 @@ namespace BluishEngine.Systems
         {
             Rectangle sprite;
             Direction xDirection;
-            AnimatedMovement ani = components.GetComponent<AnimatedMovement>();
-            Sprite spr = components.GetComponent<Sprite>();
 
             if (components.GetComponent<KinematicBody>().Velocity.X != 0)
             {
@@ -64,7 +62,6 @@ namespace BluishEngine.Systems
                 }
             }
 
-            ani = components.GetComponent<AnimatedMovement>();
             components.GetComponent<AnimatedMovement>().lastDirection = xDirection;
             components.GetComponent<Sprite>().Source = sprite;
         }
