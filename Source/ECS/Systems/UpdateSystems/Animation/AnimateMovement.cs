@@ -17,6 +17,8 @@ namespace BluishEngine.Systems
 
         protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
         {
+            // TODO: Clean this up
+
             Rectangle sprite;
             Direction xDirection;
 
@@ -60,6 +62,17 @@ namespace BluishEngine.Systems
                     sprite = xDirection == Direction.Left ? components.GetComponent<AnimatedMovement>().IdleFrames.facingLeft : components.GetComponent<AnimatedMovement>().IdleFrames.facingRight;
                     components.GetComponent<AnimatedMovement>().WalkIndex = 0;
                 }
+            }
+
+            if (xDirection != components.GetComponent<AnimatedMovement>().lastDirection)
+            {
+                components.GetComponent<AnimatedMovement>().TurnTimer = 0.1f;
+            }
+
+            if (components.GetComponent<AnimatedMovement>().TurnTimer > 0)
+            {
+                components.GetComponent<AnimatedMovement>().TurnTimer -= (float)gameTime.ElapsedGameTime.TotalSeconds;
+                sprite = components.GetComponent<AnimatedMovement>().TurnFrame;
             }
 
             components.GetComponent<AnimatedMovement>().lastDirection = xDirection;
