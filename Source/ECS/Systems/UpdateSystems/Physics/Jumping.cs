@@ -20,6 +20,27 @@ namespace BluishEngine.Systems
             if (Input.IsKeyInState(components.GetComponent<CanJump>().Controls) && components.GetComponent<Collidable>().OnGround)
             {
                 components.GetComponent<KinematicBody>().Force.Y -= components.GetComponent<CanJump>().Force;
+                components.GetComponent<CanJump>().JumpHeld = true;
+            }
+            else
+            {
+                if (components.GetComponent<KinematicBody>().Velocity.Y < 0)
+                {
+                    bool wasHeld = components.GetComponent<CanJump>().JumpHeld;
+                    if (!Input.IsKeyInState(components.GetComponent<CanJump>().Controls))
+                    {
+                        components.GetComponent<CanJump>().JumpHeld = false;
+                    }
+
+                    if (wasHeld && !components.GetComponent<CanJump>().JumpHeld)
+                    {
+                        components.GetComponent<KinematicBody>().Velocity.Y *= 0.6f;
+                    }
+                }
+                else
+                {
+                    components.GetComponent<CanJump>().JumpHeld = false;
+                }
             }
         }
     }

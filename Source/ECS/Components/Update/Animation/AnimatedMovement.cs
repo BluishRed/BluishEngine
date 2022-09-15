@@ -11,16 +11,16 @@ namespace BluishEngine.Components
     public class AnimatedMovement : Component
     {
         // TODO: Accomodate for multiple jumping/falling frames
-        public Rectangle TurnFrame;
-        public (Rectangle facingLeft, Rectangle facingRight) JumpFrames;
-        public (Rectangle facingLeft, Rectangle facingRight) FallFrames;
-        public (Rectangle facingLeft, Rectangle facingRight) IdleFrames;
-        public (Rectangle[] facingLeft, Rectangle[] facingRight) WalkFrames;
-        public float WalkFrameTime;
-        public float WalkFrameTimer;
-        public int WalkIndex;
-        public float TurnTimer;
-        public Direction lastDirection;
+        public Rectangle TurnFrame { get; }
+        public (Rectangle facingLeft, Rectangle facingRight) JumpFrames { get; }
+        public (Rectangle facingLeft, Rectangle facingRight) FallFrames { get; }
+        public (Rectangle facingLeft, Rectangle facingRight) IdleFrames { get; }
+        public (Rectangle[] facingLeft, Rectangle[] facingRight) WalkFrames { get; }
+        public float WalkFrameTime { get; }
+        public float WalkFrameTimer { get; set; }
+        public int WalkIndex { get; set; }
+        public float TurnTimer { get; set; }
+        public Direction lastDirection { get; set; }
 
         public AnimatedMovement(
             Rectangle turnFrame,

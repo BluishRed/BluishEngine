@@ -10,9 +10,9 @@ namespace BluishEngine.Components
 {
     public class CanWalk : Component
     {
-        public (Keys, KeyPressState) LeftControls;
-        public (Keys, KeyPressState) RightControls;
-        public float Force;
+        public (Keys, KeyPressState) LeftControls { get; set; }
+        public (Keys, KeyPressState) RightControls { get; set; }
+        public float Force { get; set; }
 
         public CanWalk(
             (Keys, KeyPressState) leftControls,

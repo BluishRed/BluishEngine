@@ -62,7 +62,7 @@ namespace BluishEngine.Systems
                     sprite = xDirection == Direction.Left ? components.GetComponent<AnimatedMovement>().IdleFrames.facingLeft : components.GetComponent<AnimatedMovement>().IdleFrames.facingRight;
                     components.GetComponent<AnimatedMovement>().WalkIndex = 0;
                 }
-            }
+            } 
 
             if (xDirection != components.GetComponent<AnimatedMovement>().lastDirection)
             {

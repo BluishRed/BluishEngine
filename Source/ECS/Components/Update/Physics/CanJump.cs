@@ -10,8 +10,9 @@ namespace BluishEngine.Components
 {
     public class CanJump : Component
     {
-        public float Force;
-        public (Keys, KeyPressState) Controls;
+        public float Force { get; }
+        public (Keys, KeyPressState) Controls { get; set; }
+        public bool JumpHeld { get; set; }
 
         public CanJump(
             (Keys, KeyPressState) controls,

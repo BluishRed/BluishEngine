@@ -22,6 +22,7 @@ namespace BluishEngine.Systems
             // TODO: Make entity collide with bounds of rooms?
 
             Vector2 position = components.GetComponent<Transform>().Position + components.GetComponent<Collidable>().BoundingBox.Location.ToVector2();
+            bool onGround = components.GetComponent<Collidable>().OnGround;
 
             ResolveMapCollisions(
                 components.GetComponent<Collidable>().BoundingBox.Width,
@@ -30,9 +31,10 @@ namespace BluishEngine.Systems
                 ref position,
                 ref components.GetComponent<KinematicBody>().Velocity,
                 ref components.GetComponent<KinematicBody>().Acceleration,
-                ref components.GetComponent<Collidable>().OnGround
+                ref onGround
             );
-            
+
+            components.GetComponent<Collidable>().OnGround = onGround;
             components.GetComponent<Transform>().Position = position - components.GetComponent<Collidable>().BoundingBox.Location.ToVector2();
         }
 

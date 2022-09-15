@@ -16,7 +16,7 @@ namespace BluishEngine.Components
         /// <summary>
         /// Boolean signifying whether the camera should follow this entity
         /// </summary>
-        public bool Active;
+        public bool Active { get; set; }
 
         /// <param name="active">
         /// <inheritdoc cref="Active" path="/summary"/>

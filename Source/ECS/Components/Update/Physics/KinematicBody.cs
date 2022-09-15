@@ -27,11 +27,11 @@ namespace BluishEngine.Components
         /// <summary>
         /// The mass scalar of the entity
         /// </summary>
-        public float Mass;
+        public float Mass { get; set; }
         /// <summary>
         /// Flag indicating whether the entity can move
         /// </summary>
-        public bool CanMove;
+        public bool CanMove { get; set; }
 
         /// <param name="mass">
         /// <inheritdoc cref="Mass" path="/summary"/>

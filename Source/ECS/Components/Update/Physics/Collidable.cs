@@ -16,12 +16,12 @@ namespace BluishEngine.Components
         /// <summary>
         /// The <see cref="Rectangle"/> that defines the bounding box of this entity. The coordinates of the rectangle are relative to the top left of the entity
         /// </summary>
-        public Rectangle BoundingBox;
+        public Rectangle BoundingBox { get; set; }
         /// <summary>
         /// Optional <see cref="HashSet{T}"/> containing directions that the entity cannot be collided from
         /// </summary>
-        public HashSet<Direction> ExcludedDirections;
-        public bool OnGround;
+        public HashSet<Direction> ExcludedDirections { get; set; }
+        public bool OnGround { get; set; }
 
         /// <param name="boundingBox">
         /// <inheritdoc cref="BoundingBox" path="/summary"/>
