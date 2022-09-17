@@ -30,7 +30,6 @@ namespace BluishEngine.Systems
                 components.GetComponent<Transform>().Depth,
                 ref position,
                 ref components.GetComponent<KinematicBody>().Velocity,
-                ref components.GetComponent<KinematicBody>().Acceleration,
                 ref onGround
             );
 
@@ -38,7 +37,7 @@ namespace BluishEngine.Systems
             components.GetComponent<Transform>().Position = position - components.GetComponent<Collidable>().BoundingBox.Location.ToVector2();
         }
 
-        protected void ResolveMapCollisions(int width, int height, float depth, ref Vector2 position, ref Vector2 velocity, ref Vector2 acceleration, ref bool onGround)
+        protected void ResolveMapCollisions(int width, int height, float depth, ref Vector2 position, ref Vector2 velocity, ref bool onGround)
         {
             if (velocity.X != 0)
             {
@@ -53,7 +52,6 @@ namespace BluishEngine.Systems
                     if (collidableTiles.Count > 0)
                     {
                         velocity.X = 0;
-                        acceleration.X = 0;
                         position.X += Math.Min(0, MaxX(collidableTiles) - position.X);
                     }
                 }
@@ -66,7 +64,6 @@ namespace BluishEngine.Systems
                     if (collidableTiles.Count > 0)
                     {
                         velocity.X = 0;
-                        acceleration.X = 0;
                         position.X += Math.Max(0, MinX(collidableTiles) - position.X - width);
                     }
                 }
@@ -87,7 +84,6 @@ namespace BluishEngine.Systems
                     if (collidableTiles.Count > 0)
                     {
                         velocity.Y = 0;
-                        acceleration.Y = 0;
                         position.Y += Math.Min(0, MaxY(collidableTiles) - position.Y);
                     }
                 }
@@ -100,7 +96,6 @@ namespace BluishEngine.Systems
                     if (collidableTiles.Count > 0)
                     {
                         velocity.Y = 0;
-                        acceleration.Y = 0;
                         position.Y += Math.Max(0, MinY(collidableTiles) - position.Y - height);
                         onGround = true;
                     }
