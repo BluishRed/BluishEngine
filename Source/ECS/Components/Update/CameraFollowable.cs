@@ -13,17 +13,5 @@ namespace BluishEngine.Components
     /// </summary>
     public class CameraFollowable : Component
     {
-        /// <summary>
-        /// Boolean signifying whether the camera should follow this entity
-        /// </summary>
-        public bool Active { get; set; }
-
-        /// <param name="active">
-        /// <inheritdoc cref="Active" path="/summary"/>
-        /// </param>
-        public CameraFollowable(bool active)
-        {
-            Active = active;
-        }
     }
 }
