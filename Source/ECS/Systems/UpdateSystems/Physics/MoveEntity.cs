@@ -20,8 +20,6 @@ namespace BluishEngine.Systems
         {
             if (components.GetComponent<KinematicBody>().CanMove)
                 components.GetComponent<Transform>().Position += components.GetComponent<KinematicBody>().Velocity;
-
-            Debug.WriteLine(components.GetComponent<Transform>().Position);
         }
     }
 }

@@ -36,6 +36,13 @@ namespace BluishEngine.Systems
                 if (currentRoom != _previousRoom)
                 {
                     _camera.Bounds = Rectangle.Union(_previousRoom, currentRoom);
+
+                    if (currentRoom.Y < _previousRoom.Y)
+                    {
+                        // TODO: Maybe change this?
+                        components.GetComponent<KinematicBody>().Force.Y -= 150;
+                    }
+
                     _camera.SlideTo(GetRoomTarget(centre), 0.6f, UnlockPlayer);
                     _canEntityMove = false;
                 }
