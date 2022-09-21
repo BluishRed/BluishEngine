@@ -26,7 +26,7 @@ namespace BluishEngine.Systems
 
         protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
         {
-            Vector2 centre = new Vector2(components.GetComponent<Transform>().Position.X + components.GetComponent<Dimensions>().Width / 2, components.GetComponent<Transform>().Position.Y + (int)Math.Ceiling(components.GetComponent<Dimensions>().Height / 2f));
+            Vector2 centre = new Vector2(components.GetComponent<Transform>().Position.X + components.GetComponent<Dimensions>().Width / 2, components.GetComponent<Transform>().Position.Y + components.GetComponent<Dimensions>().Height / 2);
             _camera.FocusOn(centre);
 
             if (_map is not null)

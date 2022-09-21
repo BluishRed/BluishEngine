@@ -15,9 +15,7 @@ namespace BluishEngine.Components
         public int CurrentFrame { get; set; }
         public float Timer { get; set; }
 
-        public PassivelyAnimated(
-            (Rectangle source, float duration)[] frames
-        )
+        public PassivelyAnimated((Rectangle source, float duration)[] frames)
         {
             Frames = frames;
         }

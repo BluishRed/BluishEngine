@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -19,6 +20,8 @@ namespace BluishEngine.Systems
         {
             if (components.GetComponent<KinematicBody>().CanMove)
                 components.GetComponent<Transform>().Position += components.GetComponent<KinematicBody>().Velocity;
+
+            Debug.WriteLine(components.GetComponent<Transform>().Position);
         }
     }
 }
