@@ -180,24 +180,50 @@ namespace BluishEngine
                     }
                 }
                 
+                // Adding additional components
+
                 if (tileSet.Tiles is not null)
                 {
                     foreach (Tile tile in tileSet.Tiles)
                     {
-                        foreach (Object tileObject in tile.ObjectGroup.Objects)
+                        // Animation
+
+                        Frame[] animation = tile.Animation;
+
+                        if (animation is not null)
                         {
-                            if (tileObject.Type == "Collidable")
+                            List<(Rectangle, float)> frames = new List<(Rectangle, float)>();
+
+                            foreach (Frame frame in animation)
                             {
-                                bool jumpThrough = false;
+                                frames.Add((new Rectangle(tileSet.TileWidth * (frame.TileID % (tileSet.ImageWidth / tileSet.TileWidth)), tileSet.TileHeight * (frame.TileID / (tileSet.ImageHeight / tileSet.TileHeight)), tileSet.TileWidth, tileSet.TileHeight), frame.Duration / 1000));
+                            }
 
-                                if (tileObject.Properties is not null)
+                            AddComponent(tile.ID + tileSetReference.FirstGID, new PassivelyAnimated(frames.ToArray()));
+                        }
+
+                        // Objects
+
+                        if (tile.ObjectGroup is not null)
+                        {
+
+                            // Collision
+
+                            foreach (Object tileObject in tile.ObjectGroup.Objects)
+                            {
+                                if (tileObject.Type == "Collidable")
                                 {
-                                    List<ObjectProperty> properties = tileObject.Properties.ToList();
+                                    bool jumpThrough = false;
 
-                                    jumpThrough = properties.FindIndex(o => o.Name == "JumpThrough" && o.Value.GetBoolean()) != -1;
+                                    if (tileObject.Properties is not null)
+                                    {
+                                        List<ObjectProperty> properties = tileObject.Properties.ToList();
+
+                                        jumpThrough = properties.FindIndex(o => o.Name == "JumpThrough" && o.Value.GetBoolean()) != -1;
+                                    }
+
+                                    AddComponent(tile.ID + tileSetReference.FirstGID, new Collidable(new Rectangle(tile.ObjectGroup.Objects[0].X, tile.ObjectGroup.Objects[0].Y, tile.ObjectGroup.Objects[0].Width, tile.ObjectGroup.Objects[0].Height), jumpThrough ? new HashSet<Direction>() { Direction.Up, Direction.Left, Direction.Right } : null));
                                 }
-
-                                AddComponent(tile.ID + tileSetReference.FirstGID, new Collidable(new Rectangle(tile.ObjectGroup.Objects[0].X, tile.ObjectGroup.Objects[0].Y, tile.ObjectGroup.Objects[0].Width, tile.ObjectGroup.Objects[0].Height), jumpThrough ? new HashSet<Direction>() { Direction.Up, Direction.Left, Direction.Right } : null));
                             }
                         }
                     }
@@ -216,6 +242,7 @@ namespace BluishEngine
         private void AddSystems()
         {
             AddSystem(new Systems.SpriteLoader(this));
+            AddSystem(new Systems.PassiveAnimation(this));
         }
 
         /// <summary>
@@ -296,7 +323,14 @@ namespace BluishEngine
         private class Tile
         { 
             public int ID { get; set; }
+            public Frame[] Animation { get; set; }
             public TileObjectGroup ObjectGroup { get; set; }
+        }
+
+        private class Frame
+        {
+            public float Duration { get; set; }
+            public int TileID { get; set; }
         }
 
         private class TileObjectGroup

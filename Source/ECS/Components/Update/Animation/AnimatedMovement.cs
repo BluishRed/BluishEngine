@@ -37,6 +37,7 @@ namespace BluishEngine.Components
             IdleFrames = idleFrames;
             WalkFrames = walkFrames;
             WalkFrameTime = secondsBetweenWalkFrames;
+            lastDirection = Direction.Right;
         }
     }
 }
