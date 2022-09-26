@@ -33,13 +33,13 @@ namespace BluishEngine.Systems
             {
                 Rectangle currentRoom = _map.GetRoomContainingVector(centre);
 
-                if (currentRoom != _previousRoom)
+                if (currentRoom != _previousRoom) 
                 {
                     _camera.Bounds = Rectangle.Union(_previousRoom, currentRoom);
 
                     if (currentRoom.Y < _previousRoom.Y)
                     {
-                        // TODO: Maybe change this?
+                        // TODO: Holding down button means you get a massive boost
                         components.GetComponent<KinematicBody>().Force.Y -= 150;
                     }
 

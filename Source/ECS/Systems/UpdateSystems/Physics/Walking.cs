@@ -18,14 +18,16 @@ namespace BluishEngine.Systems
         protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
         {
             // TODO: Make 'walking' in the air defined better
-
-            if (Input.IsKeyInState(components.GetComponent<CanWalk>().LeftControls))
+            if (components.GetComponent<KinematicBody>().CanMove)
             {
-                components.GetComponent<KinematicBody>().Force.X -= components.GetComponent<CanWalk>().Force;
-            }
-            else if (Input.IsKeyInState(components.GetComponent<CanWalk>().RightControls))
-            {
-                components.GetComponent<KinematicBody>().Force.X += components.GetComponent<CanWalk>().Force;
+                if (Input.IsKeyInState(components.GetComponent<CanWalk>().LeftControls))
+                {
+                    components.GetComponent<KinematicBody>().Force.X -= components.GetComponent<CanWalk>().Force;
+                }
+                else if (Input.IsKeyInState(components.GetComponent<CanWalk>().RightControls))
+                {
+                    components.GetComponent<KinematicBody>().Force.X += components.GetComponent<CanWalk>().Force;
+                }
             }
         }
     }
