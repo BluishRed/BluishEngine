@@ -131,7 +131,7 @@ namespace BluishEngine
             Position = Vector2.Floor(centre) - Viewport.Size.ToVector2() / 2f;
         }
         
-        // TODO: Get smooth focusing working
+        // TODO: Implement
         public void SmoothFocusOn(GameTime gameTime, Vector2 centre, float smoothing, Vector2 velocity, Vector2 acceleration)
         {
             Vector2 position = Position;
