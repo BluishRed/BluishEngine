@@ -14,7 +14,7 @@ namespace BluishEngine.Systems
         public Renderer(World world) : base(world, typeof(Sprite), typeof(Transform))
         {
         }
-
+        
         protected override void DrawEntity(SpriteBatch spriteBatch, Entity entity, ComponentCollection components)
         {
             spriteBatch.Draw(components.GetComponent<Sprite>().Texture, Vector2.Floor(components.GetComponent<Transform>().Position), components.GetComponent<Sprite>().Source, Color.White, components.GetComponent<Transform>().Rotation, Vector2.Zero, components.GetComponent<Transform>().Scale, SpriteEffects.None, components.GetComponent<Transform>().Depth);

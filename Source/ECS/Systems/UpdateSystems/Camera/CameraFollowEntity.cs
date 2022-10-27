@@ -39,7 +39,6 @@ namespace BluishEngine.Systems
 
                     if (currentRoom.Y < _previousRoom.Y)
                     {
-                        // TODO: Holding down button means you get a massive boost
                         components.GetComponent<KinematicBody>().Force.Y -= 150;
                     }
 

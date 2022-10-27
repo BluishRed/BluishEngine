@@ -102,9 +102,6 @@ namespace BluishEngine
         private Dictionary<Type, CameraEffect> _effects;
         private List<CameraEffect> _effectsToRemove;
 
-        /// <param name="viewportDimensions">
-        /// <inheritdoc cref="ViewportDimensions" path="/summary"/>
-        /// </param>
         public Camera(Point defaultViewportDimensions)
         {
             _defaultDimensions = defaultViewportDimensions;
@@ -209,14 +206,14 @@ namespace BluishEngine
             protected float ElapsedTime { get; private set; }
             protected Camera Camera { get; private set; }
 
-            private Action? _onCompleted;
+            private Action? _onCompletion;
 
-            public CameraEffect(Camera camera, float duration, Action? OnCompleted)
+            public CameraEffect(Camera camera, float duration, Action? OnCompletion)
             {
                 Duration = duration;
                 ElapsedTime = 0;
                 Camera = camera;
-                _onCompleted = OnCompleted;
+                _onCompletion = OnCompletion;
             }
 
             public virtual void Update(GameTime gameTime)
@@ -226,7 +223,7 @@ namespace BluishEngine
                 {
                     Completed = true;
                     Camera._canManuallyMove = true;
-                    _onCompleted?.Invoke();
+                    _onCompletion?.Invoke();
                 }
             }
 
@@ -241,7 +238,7 @@ namespace BluishEngine
             private Vector2 _destination;
             private Vector2 _direction;
 
-            public Pan(Camera camera, Vector2 destination, float duration, Action? OnCompleted) : base(camera, duration, OnCompleted)
+            public Pan(Camera camera, Vector2 destination, float duration, Action? OnCompletion) : base(camera, duration, OnCompletion)
             {
                 _destination = destination;
                 _direction = destination - camera.Position;
@@ -272,7 +269,7 @@ namespace BluishEngine
             private float _factor;
             private float _initialZoom;
 
-            public SmoothZoom(Camera camera, float factor, float duration, Action? OnCompleted) : base(camera, duration, OnCompleted)
+            public SmoothZoom(Camera camera, float factor, float duration, Action? OnCompletion) : base(camera, duration, OnCompletion)
             {
                 _factor = factor;
                 _initialZoom = camera.Zoom;
@@ -283,6 +280,8 @@ namespace BluishEngine
                 Camera.Zoom = MathHelper.SmoothStep(Camera.Zoom, _initialZoom * _factor, MathHelper.SmoothStep(0, 1, ElapsedTime / Duration));
 
                 base.Update(gameTime);
+
+                Debug.WriteLine(Camera.Viewport.Width / (float)Camera.Viewport.Height);
 
                 if (Completed)
                 {

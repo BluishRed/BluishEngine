@@ -101,7 +101,7 @@ namespace BluishEngine
             }
             throw new Exception($"There is no room that contains {vector2}");
         }
-
+        
         public override void LoadContent(ContentManager content)
         {
             // Reading Data
@@ -171,8 +171,9 @@ namespace BluishEngine
                 {
                     for  (int x = 0; x < tileSet.ImageWidth; x += tileSet.TileWidth)
                     {
+                        string spriteLocation = Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(tileSetReference.Source), tileSet.Image), null);
                         AddEntity(
-                            new Sprite(Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(tileSetReference.Source), tileSet.Image), null), new Rectangle(x, y, tileSet.TileWidth, tileSet.TileHeight)), 
+                            new Sprite("Maps/" + spriteLocation, new Rectangle(x, y, tileSet.TileWidth, tileSet.TileHeight)), 
                             new Dimensions(tileSet.TileWidth, tileSet.TileHeight)
                         );
 
