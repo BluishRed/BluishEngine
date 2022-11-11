@@ -13,8 +13,8 @@ namespace BluishEngine
     /// </summary>
     public class Camera
     {
-        // TODO: Fix artefacts when zooming
-        // FIXME: Fix shaking when zooming
+        // TODO: When zooming out in large room, clamping error
+        // TODO: Zooming in makes camera smoothing jarring
         // TODO: Add padding around textures
         /// <summary>
         /// A <see cref="float"/> representing the zoom level, with <c>1</c> being the default zoom
@@ -31,6 +31,8 @@ namespace BluishEngine
                     _zoom = Math.Max(value, Math.Max((float)_defaultDimensions.X / Bounds.Value.Width, (float)_defaultDimensions.Y / Bounds.Value.Height));
                 else
                     _zoom = value;
+
+                FocusOn(Viewport.Center);
             }
         }
         /// <summary>
@@ -126,32 +128,12 @@ namespace BluishEngine
         /// </summary>
         public void FocusOn(Vector2 centre)
         {
-            Position = centre - Viewport.Size / 2f;
+            Position = centre - Viewport.Size / 2;
         }
-        
-        // TODO: Implement?
-        public void SmoothFocusOn(GameTime gameTime, Vector2 centre, float smoothing, Vector2 velocity, Vector2 acceleration)
+
+        public void SmoothFocusOn(GameTime gameTime, Vector2 centre, float smoothing)
         {
-            Vector2 position = Position;
-
-            if (Math.Abs(acceleration.X) == 0 && velocity.X != 0)
-            {
-                position.X += velocity.X;
-            }
-            else
-            {
-                position.X = MathHelper.SmoothStep(position.X, centre.X - Viewport.Width / 2, 1 - (float)Math.Pow(smoothing, gameTime.ElapsedGameTime.TotalSeconds * 25)); position.X = MathHelper.SmoothStep(position.X, centre.X - Viewport.Width / 2, 1 - (float)Math.Pow(smoothing, gameTime.ElapsedGameTime.TotalSeconds * 25));
-            }
-            if (Math.Abs(acceleration.Y) == 0 && velocity.Y != 0)
-            {
-                position.Y += velocity.Y;
-            }
-            else
-            {
-                position.Y = MathHelper.SmoothStep(position.Y, centre.Y - Viewport.Height / 2, 1 - (float)Math.Pow(smoothing, gameTime.ElapsedGameTime.TotalSeconds * 25));
-            }
-
-            Position = position;
+            Position = Vector2.SmoothStep(Position, centre - Viewport.Size / 2, (float)Math.Pow(1 - smoothing, 0.1 * gameTime.ElapsedGameTime.TotalMilliseconds));
         }
 
         public void Update(GameTime gameTime)
@@ -173,7 +155,6 @@ namespace BluishEngine
                     _effects.Remove(effect.GetType());
                 }
             }
-
 
             _effectsToRemove.Clear();
         }
