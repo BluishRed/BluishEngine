@@ -68,24 +68,29 @@ namespace BluishEngine
         /// <returns>
         /// An iterable set of <see cref="TileLocation"/>, each containing the tile ID and its subsequent world location as a <see cref="Vector2"/>
         /// </returns>
-        public HashSet<TileLocation> GetTilesInRegion(Rectangle region, int layer)
+        public HashSet<TileLocation> GetTilesInRegion(RectangleF region, int layer)
         {
             region.Location = TileCoordinates(region.Location);
-            region.Size = new Point((region.Size.X + TileDimensions.X - 1) / TileDimensions.X, (region.Size.Y + TileDimensions.Y - 1) / TileDimensions.Y);
+            region.Size = Vector2.Ceiling(new Vector2(region.Size.X / TileDimensions.X, region.Size.Y / TileDimensions.Y));
             HashSet<TileLocation> tiles = new HashSet<TileLocation>();
 
-            for (int y = region.Top; y <= region.Bottom; y++)
+            for (float y = region.Top; y <= region.Bottom; y++)
             {
-                for (int x = region.Left; x <= region.Right; x++)
+                for (float x = region.Left; x <= region.Right; x++)
                 {
-                    if (Layers[layer][x, y] != 0)
+                    if (Layers[layer][(int)x, (int)y] != 0)
                     {
-                        tiles.Add(new TileLocation(WorldCoordinates(new Vector2(x, y)), Layers[layer][x, y]));
+                        tiles.Add(new TileLocation(WorldCoordinates(new Vector2(x, y)), Layers[layer][(int)x, (int)y]));
                     }
                 }
             }
 
             return tiles;
+        }
+
+        public HashSet<TileLocation> GetTilesInRegion(Rectangle region, int layer)
+        {
+            return GetTilesInRegion(new RectangleF(region.Location.ToVector2(), region.Size.ToVector2()), layer);
         }
 
         public Rectangle GetRoomContainingVector(Vector2 vector2)

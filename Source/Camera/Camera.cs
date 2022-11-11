@@ -14,7 +14,8 @@ namespace BluishEngine
     public class Camera
     {
         // TODO: Fix artefacts when zooming
-        // TODO: Fix shaking when zooming
+        // FIXME: Fix shaking when zooming
+        // TODO: Add padding around textures
         /// <summary>
         /// A <see cref="float"/> representing the zoom level, with <c>1</c> being the default zoom
         /// </summary>
@@ -30,8 +31,6 @@ namespace BluishEngine
                     _zoom = Math.Max(value, Math.Max((float)_defaultDimensions.X / Bounds.Value.Width, (float)_defaultDimensions.Y / Bounds.Value.Height));
                 else
                     _zoom = value;
-
-                FocusOn(Viewport.Center.ToVector2());
             }
         }
         /// <summary>
@@ -55,7 +54,7 @@ namespace BluishEngine
         /// <summary>
         /// The viewable area of the world as a <see cref="Rectangle"/>
         /// </summary>
-        public Rectangle Viewport
+        public RectangleF Viewport
         {
             get
             {
@@ -67,12 +66,12 @@ namespace BluishEngine
                 TL = Vector2.Transform(TL, inverse);
                 BR = Vector2.Transform(BR, inverse);
 
-                return new Rectangle(TL.ToPoint(), Vector2.Ceiling(BR - TL).ToPoint());
+                return new RectangleF(TL, BR - TL);
             }
             set
             {
                 Zoom = value.Width / _defaultDimensions.X;
-                Position = value.Location.ToVector2();
+                Position = value.Location;
                 ClampViewportToBounds();
             }
         }
@@ -108,7 +107,7 @@ namespace BluishEngine
             _effects = new Dictionary<Type, CameraEffect>();
             _effectsToRemove = new List<CameraEffect>();
             _canManuallyMove = true;
-            Viewport = new Rectangle(Point.Zero, _defaultDimensions);
+            Viewport = new RectangleF(Vector2.Zero, _defaultDimensions.ToVector2());
         }
 
         /// <summary>
@@ -119,8 +118,7 @@ namespace BluishEngine
         /// </returns>
         public Matrix Transform()
         {
-            return Matrix.CreateTranslation(-(int)Position.X, -(int)Position.Y, 0)
-                * Matrix.CreateScale(Zoom, Zoom, 1);
+            return Matrix.CreateTranslation(-Position.X, -Position.Y, 0) * Matrix.CreateScale(Zoom, Zoom, 1);
         }
         
         /// <summary>
@@ -128,10 +126,10 @@ namespace BluishEngine
         /// </summary>
         public void FocusOn(Vector2 centre)
         {
-            Position = Vector2.Floor(centre) - Viewport.Size.ToVector2() / 2f;
+            Position = centre - Viewport.Size / 2f;
         }
         
-        // TODO: Implement
+        // TODO: Implement?
         public void SmoothFocusOn(GameTime gameTime, Vector2 centre, float smoothing, Vector2 velocity, Vector2 acceleration)
         {
             Vector2 position = Position;
@@ -175,6 +173,7 @@ namespace BluishEngine
                     _effects.Remove(effect.GetType());
                 }
             }
+
 
             _effectsToRemove.Clear();
         }
@@ -280,8 +279,6 @@ namespace BluishEngine
                 Camera.Zoom = MathHelper.SmoothStep(Camera.Zoom, _initialZoom * _factor, MathHelper.SmoothStep(0, 1, ElapsedTime / Duration));
 
                 base.Update(gameTime);
-
-                Debug.WriteLine(Camera.Viewport.Width / (float)Camera.Viewport.Height);
 
                 if (Completed)
                 {
