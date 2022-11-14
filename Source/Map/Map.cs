@@ -162,6 +162,8 @@ namespace BluishEngine
 
             AddEntity();
 
+            const int padding = 1;
+
             foreach (TileSetReference tileSetReference in data.TileSets)
             {
                 int id = tileSetReference.FirstGID;
@@ -173,9 +175,9 @@ namespace BluishEngine
 
                 TileDimensions = new Point(tileSet.TileWidth, tileSet.TileHeight);
 
-                for (int y = 1; y < tileSet.ImageHeight; y += tileSet.TileHeight + 2)
+                for (int y = padding; y < tileSet.ImageHeight; y += tileSet.TileHeight + 2 * padding)
                 {
-                    for  (int x = 1; x < tileSet.ImageWidth; x += tileSet.TileWidth + 2)
+                    for  (int x = padding; x < tileSet.ImageWidth; x += tileSet.TileWidth + 2 * padding)
                     {
                         string spriteLocation = Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(tileSetReference.Source), tileSet.Image), null);
                         AddEntity(
@@ -203,7 +205,7 @@ namespace BluishEngine
 
                             foreach (Frame frame in animation)
                             {
-                                frames.Add((new Rectangle(tileSet.TileWidth * (frame.TileID % (tileSet.ImageWidth / tileSet.TileWidth)), tileSet.TileHeight * (frame.TileID / (tileSet.ImageHeight / tileSet.TileHeight)), tileSet.TileWidth, tileSet.TileHeight), frame.Duration / 1000));
+                                frames.Add((new Rectangle((tileSet.TileWidth + 2 * padding) * (frame.TileID % (tileSet.ImageWidth / (tileSet.TileWidth + 2 * padding))), (tileSet.TileHeight + 2 * padding) * (frame.TileID / (tileSet.ImageHeight / (tileSet.TileHeight + 2 * padding))), tileSet.TileWidth, tileSet.TileHeight), frame.Duration / 1000));
                             }
 
                             AddComponent(tile.ID + tileSetReference.FirstGID, new PassivelyAnimated(frames.ToArray()));
