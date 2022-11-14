@@ -169,12 +169,13 @@ namespace BluishEngine
                 TileSetData tileSet = JsonSerializer.Deserialize<TileSetData>(File.ReadAllText(ContentProvider.RootDirectory + "/" + Path.Combine(Path.GetDirectoryName(Location), tileSetReference.Source)), options);
 
                 // TODO: Calculate the tile dimensions per layer
+                // TODO: Make padding a parameter
 
                 TileDimensions = new Point(tileSet.TileWidth, tileSet.TileHeight);
 
-                for (int y = 0; y < tileSet.ImageHeight; y += tileSet.TileHeight)
+                for (int y = 1; y < tileSet.ImageHeight; y += tileSet.TileHeight + 2)
                 {
-                    for  (int x = 0; x < tileSet.ImageWidth; x += tileSet.TileWidth)
+                    for  (int x = 1; x < tileSet.ImageWidth; x += tileSet.TileWidth + 2)
                     {
                         string spriteLocation = Path.ChangeExtension(Path.Combine(Path.GetDirectoryName(tileSetReference.Source), tileSet.Image), null);
                         AddEntity(

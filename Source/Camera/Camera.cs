@@ -14,7 +14,6 @@ namespace BluishEngine
     public class Camera
     {
         // TODO: When zooming out in large room, clamping error
-        // TODO: Zooming in makes camera smoothing jarring
         // TODO: Add padding around textures
         /// <summary>
         /// A <see cref="float"/> representing the zoom level, with <c>1</c> being the default zoom
@@ -27,12 +26,14 @@ namespace BluishEngine
             }
             set
             {
+                Vector2 centre = Viewport.Center;
+
                 if (Bounds.HasValue)
                     _zoom = Math.Max(value, Math.Max((float)_defaultDimensions.X / Bounds.Value.Width, (float)_defaultDimensions.Y / Bounds.Value.Height));
                 else
                     _zoom = value;
 
-                FocusOn(Viewport.Center);
+                FocusOn(centre);
             }
         }
         /// <summary>
@@ -120,7 +121,8 @@ namespace BluishEngine
         /// </returns>
         public Matrix Transform()
         {
-            return Matrix.CreateTranslation(-Position.X, -Position.Y, 0) * Matrix.CreateScale(Zoom, Zoom, 1);
+            return Matrix.CreateTranslation(-Position.X, -Position.Y, 0)
+                 * Matrix.CreateScale(Zoom, Zoom, 1);
         }
         
         /// <summary>
