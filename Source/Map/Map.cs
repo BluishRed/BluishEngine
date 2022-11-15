@@ -205,7 +205,6 @@ namespace BluishEngine
 
                             foreach (Frame frame in animation)
                             {
-                                // TODO: This calculation is incorrect
                                 frames.Add((new Rectangle(padding + (tileSet.TileWidth + 2 * padding) * (frame.TileID % (tileSet.ImageWidth / (tileSet.TileWidth + 2 * padding))), padding + (tileSet.TileHeight + 2 * padding) * (frame.TileID / (tileSet.ImageHeight / (tileSet.TileHeight + 2 * padding))), tileSet.TileWidth, tileSet.TileHeight), frame.Duration / 1000));
                             }
 
