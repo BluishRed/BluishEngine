@@ -205,7 +205,8 @@ namespace BluishEngine
 
                             foreach (Frame frame in animation)
                             {
-                                frames.Add((new Rectangle((tileSet.TileWidth + 2 * padding) * (frame.TileID % (tileSet.ImageWidth / (tileSet.TileWidth + 2 * padding))), (tileSet.TileHeight + 2 * padding) * (frame.TileID / (tileSet.ImageHeight / (tileSet.TileHeight + 2 * padding))), tileSet.TileWidth, tileSet.TileHeight), frame.Duration / 1000));
+                                // TODO: This calculation is incorrect
+                                frames.Add((new Rectangle(padding + (tileSet.TileWidth + 2 * padding) * (frame.TileID % (tileSet.ImageWidth / (tileSet.TileWidth + 2 * padding))), padding + (tileSet.TileHeight + 2 * padding) * (frame.TileID / (tileSet.ImageHeight / (tileSet.TileHeight + 2 * padding))), tileSet.TileWidth, tileSet.TileHeight), frame.Duration / 1000));
                             }
 
                             AddComponent(tile.ID + tileSetReference.FirstGID, new PassivelyAnimated(frames.ToArray()));
