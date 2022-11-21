@@ -29,7 +29,7 @@ namespace BluishEngine.Components
         /// </param>
         /// <param name="excludedDirections">
         /// <inheritdoc cref="ExcludedDirections" path="/summary"/>
-        /// </param>
+        /// </param>#
         public Collidable(Rectangle boundingBox, HashSet<Direction> excludedDirections = null)
         {
             BoundingBox = boundingBox;

@@ -13,8 +13,6 @@ namespace BluishEngine
     /// </summary>
     public class Camera
     {
-        // TODO: When zooming out in large room, clamping error
-        // TODO: Add padding around textures
         /// <summary>
         /// A <see cref="float"/> representing the zoom level, with <c>1</c> being the default zoom
         /// </summary>
@@ -176,8 +174,8 @@ namespace BluishEngine
         {
             if (Bounds.HasValue)
             {
-                _position.X = Math.Clamp(_position.X, Bounds.Value.Left, Bounds.Value.Right - Viewport.Width);
-                _position.Y = Math.Clamp(_position.Y, Bounds.Value.Top, Bounds.Value.Bottom - Viewport.Height);
+                _position.X = Math.Clamp(_position.X, Bounds.Value.Left, Bounds.Value.Right - (int)Viewport.Width);
+                _position.Y = Math.Clamp(_position.Y, Bounds.Value.Top, Bounds.Value.Bottom - (int)Viewport.Height);
             }
         }
 

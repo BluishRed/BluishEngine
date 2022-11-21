@@ -23,9 +23,10 @@ namespace BluishEngine
         /// <summary>
         /// A <see cref="Rectangle"/> with location <see cref="Point.Zero"/> and a size of <see cref="Dimensions"/>
         /// </summary>
+        /// 
         public Rectangle Bounds { get; private set; }
-        protected List<Entity[,]> Layers { get; private set; }
         protected List<float> Depths { get; private set; }
+        protected List<Entity[,]> Layers { get; private set; }
         protected List<Rectangle> Rooms { get; private set; }
         protected Camera Camera { get; private set; }
         protected Point TileDimensions { get; private set; }
@@ -68,7 +69,17 @@ namespace BluishEngine
         /// <returns>
         /// An iterable set of <see cref="TileLocation"/>, each containing the tile ID and its subsequent world location as a <see cref="Vector2"/>
         /// </returns>
-        public HashSet<TileLocation> GetTilesInRegion(RectangleF region, int layer)
+        public HashSet<TileLocation> GetTilesInRegion(RectangleF region, float depth)
+        {
+            return GetTilesInRegion(region, GetLayer(depth));
+        }
+
+        public HashSet<TileLocation> GetTilesInRegion(Rectangle region, float depth)
+        {
+            return GetTilesInRegion(new RectangleF(region.Location.ToVector2(), region.Size.ToVector2()), depth);
+        }
+
+        private HashSet<TileLocation> GetTilesInRegion(RectangleF region, int layer)
         {
             region.Location = TileCoordinates(region.Location);
             region.Size = Vector2.Ceiling(new Vector2(region.Size.X / TileDimensions.X, region.Size.Y / TileDimensions.Y));
@@ -88,11 +99,6 @@ namespace BluishEngine
             return tiles;
         }
 
-        public HashSet<TileLocation> GetTilesInRegion(Rectangle region, int layer)
-        {
-            return GetTilesInRegion(new RectangleF(region.Location.ToVector2(), region.Size.ToVector2()), layer);
-        }
-
         public Rectangle GetRoomContainingVector(Vector2 vector2)
         {
             // TODO: Optimise this
@@ -107,6 +113,28 @@ namespace BluishEngine
             throw new Exception($"There is no room that contains {vector2}");
         }
         
+        private int GetLayer(float depth)
+        {
+            int layer = 0;
+            float distance = float.MaxValue;
+
+            for (int i = 0; i < Depths.Count; i++)
+            {
+                if (depth > Depths[i] && depth - Depths[i] < distance)
+                {
+                    distance = depth - Depths[i];
+                    layer = i;
+                    if (distance == 0)
+                    {
+                        return layer;
+                    }
+                }
+            }
+
+            return layer;
+        }
+
+        // TODO: Make layer depth an explicit property in Tiled
         public override void LoadContent(ContentManager content)
         {
             // Reading Data
@@ -130,7 +158,7 @@ namespace BluishEngine
 
                     Depths.Add(Depths[^1] + 1f / data.Layers.Length);
 
-                    // TODO: Make the dimensions of the map correlate to the dimensions of the midground (Or largest layer)?
+                    // IDEA: Make the dimensions of the map correlate to the dimensions of the midground (Or largest layer)?
                      
                     Dimensions = new Point(mapLayer.Width, mapLayer.Height);
                     Bounds = new Rectangle(Point.Zero, Dimensions);
@@ -169,9 +197,6 @@ namespace BluishEngine
                 int id = tileSetReference.FirstGID;
 
                 TileSetData tileSet = JsonSerializer.Deserialize<TileSetData>(File.ReadAllText(ContentProvider.RootDirectory + "/" + Path.Combine(Path.GetDirectoryName(Location), tileSetReference.Source)), options);
-
-                // TODO: Calculate the tile dimensions per layer
-                // TODO: Make padding a parameter
 
                 TileDimensions = new Point(tileSet.TileWidth, tileSet.TileHeight);
 
@@ -253,7 +278,7 @@ namespace BluishEngine
             AddSystem(new Systems.SpriteLoader(this));
             AddSystem(new Systems.PassiveAnimation(this));
         }
-
+         
         /// <summary>
         /// Converts <paramref name="worldCoordinates"/> to its equivalent coordinate in terms of tiles
         /// </summary>

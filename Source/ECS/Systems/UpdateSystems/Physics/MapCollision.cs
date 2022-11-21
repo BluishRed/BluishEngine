@@ -19,8 +19,6 @@ namespace BluishEngine.Systems
 
         protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
         {
-            // TODO: Make entity collide with bounds of rooms?
-
             Vector2 position = components.GetComponent<Transform>().Position + components.GetComponent<Collidable>().BoundingBox.Location.ToVector2();
             bool onGround = components.GetComponent<Collidable>().OnGround;
 
@@ -107,8 +105,7 @@ namespace BluishEngine.Systems
         {
             List<Rectangle> hitboxes = new List<Rectangle>();
 
-            // TODO: Don't hardcode in the map layer
-            foreach(Map.TileLocation tileLocation in Map.GetTilesInRegion(region, 2))
+            foreach(Map.TileLocation tileLocation in Map.GetTilesInRegion(region, depth))
             {
                 ComponentCollection tile = Map.GetComponents(tileLocation.Tile);
                 if (tile.HasComponent<Collidable>())
