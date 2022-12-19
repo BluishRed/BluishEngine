@@ -18,15 +18,7 @@ namespace BluishEngine
         /// Content location
         /// </summary>
         public string Location { get; private set; }
-        // TODO: Add summary
-        public Point Dimensions { get; private set; }
-        /// <summary>
-        /// A <see cref="Rectangle"/> with location <see cref="Point.Zero"/> and a size of <see cref="Dimensions"/>
-        /// </summary>
-        /// 
-        public Rectangle Bounds { get; private set; }
-        protected List<float> Depths { get; private set; }
-        protected List<Entity[,]> Layers { get; private set; }
+        protected List<Layer> Layers { get; private set; }
         protected List<Rectangle> Rooms { get; private set; }
         protected Camera Camera { get; private set; }
         protected Point TileDimensions { get; private set; }
@@ -34,14 +26,15 @@ namespace BluishEngine
         public Map(string location, Camera camera)
         {
             Location = location;
-            Layers = new List<Entity[,]>();
+            Layers = new List<Layer>();
             Rooms = new List<Rectangle>();
-            Depths = new List<float>();
             Camera = camera;
         }
         
+        // TODO: Flashing tile in bottom left when zooming in in first room
+        // TODO: Implement Parallax
         public override void Draw(SpriteBatch spriteBatch)
-        { 
+        {
             for (int layer = 0; layer < Layers.Count; layer++)
             {
                 foreach (TileLocation tileLocation in GetTilesInRegion(Camera.Viewport, layer))
@@ -50,14 +43,14 @@ namespace BluishEngine
 
                     spriteBatch.Draw(
                         texture: tile.GetComponent<Sprite>().Texture,
-                        position: tileLocation.Position,
+                        position: new Vector2(tileLocation.Position.X, tileLocation.Position.Y),
                         sourceRectangle: tile.GetComponent<Sprite>().Source,
                         color: Color.White,
                         rotation: 0f,
                         origin: Vector2.Zero,
                         scale: 1,
                         effects: SpriteEffects.None,
-                        layerDepth: Depths[layer]
+                        layerDepth: Layers[layer].Depth
                     );
                 }
             }
@@ -71,7 +64,7 @@ namespace BluishEngine
         /// </returns>
         public HashSet<TileLocation> GetTilesInRegion(RectangleF region, float depth)
         {
-            return GetTilesInRegion(region, GetLayer(depth));
+            return GetTilesInRegion(region, GetLayerIndex(depth));
         }
 
         public HashSet<TileLocation> GetTilesInRegion(Rectangle region, float depth)
@@ -89,9 +82,9 @@ namespace BluishEngine
             {
                 for (float x = region.Left; x <= region.Right; x++)
                 {
-                    if (Layers[layer][(int)x, (int)y] != 0)
+                    if (Layers[layer].Tiles[(int)x, (int)y] != 0)
                     {
-                        tiles.Add(new TileLocation(WorldCoordinates(new Vector2(x, y)), Layers[layer][(int)x, (int)y]));
+                        tiles.Add(new TileLocation(WorldCoordinates(new Vector2(x, y)), Layers[layer].Tiles[(int)x, (int)y]));
                     }
                 }
             }
@@ -113,18 +106,18 @@ namespace BluishEngine
             throw new Exception($"There is no room that contains {vector2}");
         }
         
-        private int GetLayer(float depth)
+        private int GetLayerIndex(float depth)
         {
             int layer = 0;
-            float distance = float.MaxValue;
+            float delta = float.MaxValue;
 
-            for (int i = 0; i < Depths.Count; i++)
+            for (int i = 0; i < Layers.Count; i++)
             {
-                if (depth > Depths[i] && depth - Depths[i] < distance)
+                if (depth > Layers[i].Depth && depth - Layers[i].Depth < delta)
                 {
-                    distance = depth - Depths[i];
+                    delta = depth - Layers[i].Depth;
                     layer = i;
-                    if (distance == 0)
+                    if (delta == 0)
                     {
                         return layer;
                     }
@@ -135,6 +128,7 @@ namespace BluishEngine
         }
 
         // TODO: Make layer depth an explicit property in Tiled
+        // TODO: Make tiles larger than 1x1 be parsed
         public override void LoadContent(ContentManager content)
         {
             // Reading Data
@@ -147,30 +141,29 @@ namespace BluishEngine
 
             // Initialising Map Layers
 
-            Depths.Add(0f);
-
             foreach (MapLayerData mapLayer in data.Layers)
             {
                 if (mapLayer.Type == "tilelayer")
                 {
                     int tile = 0;
-                    Layers.Add(new Entity[mapLayer.Width, mapLayer.Height]);
-
-                    Depths.Add(Depths[^1] + 1f / data.Layers.Length);
-
-                    // IDEA: Make the dimensions of the map correlate to the dimensions of the midground (Or largest layer)?
-                     
-                    Dimensions = new Point(mapLayer.Width, mapLayer.Height);
-                    Bounds = new Rectangle(Point.Zero, Dimensions);
+                    Entity[,] tiles = new Entity[mapLayer.Width, mapLayer.Height];
 
                     for (int y = 0; y < mapLayer.Height; y++)
                     {
                         for (int x = 0; x < mapLayer.Width; x++)
                         {
-                            Layers[^1][x, y] = mapLayer.Data[tile];
+                            tiles[x, y] = mapLayer.Data[tile];
                             tile++;
                         }
                     }
+
+                    Layers.Add(
+                        new Layer(
+                            tiles,
+                            (Layers.Count > 0 ? Layers[^1].Depth : 0) + 1f / data.Layers.Length, 
+                            new Vector2(mapLayer.ParallaxX, mapLayer.ParallaxY)
+                        )
+                    );
                 }
                 else if (mapLayer.Type == "objectgroup")
                 {
@@ -184,8 +177,6 @@ namespace BluishEngine
                 }
             }
 
-            Depths.RemoveAt(0);
-            
             // Loading Tilesets
 
             AddEntity();
@@ -264,11 +255,10 @@ namespace BluishEngine
                 }
             }
 
-            Dimensions = new Point(Dimensions.X * TileDimensions.X, Dimensions.Y * TileDimensions.Y);
-
             AddSystems();
 
-            Camera.Bounds = new Rectangle(Point.Zero, Dimensions);
+            // TODO: Don't hardcode in the map layer for the bounds
+            Camera.Bounds = new Rectangle(Point.Zero, new Point(Layers[2].Dimensions.X * TileDimensions.X, Layers[2].Dimensions.Y * TileDimensions.Y));
 
             base.LoadContent(content);
         }
@@ -305,6 +295,21 @@ namespace BluishEngine
             return new Vector2(tileCoordinates.X * TileDimensions.X, tileCoordinates.Y * TileDimensions.Y);
         }
 
+        protected class Layer
+        {
+            public Entity[,] Tiles { get; private set; }
+            public float Depth { get; private set; }
+            public Vector2 Parallax { get; private set; }
+            public Point Dimensions => new Point(Tiles.GetLength(0), Tiles.GetLength(1));
+
+            public Layer(Entity[,] tiles, float depth, Vector2 parallax)
+            {
+                Tiles = tiles;
+                Depth = depth;
+                Parallax = parallax;
+            }
+        }
+
         /// <summary>
         /// Represents a particular tile on the map as its tile ID and its world location
         /// </summary>
@@ -336,6 +341,8 @@ namespace BluishEngine
             public int Height { get; set; }
             public bool Visible { get; set; }
             public string Type { get; set; }
+            public float ParallaxX { get; set; } = 1;
+            public float ParallaxY { get; set; } = 1;
         }
 
         private class TileSetReference

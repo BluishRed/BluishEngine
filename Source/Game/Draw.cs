@@ -17,7 +17,7 @@ namespace BluishEngine
             GraphicsDevice.SetRenderTarget(null);
 
             _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp);
-            _spriteBatch.Draw(_gameScreen, Vector2.Zero, null, Color.White, 0, Vector2.Zero, _scale, SpriteEffects.None, 0);
+            _spriteBatch.Draw(_gameScreen, new Vector2(0.5f * (Graphics.ScreenResolution.X - Graphics.GameResolution.X * _scale), 0.5f * (Graphics.ScreenResolution.Y - Graphics.GameResolution.Y * _scale)), null, Color.White, 0, Vector2.Zero, _scale, SpriteEffects.None, 0);
             _spriteBatch.End();
         }
     }
