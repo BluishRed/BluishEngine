@@ -19,38 +19,40 @@ namespace BluishEngine
         /// </summary>
         public string Location { get; private set; }
         protected List<Layer> Layers { get; private set; }
-        protected List<Rectangle> Rooms { get; private set; }
+        protected List<Room> Rooms { get; private set; }
         protected Camera Camera { get; private set; }
         protected Point TileDimensions { get; private set; }
-        
+
         public Map(string location, Camera camera)
         {
             Location = location;
             Layers = new List<Layer>();
-            Rooms = new List<Rectangle>();
+            Rooms = new List<Room>();
             Camera = camera;
         }
-        
+
         // TODO: Flashing tile in bottom left when zooming in in first room
         // TODO: Implement Parallax
         public override void Draw(SpriteBatch spriteBatch)
         {
             for (int layer = 0; layer < Layers.Count; layer++)
             {
+                if (!Layers[layer].Visible) continue;
+
                 foreach (TileLocation tileLocation in GetTilesInRegion(Camera.Viewport, layer))
                 {
                     ComponentCollection tile = GetComponents(tileLocation.Tile);
 
                     spriteBatch.Draw(
                         texture: tile.GetComponent<Sprite>().Texture,
-                        position: new Vector2(tileLocation.Position.X, tileLocation.Position.Y),
+                        position: tileLocation.Position,
                         sourceRectangle: tile.GetComponent<Sprite>().Source,
-                        color: Color.White,
+                        color: new Color(1, 1, 1, Layers[layer].Depth),
                         rotation: 0f,
                         origin: Vector2.Zero,
                         scale: 1,
                         effects: SpriteEffects.None,
-                        layerDepth: Layers[layer].Depth
+                        Layers[layer].Depth
                     );
                 }
             }
@@ -72,6 +74,7 @@ namespace BluishEngine
             return GetTilesInRegion(new RectangleF(region.Location.ToVector2(), region.Size.ToVector2()), depth);
         }
 
+        // TODO: Check if RectangleF is actually necessary
         private HashSet<TileLocation> GetTilesInRegion(RectangleF region, int layer)
         {
             region.Location = TileCoordinates(region.Location);
@@ -96,11 +99,11 @@ namespace BluishEngine
         {
             // TODO: Optimise this
 
-            foreach (Rectangle room in Rooms)
+            foreach (Room room in Rooms)
             {
-                if (room.Contains(vector2))
+                if (room.Bounds.Contains(vector2))
                 {
-                    return room;
+                    return room.Bounds;
                 }
             }
             throw new Exception($"There is no room that contains {vector2}");
@@ -161,6 +164,7 @@ namespace BluishEngine
                         new Layer(
                             tiles,
                             (Layers.Count > 0 ? Layers[^1].Depth : 0) + 1f / data.Layers.Length, 
+                            mapLayer.Visible,
                             new Vector2(mapLayer.ParallaxX, mapLayer.ParallaxY)
                         )
                     );
@@ -171,7 +175,8 @@ namespace BluishEngine
                     {
                         foreach (Object room in mapLayer.Objects)
                         {
-                            Rooms.Add(new Rectangle(room.X, room.Y, room.Width, room.Height));
+                            // TODO: Ambient colour is flipped
+                            Rooms.Add(new Room(new Rectangle(room.X, room.Y, room.Width, room.Height)));
                         }
                     }
                 }
@@ -257,9 +262,6 @@ namespace BluishEngine
 
             AddSystems();
 
-            // TODO: Don't hardcode in the map layer for the bounds
-            Camera.Bounds = new Rectangle(Point.Zero, new Point(Layers[2].Dimensions.X * TileDimensions.X, Layers[2].Dimensions.Y * TileDimensions.Y));
-
             base.LoadContent(content);
         }
 
@@ -300,13 +302,24 @@ namespace BluishEngine
             public Entity[,] Tiles { get; private set; }
             public float Depth { get; private set; }
             public Vector2 Parallax { get; private set; }
+            public bool Visible { get; private set; }
             public Point Dimensions => new Point(Tiles.GetLength(0), Tiles.GetLength(1));
 
-            public Layer(Entity[,] tiles, float depth, Vector2 parallax)
+            public Layer(Entity[,] tiles, float depth, bool visible, Vector2 parallax)
             {
                 Tiles = tiles;
                 Depth = depth;
+                Visible = visible;
                 Parallax = parallax;
+            }
+        }
+        protected class Room
+        {
+            public Rectangle Bounds { get; private set; }
+
+            public Room(Rectangle bounds)
+            {
+                Bounds = bounds;
             }
         }
 

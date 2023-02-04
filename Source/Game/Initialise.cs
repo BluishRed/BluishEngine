@@ -1,10 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Diagnostics;
+using System.Resources;
+using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using BluishFramework;
+using Microsoft.Xna.Framework.Content;
 
 namespace BluishEngine
 {
@@ -14,7 +17,7 @@ namespace BluishEngine
         private int _scale;
         private RenderTarget2D _gameScreen;
         private SpriteBatch _spriteBatch;
-        
+
         public BluishGame(BluishGameParameters gameParameters)
         {
             _graphics = new GraphicsDeviceManager(this);
@@ -33,6 +36,8 @@ namespace BluishEngine
             _graphics.PreferredBackBufferWidth = Graphics.ScreenResolution.X;
             _graphics.PreferredBackBufferHeight = Graphics.ScreenResolution.Y;
             _graphics.ApplyChanges();
+            Graphics.GraphicsDevice = GraphicsDevice;
+
             _gameScreen = new RenderTarget2D(GraphicsDevice, Graphics.GameResolution.X, Graphics.GameResolution.Y);
 
             StateManager.Initialise();
@@ -42,6 +47,7 @@ namespace BluishEngine
 
         protected sealed override void LoadContent()
         {
+            Effects.LoadAssets(Content);
             _spriteBatch = new SpriteBatch(GraphicsDevice);
         }
     }

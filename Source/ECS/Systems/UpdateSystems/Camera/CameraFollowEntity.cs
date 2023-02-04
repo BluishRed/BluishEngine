@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using BluishFramework;
-using System.Diagnostics;
 using BluishEngine.Components;
 
 namespace BluishEngine.Systems
@@ -14,13 +13,13 @@ namespace BluishEngine.Systems
         private Camera _camera;
         private Map? _map;
         private bool _canEntityMove;
-        private Rectangle _previousRoom;
+        private Rectangle _previousRoomBounds;
 
         public CameraFollowEntity(World world, Camera camera, Map? map = null) : base(world, typeof(CameraFollowable), typeof(Transform), typeof(KinematicBody), typeof(Dimensions))
         {
             _camera = camera;
             _map = map;
-            _previousRoom = new Rectangle(0, 0, 320, 180);
+            _previousRoomBounds = new Rectangle(0, 0, 320, 180);
             _canEntityMove = true;
         }
 
@@ -31,13 +30,13 @@ namespace BluishEngine.Systems
 
             if (_map is not null)
             {
-                Rectangle currentRoom = _map.GetRoomContainingVector(centre);
+                Rectangle currentRoomBounds = _map.GetRoomContainingVector(centre);
 
-                if (currentRoom != _previousRoom)
+                if (currentRoomBounds != _previousRoomBounds)
                 {
-                    _camera.Bounds = Rectangle.Union(_previousRoom, currentRoom);
+                    _camera.Bounds = Rectangle.Union(_previousRoomBounds, currentRoomBounds);
 
-                    if (currentRoom.Y < _previousRoom.Y)
+                    if (currentRoomBounds.Y < _previousRoomBounds.Y)
                     {
                         components.GetComponent<KinematicBody>().Force.Y -= 150;
                     }
@@ -47,10 +46,10 @@ namespace BluishEngine.Systems
                 }
                 else
                 {
-                    _camera.Bounds = currentRoom;
+                    _camera.Bounds = currentRoomBounds;
                 }
 
-                _previousRoom = currentRoom;
+                _previousRoomBounds = currentRoomBounds;
             }
 
             if (Input.IsKeyJustPressed(Keys.W))

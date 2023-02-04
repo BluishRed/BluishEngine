@@ -1,2 +1,2 @@
 # BluishEngine
-A 2D Platformer engine build on BluishFramework and Monogame
+A 2D Platformer engine built using BluishFramework and Monogame
