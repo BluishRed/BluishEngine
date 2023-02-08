@@ -18,6 +18,7 @@ namespace BluishEngine
         /// Content location
         /// </summary>
         public string Location { get; private set; }
+        public Color BackgroundColor { get; private set; }
         protected List<Layer> Layers { get; private set; }
         protected List<Room> Rooms { get; private set; }
         protected Camera Camera { get; private set; }
@@ -141,6 +142,8 @@ namespace BluishEngine
                 PropertyNameCaseInsensitive = true
             };
             MapData data = JsonSerializer.Deserialize<MapData>(File.ReadAllText(ContentProvider.RootDirectory + "/" + Location), options);
+
+            BackgroundColor = FromHex(data.BackgroundColor);
 
             // Initialising Map Layers
 
@@ -270,7 +273,7 @@ namespace BluishEngine
             AddSystem(new Systems.SpriteLoader(this));
             AddSystem(new Systems.PassiveAnimation(this));
         }
-         
+
         /// <summary>
         /// Converts <paramref name="worldCoordinates"/> to its equivalent coordinate in terms of tiles
         /// </summary>
@@ -338,11 +341,23 @@ namespace BluishEngine
             }
         }
 
+        private Color FromHex(string hex)
+        {
+            if (hex.Length != 7)
+                return Color.Gray;
+
+            int r = Convert.ToInt32(hex.Substring(1, 2), 16);
+            int g = Convert.ToInt32(hex.Substring(3, 2), 16);
+            int b = Convert.ToInt32(hex.Substring(5, 2), 16);
+            return new Color(r, g, b);
+        }
+
         #region Map data classes
         private class MapData
         {
             public MapLayerData[] Layers { get; set; }
             public TileSetReference[] TileSets { get; set; }
+            public string BackgroundColor { get; set; }
         }
 
         private class MapLayerData

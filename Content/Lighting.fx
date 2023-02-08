@@ -9,6 +9,11 @@
 
 Texture2D SpriteTexture;
 sampler s0;
+sampler LightMap;
+float2 lightPosition;
+float lightDepth;
+float lightRadius;
+float screenAspect;
 
 sampler2D SpriteTextureSampler = sampler_state
 {
@@ -24,9 +29,10 @@ struct VertexShaderOutput
 
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
+	clip(lightRadius - length((input.TextureCoordinates - lightPosition) * float2(screenAspect, 1)));
 	float4 color = tex2D(s0, input.TextureCoordinates);
-	clip(color.rgb == float3(1, 0, 1) ? -1 : 1);
-	return float4(tex2D(s0, input.TextureCoordinates).rgb, input.Color.a);
+	clip(lightDepth - color.a);
+	return color;
 }
 
 technique SpriteDrawing

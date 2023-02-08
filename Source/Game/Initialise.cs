@@ -40,14 +40,13 @@ namespace BluishEngine
 
             _gameScreen = new RenderTarget2D(GraphicsDevice, Graphics.GameResolution.X, Graphics.GameResolution.Y);
 
-            StateManager.Initialise();
-
             base.Initialize();
         }
 
         protected sealed override void LoadContent()
         {
             Effects.LoadAssets(Content);
+            StateManager.Initialise();
             _spriteBatch = new SpriteBatch(GraphicsDevice);
         }
     }

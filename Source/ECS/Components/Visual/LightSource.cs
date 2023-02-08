@@ -9,12 +9,10 @@ namespace BluishEngine.Components
 {
     public class LightSource : Component
     {
-        public Color Color { get; set; }
         public int Radius { get; set; }
 
-        public LightSource(Color color, int radius)
+        public LightSource(int radius)
         {
-            Color = color;
             Radius = radius;
         }
     }
