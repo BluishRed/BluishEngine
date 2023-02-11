@@ -8,10 +8,25 @@
 #endif
 
 Texture2D SpriteTexture;
+Texture2D FadePalette;
+Texture2D LightBuffer;
 
 sampler2D SpriteTextureSampler = sampler_state
 {
 	Texture = <SpriteTexture>;
+	//Filter = Point;
+};
+
+sampler2D FadePaletteSampler = sampler_state
+{
+	Texture = <FadePalette>;
+	Filter = Point;
+};
+
+sampler2D LightBufferSampler = sampler_state
+{
+	Texture = <LightBuffer>;
+	//Filter = Point;
 };
 
 struct VertexShaderOutput
@@ -23,7 +38,8 @@ struct VertexShaderOutput
 
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
-	return tex2D(SpriteTextureSampler,input.TextureCoordinates) * input.Color;
+	float4 color = tex2D(SpriteTextureSampler, input.TextureCoordinates);
+    return tex2D(FadePaletteSampler, float2(1 - tex2D(LightBufferSampler, input.TextureCoordinates).a, color.y));
 }
 
 technique SpriteDrawing

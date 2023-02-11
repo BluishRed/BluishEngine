@@ -188,6 +188,11 @@ namespace BluishEngine
                                 if (index != -1)
                                 {
                                     ambientLight = properties[index].Value.GetSingle();
+                                    if (ambientLight == 0)
+                                    {
+                                        // Errors occurs when ambient light is 0
+                                        ambientLight = 0.01f;
+                                    }
                                 }
                             }
                             Rooms.Add(new Room(new Rectangle(room.X, room.Y, room.Width, room.Height), ambientLight));

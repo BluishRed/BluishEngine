@@ -58,9 +58,9 @@ namespace BluishEngine
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, Effects.GetEffect("FadePalette"), null);
+            Effects.GetEffect("FadePalette").Parameters["LightBuffer"].SetValue(_lightBuffer);
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Opaque, SamplerState.PointClamp, null, null, Effects.GetEffect("FadePalette"), null);
             spriteBatch.Draw(_sceneRender, Vector2.Zero, Color.White);
-            spriteBatch.Draw(_lightBuffer, Vector2.Zero, Color.White);
             spriteBatch.End();
         }
 
@@ -78,6 +78,7 @@ namespace BluishEngine
             _light.SetData(new Color[] { Color.Transparent });
             Map?.LoadContent(Content);
             base.LoadContent();
+            Effects.GetEffect("FadePalette").Parameters["FadePalette"].SetValue(Effects.FadePalette);
         }
 
         private void Lighting(SpriteBatch spriteBatch)
@@ -95,7 +96,6 @@ namespace BluishEngine
                 spriteBatch.Draw(_light, lightPosition, null, Color.White, 0f, Vector2.Zero, light.Radius, SpriteEffects.None, 0f);
             }
             spriteBatch.End();
-
 
             Graphics.GraphicsDevice.SetRenderTarget(null);
         }
