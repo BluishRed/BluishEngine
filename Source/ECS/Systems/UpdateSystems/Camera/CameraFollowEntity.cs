@@ -30,7 +30,7 @@ namespace BluishEngine.Systems
 
             if (_map is not null)
             {
-                Rectangle currentRoomBounds = _map.GetRoomContainingVector(centre);
+                Rectangle currentRoomBounds = _map.GetRoomContainingVector(centre).Bounds;
 
                 if (currentRoomBounds != _previousRoomBounds)
                 {
@@ -67,7 +67,7 @@ namespace BluishEngine.Systems
         private Vector2 GetRoomTarget(Vector2 centre)
         {
             Camera camera = new Camera(_camera.Viewport.Size.ToPoint());
-            camera.Bounds = _map.GetRoomContainingVector(centre);
+            camera.Bounds = _map.GetRoomContainingVector(centre).Bounds;
             camera.FocusOn(centre);
             return Vector2.Floor(camera.Position);
         }

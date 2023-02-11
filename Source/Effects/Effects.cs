@@ -7,12 +7,13 @@ using Microsoft.Xna.Framework.Graphics;
 using BluishFramework;
 using System.Reflection;
 using Microsoft.Xna.Framework.Content;
-using System.Globalization;
 
 namespace BluishEngine
 {
     static class Effects
     {
+        public static Texture2D FadePalette { get; private set; }
+
         private static Dictionary<string, Effect> _effects;
 
         static Effects()
@@ -20,8 +21,9 @@ namespace BluishEngine
             _effects = new Dictionary<string, Effect>();
         }
 
-        public static void LoadAssets(ContentManager content)
+        public static void LoadAssets(ContentManager content, string fadePaletteLocation)
         {
+            FadePalette = content.Load<Texture2D>(fadePaletteLocation);
             Assembly assembly = Assembly.GetExecutingAssembly();
             ResourceManager resourceManager = new ResourceManager("BluishEngine.Resources", assembly);
             content = new ResourceContentManager(content.ServiceProvider, resourceManager);

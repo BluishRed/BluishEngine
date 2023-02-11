@@ -14,7 +14,7 @@ namespace BluishEngine.Systems
         public Jumping(World world) : base(world, typeof(KinematicBody), typeof(CanJump), typeof(Collidable))
         {
         }
-        
+
         protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
         {
             if (components.GetComponent<KinematicBody>().CanMove)
@@ -44,7 +44,7 @@ namespace BluishEngine.Systems
                         components.GetComponent<CanJump>().JumpHeld = false;
                     }
                 }
-            }        
+            }
         }
     }
 }

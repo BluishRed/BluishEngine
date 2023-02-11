@@ -105,7 +105,7 @@ namespace BluishEngine.Systems
         {
             List<Rectangle> hitboxes = new List<Rectangle>();
 
-            foreach(Map.TileLocation tileLocation in Map.GetTilesInRegion(region, depth))
+            foreach (Map.TileLocation tileLocation in Map.GetTilesInRegion(region, depth))
             {
                 ComponentCollection tile = Map.GetComponents(tileLocation.Tile);
                 if (tile.HasComponent<Collidable>())

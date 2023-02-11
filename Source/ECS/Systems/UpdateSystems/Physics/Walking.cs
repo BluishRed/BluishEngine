@@ -14,7 +14,7 @@ namespace BluishEngine.Systems
         public Walking(World world) : base(world, typeof(KinematicBody), typeof(CanWalk))
         {
         }
-        
+
         protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
         {
             // TODO: Make 'walking' in the air defined better

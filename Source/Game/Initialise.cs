@@ -17,10 +17,12 @@ namespace BluishEngine
         private int _scale;
         private RenderTarget2D _gameScreen;
         private SpriteBatch _spriteBatch;
+        private string _fadePaletteLocation;
 
         public BluishGame(BluishGameParameters gameParameters)
         {
             _graphics = new GraphicsDeviceManager(this);
+            _fadePaletteLocation = gameParameters.FadePaletteLocation;
             Graphics.GameResolution = gameParameters.Dimensions;
             Graphics.ScreenResolution = new Point(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
             StateManager.SetInitialState(gameParameters.InitialState);
@@ -45,7 +47,7 @@ namespace BluishEngine
 
         protected sealed override void LoadContent()
         {
-            Effects.LoadAssets(Content);
+            Effects.LoadAssets(Content, _fadePaletteLocation);
             StateManager.Initialise();
             _spriteBatch = new SpriteBatch(GraphicsDevice);
         }

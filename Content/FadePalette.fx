@@ -8,19 +8,10 @@
 #endif
 
 Texture2D SpriteTexture;
-Texture2D Scene;
-float2 SceneLocation;
 
 sampler2D SpriteTextureSampler = sampler_state
 {
 	Texture = <SpriteTexture>;
-	Filter = Point;
-};
-
-sampler2D SceneSampler = sampler_state
-{
-	Texture = <Scene>;
-	Filter = Point;
 };
 
 struct VertexShaderOutput
@@ -32,9 +23,7 @@ struct VertexShaderOutput
 
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
-	clip(0.5f - distance(input.TextureCoordinates, float2(0.5f, 0.5f)));
-	float intensity = 0.025f / pow(distance(input.TextureCoordinates, float2(0.5f, 0.5f)), 2);
-	return float4(intensity, intensity, intensity, intensity);
+	return tex2D(SpriteTextureSampler,input.TextureCoordinates) * input.Color;
 }
 
 technique SpriteDrawing

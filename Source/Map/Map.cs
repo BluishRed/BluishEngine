@@ -96,7 +96,7 @@ namespace BluishEngine
             return tiles;
         }
 
-        public Rectangle GetRoomContainingVector(Vector2 vector2)
+        public Room GetRoomContainingVector(Vector2 vector2)
         {
             // TODO: Optimise this
 
@@ -104,7 +104,7 @@ namespace BluishEngine
             {
                 if (room.Bounds.Contains(vector2))
                 {
-                    return room.Bounds;
+                    return room;
                 }
             }
             throw new Exception($"There is no room that contains {vector2}");
@@ -178,8 +178,19 @@ namespace BluishEngine
                     {
                         foreach (Object room in mapLayer.Objects)
                         {
-                            // TODO: Ambient colour is flipped
-                            Rooms.Add(new Room(new Rectangle(room.X, room.Y, room.Width, room.Height)));
+                            float ambientLight = 1f;
+                            if (room.Properties is not null)
+                            {
+                                List<ObjectProperty> properties = room.Properties.ToList();
+
+                                int index = properties.FindIndex(o => o.Name == "AmbientLight");
+                                
+                                if (index != -1)
+                                {
+                                    ambientLight = properties[index].Value.GetSingle();
+                                }
+                            }
+                            Rooms.Add(new Room(new Rectangle(room.X, room.Y, room.Width, room.Height), ambientLight));
                         }
                     }
                 }
@@ -316,13 +327,16 @@ namespace BluishEngine
                 Parallax = parallax;
             }
         }
-        protected class Room
+
+        public class Room
         {
             public Rectangle Bounds { get; private set; }
+            public float AmbientLight { get; private set; }
 
-            public Room(Rectangle bounds)
+            public Room(Rectangle bounds, float ambientLight)
             {
                 Bounds = bounds;
+                AmbientLight = ambientLight;
             }
         }
 

@@ -47,7 +47,7 @@ namespace BluishEngine.Systems
                 if (components.GetComponent<KinematicBody>().Velocity.X != 0)
                 {
                     components.GetComponent<AnimatedMovement>().WalkFrameTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-                    
+
                     if (components.GetComponent<AnimatedMovement>().WalkFrameTimer >= components.GetComponent<AnimatedMovement>().WalkFrameTime)
                     {
                         components.GetComponent<AnimatedMovement>().WalkFrameTimer %= components.GetComponent<AnimatedMovement>().WalkFrameTime;
@@ -62,7 +62,7 @@ namespace BluishEngine.Systems
                     sprite = xDirection == Direction.Left ? components.GetComponent<AnimatedMovement>().IdleFrames.facingLeft : components.GetComponent<AnimatedMovement>().IdleFrames.facingRight;
                     components.GetComponent<AnimatedMovement>().WalkIndex = 0;
                 }
-            } 
+            }
 
             if (xDirection != components.GetComponent<AnimatedMovement>().lastDirection)
             {

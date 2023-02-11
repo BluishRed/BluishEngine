@@ -11,10 +11,12 @@ namespace BluishEngine
     {
         public Point Dimensions { get; private set; }
         public Type InitialState { get; private set; }
+        public string FadePaletteLocation { get; private set; }
 
-        public BluishGameParameters(Point dimensions, Type initialState)
+        public BluishGameParameters(Point dimensions, Type initialState, string fadePaletteLocation)
         {
             Dimensions = dimensions;
+            FadePaletteLocation = fadePaletteLocation;
             if (initialState.IsSubclassOf(typeof(State)))
                 InitialState = initialState;
             else

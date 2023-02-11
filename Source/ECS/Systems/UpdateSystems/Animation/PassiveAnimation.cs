@@ -18,10 +18,8 @@ namespace BluishEngine.Systems
 
         protected override void UpdateEntity(GameTime gameTime, Entity entity, ComponentCollection components)
         {
-            PassivelyAnimated animated = components.GetComponent<PassivelyAnimated>();
-
             components.GetComponent<PassivelyAnimated>().Timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            
+
             if (components.GetComponent<PassivelyAnimated>().Timer >= components.GetComponent<PassivelyAnimated>().Frames[components.GetComponent<PassivelyAnimated>().CurrentFrame].duration)
             {
                 components.GetComponent<PassivelyAnimated>().CurrentFrame++;

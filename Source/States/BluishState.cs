@@ -14,15 +14,26 @@ namespace BluishEngine
         public Map Map { get; set; }
         public List<PointLight> Lights { get; set; }
 
-        private RenderTarget2D _renderTarget;
+        private RenderTarget2D _sceneRender;
         private RenderTarget2D _lightBuffer;
+        private Texture2D _light;
+        private BlendState _lightBlendState;
 
         public BluishState()
         {
             Camera = new Camera(Graphics.GameResolution);
-            _renderTarget = new RenderTarget2D(Graphics.GraphicsDevice, Graphics.GameResolution.X, Graphics.GameResolution.Y);
+            _sceneRender = new RenderTarget2D(Graphics.GraphicsDevice, Graphics.GameResolution.X, Graphics.GameResolution.Y);
             _lightBuffer = new RenderTarget2D(Graphics.GraphicsDevice, Graphics.GameResolution.X, Graphics.GameResolution.Y);
             Lights = new List<PointLight>();
+            _lightBlendState = new BlendState()
+            {
+                AlphaBlendFunction = BlendFunction.Max,
+                ColorBlendFunction = BlendFunction.Max,
+                AlphaSourceBlend = Blend.One,
+                ColorSourceBlend = Blend.One,
+                AlphaDestinationBlend = Blend.InverseSourceAlpha,
+                ColorDestinationBlend = Blend.InverseSourceAlpha
+            };
         }
         
         public void AddMap(string location)
@@ -32,7 +43,7 @@ namespace BluishEngine
 
         public override void PreRenderTargetDraw(SpriteBatch spriteBatch)
         {
-            Graphics.GraphicsDevice.SetRenderTarget(_renderTarget);
+            Graphics.GraphicsDevice.SetRenderTarget(_sceneRender);
             Graphics.GraphicsDevice.Clear(Map is null ? Color.Black : new Color(Map.BackgroundColor, 0));
 
             spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.Opaque, SamplerState.PointClamp, null, null, Effects.GetEffect("Transparency"), Camera.Transform());
@@ -41,13 +52,15 @@ namespace BluishEngine
             spriteBatch.End();
 
             Graphics.GraphicsDevice.SetRenderTarget(null);
+
+            Lighting(spriteBatch);
         }
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            Lighting();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, Effects.GetEffect("Lighting"), null);
-            spriteBatch.Draw(_renderTarget, Vector2.Zero, Color.White);
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, Effects.GetEffect("FadePalette"), null);
+            spriteBatch.Draw(_sceneRender, Vector2.Zero, Color.White);
+            spriteBatch.Draw(_lightBuffer, Vector2.Zero, Color.White);
             spriteBatch.End();
         }
 
@@ -61,21 +74,30 @@ namespace BluishEngine
 
         public override void LoadContent()
         {
+            _light = new Texture2D(Graphics.GraphicsDevice, 1, 1);
+            _light.SetData(new Color[] { Color.Transparent });
             Map?.LoadContent(Content);
             base.LoadContent();
-            Effects.GetEffect("Lighting").Parameters["screenAspect"].SetValue((float)Graphics.GameResolution.X / Graphics.GameResolution.Y);
         }
 
-        private void Lighting()
+        private void Lighting(SpriteBatch spriteBatch)
         {
+            Graphics.GraphicsDevice.SetRenderTarget(_lightBuffer);
+
+            Graphics.GraphicsDevice.Clear(Color.White * Map.GetRoomContainingVector(Camera.Viewport.Center).AmbientLight);
+
+            spriteBatch.Begin(SpriteSortMode.Deferred, _lightBlendState, null, null, null, Effects.GetEffect("Lighting"), Camera.Transform());
             foreach (PointLight light in Lights)
             {
-                Vector2 screenPosition = Vector2.Transform(light.Position, Camera.Transform());
-                Effects.GetEffect("Lighting").Parameters["lightPosition"].SetValue(new Vector2(screenPosition.X / Graphics.GameResolution.X, screenPosition.Y / Graphics.GameResolution.Y));
-                Effects.GetEffect("Lighting").Parameters["lightDepth"].SetValue(light.Depth);
-                Effects.GetEffect("Lighting").Parameters["lightRadius"].SetValue(light.Radius * Camera.Zoom / Graphics.GameResolution.X);
+                Vector2 lightPosition = light.Position - new Vector2(light.Radius / 2);
+                //Effects.GetEffect("Lighting").Parameters["Scene"].SetValue(_sceneRender);
+                //Effects.GetEffect("Lighting").Parameters["SceneLocation"].SetValue(new Vector2(lightPosition.X / _sceneRender.Width, lightPosition.Y / _sceneRender.Height));
+                spriteBatch.Draw(_light, lightPosition, null, Color.White, 0f, Vector2.Zero, light.Radius, SpriteEffects.None, 0f);
             }
+            spriteBatch.End();
+
+
+            Graphics.GraphicsDevice.SetRenderTarget(null);
         }
     }
 }
-

@@ -13,6 +13,12 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin FadePalette.fx
+/importer:EffectImporter
+/processor:EffectProcessor
+/processorParam:DebugMode=Auto
+/build:FadePalette.fx
+
 #begin Lighting.fx
 /importer:EffectImporter
 /processor:EffectProcessor

@@ -63,6 +63,16 @@ namespace BluishEngine {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] FadePalette {
+            get {
+                object obj = ResourceManager.GetObject("FadePalette", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] Lighting {
             get {
                 object obj = ResourceManager.GetObject("Lighting", resourceCulture);
