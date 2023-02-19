@@ -14,12 +14,14 @@ namespace BluishEngine
         public Vector2 Position { get; private set; }
         public float Depth { get; private set; }
         public int Radius { get; private set; }
+        public float Brightness { get; private set; }
 
-        public PointLight(Vector2 position, float depth, int radius)
+        public PointLight(Vector2 position, float depth, int radius, float brightness)
         {
             Position = position;
             Radius = radius;
             Depth = depth;
+            Brightness = brightness;
         }
     }
 }

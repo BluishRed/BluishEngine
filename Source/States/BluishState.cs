@@ -18,6 +18,7 @@ namespace BluishEngine
         private RenderTarget2D _lightBuffer;
         private Texture2D _light;
         private BlendState _lightBlendState;
+        private Random _random;
 
         public BluishState()
         {
@@ -25,14 +26,15 @@ namespace BluishEngine
             _sceneRender = new RenderTarget2D(Graphics.GraphicsDevice, Graphics.GameResolution.X, Graphics.GameResolution.Y);
             _lightBuffer = new RenderTarget2D(Graphics.GraphicsDevice, Graphics.GameResolution.X, Graphics.GameResolution.Y);
             Lights = new List<PointLight>();
+            _random = new Random();
             _lightBlendState = new BlendState()
             {
                 AlphaBlendFunction = BlendFunction.Max,
                 ColorBlendFunction = BlendFunction.Max,
                 AlphaSourceBlend = Blend.One,
                 ColorSourceBlend = Blend.One,
-                AlphaDestinationBlend = Blend.InverseSourceAlpha,
-                ColorDestinationBlend = Blend.InverseSourceAlpha
+                AlphaDestinationBlend = Blend.InverseDestinationAlpha,
+                ColorDestinationBlend = Blend.InverseDestinationColor
             };
         }
         
@@ -60,6 +62,7 @@ namespace BluishEngine
         {
             Effects.GetEffect("FadePalette").Parameters["LightBuffer"].SetValue(_lightBuffer);
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Opaque, SamplerState.PointClamp, null, null, Effects.GetEffect("FadePalette"), null);
+            //spriteBatch.Draw(_lightBuffer, Vector2.Zero, Color.White);
             spriteBatch.Draw(_sceneRender, Vector2.Zero, Color.White);
             spriteBatch.End();
         }
@@ -83,6 +86,8 @@ namespace BluishEngine
 
         private void Lighting(SpriteBatch spriteBatch)
         {
+            Lights.AddRange(Map.Lights);
+
             Graphics.GraphicsDevice.SetRenderTarget(_lightBuffer);
 
             Graphics.GraphicsDevice.Clear(Color.White * Map.GetRoomContainingVector(Camera.Viewport.Center).AmbientLight);
@@ -93,6 +98,9 @@ namespace BluishEngine
                 Vector2 lightPosition = light.Position - new Vector2(light.Radius / 2);
                 //Effects.GetEffect("Lighting").Parameters["Scene"].SetValue(_sceneRender);
                 //Effects.GetEffect("Lighting").Parameters["SceneLocation"].SetValue(new Vector2(lightPosition.X / _sceneRender.Width, lightPosition.Y / _sceneRender.Height));
+                Effects.GetEffect("Lighting").Parameters["Brightness"].SetValue(light.Brightness);
+                //Effects.GetEffect("Lighting").Parameters["Random"].SetValue(0.213802358f);
+                Effects.GetEffect("Lighting").Parameters["Position"].SetValue(Vector2.Floor(lightPosition));
                 spriteBatch.Draw(_light, lightPosition, null, Color.White, 0f, Vector2.Zero, light.Radius, SpriteEffects.None, 0f);
             }
             spriteBatch.End();

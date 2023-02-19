@@ -19,6 +19,7 @@ namespace BluishEngine
         /// </summary>
         public string Location { get; private set; }
         public Color BackgroundColor { get; private set; }
+        public List<PointLight> Lights { get; private set; }
         protected List<Layer> Layers { get; private set; }
         protected List<Room> Rooms { get; private set; }
         protected Camera Camera { get; private set; }
@@ -29,6 +30,7 @@ namespace BluishEngine
             Location = location;
             Layers = new List<Layer>();
             Rooms = new List<Room>();
+            Lights = new List<PointLight>();
             Camera = camera;
         }
 
@@ -171,31 +173,69 @@ namespace BluishEngine
                             new Vector2(mapLayer.ParallaxX, mapLayer.ParallaxY)
                         )
                     );
+
+                    // TODO: Get lights in layer
                 }
                 else if (mapLayer.Type == "objectgroup")
                 {
-                    if (mapLayer.Name == "Rooms")
+                    if (mapLayer.Name == "Objects")
                     {
-                        foreach (Object room in mapLayer.Objects)
+                        foreach (Object mapObject in mapLayer.Objects)
                         {
-                            float ambientLight = 1f;
-                            if (room.Properties is not null)
+                            if (mapObject.Type == "Room")
                             {
-                                List<ObjectProperty> properties = room.Properties.ToList();
-
-                                int index = properties.FindIndex(o => o.Name == "AmbientLight");
-                                
-                                if (index != -1)
+                                float ambientLight = 1f;
+                                if (mapObject.Properties is not null)
                                 {
-                                    ambientLight = properties[index].Value.GetSingle();
-                                    if (ambientLight == 0)
+                                    List<ObjectProperty> properties = mapObject.Properties.ToList();
+
+                                    int index = properties.FindIndex(o => o.Name == "AmbientLight");
+
+                                    if (index != -1)
                                     {
-                                        // Errors occurs when ambient light is 0
-                                        ambientLight = 0.01f;
+                                        ambientLight = properties[index].Value.GetSingle();
+                                        if (ambientLight == 0)
+                                        {
+                                            // Errors occurs when ambient light is 0
+                                            ambientLight = 0.01f;
+                                        }
                                     }
                                 }
+                                Rooms.Add(new Room(new Rectangle((int)mapObject.X, (int)mapObject.Y, mapObject.Width, mapObject.Height), ambientLight));
                             }
-                            Rooms.Add(new Room(new Rectangle(room.X, room.Y, room.Width, room.Height), ambientLight));
+                            else if (mapObject.Type == "Light")
+                            {
+                                int radius = 0;
+                                float brightness = 1;
+                                float depth = 0;
+
+                                if (mapObject.Properties is not null)
+                                {
+                                    List<ObjectProperty> properties = mapObject.Properties.ToList();
+
+                                    int index = properties.FindIndex(o => o.Name == "Radius");
+
+                                    if (index != -1)
+                                    {
+                                        radius = properties[index].Value.GetInt32();
+                                    }
+
+                                    index = properties.FindIndex(o => o.Name == "Brightness");
+
+                                    if (index != -1)
+                                    {
+                                        brightness = properties[index].Value.GetSingle();
+                                    }
+
+                                    depth = properties.FindIndex(o => o.Name == "Depth");
+
+                                    if (index != -1)
+                                    {
+                                        depth = properties[index].Value.GetSingle();
+                                    }
+                                }
+                                Lights.Add(new PointLight(new Vector2(mapObject.X, mapObject.Y), depth, radius, brightness));
+                            }
                         }
                     }
                 }
@@ -271,7 +311,7 @@ namespace BluishEngine
                                         jumpThrough = properties.FindIndex(o => o.Name == "JumpThrough" && o.Value.GetBoolean()) != -1;
                                     }
 
-                                    AddComponent(tile.ID + tileSetReference.FirstGID, new Collidable(new Rectangle(tile.ObjectGroup.Objects[0].X, tile.ObjectGroup.Objects[0].Y, tile.ObjectGroup.Objects[0].Width, tile.ObjectGroup.Objects[0].Height), jumpThrough ? new HashSet<Direction>() { Direction.Up, Direction.Left, Direction.Right } : null));
+                                    AddComponent(tile.ID + tileSetReference.FirstGID, new Collidable(new Rectangle((int)tile.ObjectGroup.Objects[0].X, (int)tile.ObjectGroup.Objects[0].Y, tile.ObjectGroup.Objects[0].Width, tile.ObjectGroup.Objects[0].Height), jumpThrough ? new HashSet<Direction>() { Direction.Up, Direction.Left, Direction.Right } : null));
                                 }
                             }
                         }
@@ -430,8 +470,8 @@ namespace BluishEngine
         {
             public int Width { get; set; }
             public int Height { get; set; }
-            public int X { get; set; }
-            public int Y { get; set; }
+            public float X { get; set; }
+            public float Y { get; set; }
             public string Type { get; set; }
             public ObjectProperty[] Properties { get; set; }
         }

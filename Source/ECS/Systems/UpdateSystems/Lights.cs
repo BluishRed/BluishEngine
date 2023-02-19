@@ -20,7 +20,7 @@ namespace BluishEngine.Systems
 
         protected override void UpdateEntity(GameTime gameTime, int entity, ComponentCollection components)
         {
-            _lightList.Add(new PointLight(new Vector2(components.GetComponent<Transform>().Position.X + components.GetComponent<Dimensions>().Width / 2, components.GetComponent<Transform>().Position.Y + components.GetComponent<Dimensions>().Height / 2), components.GetComponent<Transform>().Depth, components.GetComponent<LightSource>().Radius));
+            _lightList.Add(new PointLight(new Vector2(components.GetComponent<Transform>().Position.X + components.GetComponent<Dimensions>().Width / 2, components.GetComponent<Transform>().Position.Y + components.GetComponent<Dimensions>().Height / 2), components.GetComponent<Transform>().Depth, components.GetComponent<LightSource>().Radius, components.GetComponent<LightSource>().Brightness));
         }
     }
 }

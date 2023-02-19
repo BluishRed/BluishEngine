@@ -7,9 +7,11 @@
 	#define PS_SHADERMODEL ps_4_0_level_9_1
 #endif
 
+float Brightness;
 Texture2D SpriteTexture;
 Texture2D Scene;
 float2 SceneLocation;
+float2 Position;
 
 sampler2D SpriteTextureSampler = sampler_state
 {
@@ -33,7 +35,7 @@ struct VertexShaderOutput
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
 	clip(0.5f - distance(input.TextureCoordinates, float2(0.5f, 0.5f)));
-	float intensity = 0.025f / pow(distance(input.TextureCoordinates, float2(0.5f, 0.5f)), 2);
+    float intensity = (1 - min(distance(input.TextureCoordinates, float2(0.5f, 0.5f)) / 0.5f, Brightness)) + frac(sin(dot(input.TextureCoordinates.xy * Position, float2(12.9898, 78.233))) * 43758.5453) / 5;
 	return float4(intensity, intensity, intensity, intensity);
 }
 

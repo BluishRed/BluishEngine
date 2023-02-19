@@ -10,10 +10,13 @@ namespace BluishEngine.Components
     public class LightSource : Component
     {
         public int Radius { get; set; }
+        public float Brightness { get; set; }
 
-        public LightSource(int radius)
+        // TODO: Choose how bright the light is
+        public LightSource(int radius, float brightness)
         {
             Radius = radius;
+            Brightness = brightness;
         }
     }
 }
